@@ -24,11 +24,15 @@
  */
 package org.spongepowered.common.mixin.core.server;
 
+import net.minecraft.crash.CrashReport;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.net.InetSocketAddress;
 import java.util.Optional;
@@ -37,6 +41,7 @@ import java.util.Optional;
 public abstract class MixinDedicatedServer extends MinecraftServer {
 
     @Shadow private boolean guiIsEnabled;
+    @Shadow public abstract void executePendingCommands();
 
     public MixinDedicatedServer() {
         super(null, null, null);
@@ -58,5 +63,33 @@ public abstract class MixinDedicatedServer extends MinecraftServer {
         //MinecraftServerGui.createServerGui(this);
         this.guiIsEnabled = false;
     }
+
+    @Inject(method = "finalTick", at = @At("HEAD"))
+    public void simpleFinalTick(CrashReport report, CallbackInfo ci) {
+        try {
+            executePendingCommands();
+        } finally {
+            initiateShutdown();
+        }
+
+    }
+
+
+    /**
+     * @author zml
+     *
+     * This injection properly sets the server stopped flag after a server crash, allowing the server to shut down fully without extra effort.
+     *
+    @Redirect(method = "finalTick", at = @At(value = "INVOKE", target = "net.minecraft.server.MinecraftServer.isServerRunning()Z"))
+    public boolean stopServerOnCrash(MinecraftServer server) {
+        initiateShutdown();
+        return false;
+        /*if (this.finalTickFlag.compareAndSet(false, true)) {
+            initiateShutdown();
+            return true;
+        } else {
+            return false;
+        }*
+    }*/
 
 }

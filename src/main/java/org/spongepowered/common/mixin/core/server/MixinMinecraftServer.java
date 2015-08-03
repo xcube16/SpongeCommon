@@ -25,12 +25,15 @@
 package org.spongepowered.common.mixin.core.server;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.crash.CrashReport;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ReportedException;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.WorldManager;
 import net.minecraft.world.WorldProvider;
@@ -47,6 +50,8 @@ import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.resourcepack.ResourcePack;
+import org.spongepowered.api.service.error.ErrorReport;
+import org.spongepowered.api.service.error.UserErrorException;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.Texts;
@@ -67,6 +72,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.common.Sponge;
 import org.spongepowered.common.SpongeImplFactory;
 import org.spongepowered.common.interfaces.IMixinCommandSender;
@@ -77,6 +83,7 @@ import org.spongepowered.common.interfaces.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.IMixinWorldProvider;
 import org.spongepowered.common.interfaces.IMixinWorldSettings;
 import org.spongepowered.common.resourcepack.SpongeResourcePack;
+import org.spongepowered.common.service.error.FatalUrlPrintingCallback;
 import org.spongepowered.common.text.sink.SpongeMessageSinkFactory;
 import org.spongepowered.common.world.DimensionManager;
 import org.spongepowered.common.world.SpongeDimensionType;
@@ -85,6 +92,7 @@ import org.spongepowered.common.world.storage.SpongeChunkLayout;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -92,6 +100,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @NonnullByDefault
 @Mixin(MinecraftServer.class)
@@ -123,6 +133,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, IMi
     @Shadow public abstract void setDifficultyForAllWorlds(EnumDifficulty difficulty);
     @Shadow protected abstract void convertMapIfNeeded(String worldNameIn);
     @Shadow protected abstract void setResourcePackFromWorld(String worldNameIn, ISaveHandler saveHandlerIn);
+    @Shadow public abstract CrashReport addServerInfoToCrashReport(CrashReport report);
 
     private ResourcePack resourcePack;
 
@@ -634,5 +645,35 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, IMi
                 e.printStackTrace();
             }
         }
+    }
+
+    @Redirect(method = "run", at = @At(value = "INVOKE", target = "org.apache.logging.log4j.Logger.error(Ljava/lang/String;Ljava/lang/Throwable;)V"))
+    public void redirectLogCrashReportStacktrace(Logger logger, String message, Throwable exception) {
+        if ((exception instanceof ReportedException && ((ErrorReport) ((ReportedException) exception).getCrashReport()).isUserError())
+                || exception instanceof UserErrorException) {
+            // This is a most likely a configuration exception
+            logger.error("An error has occurred while running the server. This error is MOST LIKELY DUE TO A MISCONFIGURATION. Please check the "
+                    + "error report for possible actions to take before filing a bug report with any appropriate developers");
+        } else {
+            logger.error(message, exception);
+        }
+    }
+
+    @Redirect(method = "run", at = @At(value = "INVOKE", target = "net.minecraft.crash.CrashReport.saveToFile(Ljava/io/File;)Z"))
+    public boolean redirectSaveCrashReportToFile(CrashReport report, File fileToSave) {
+        ErrorReport spongeReport = (ErrorReport) report;
+        CompletableFuture<URL> toPastebin = spongeReport.toPastebin();
+        toPastebin.thenAccept(new FatalUrlPrintingCallback());
+        try {
+            toPastebin.get();
+        } catch (InterruptedException | ExecutionException e) {
+            // Squash
+        }
+        return report.saveToFile(fileToSave);
+    }
+
+    @Override
+    public void decorateErrorReport(ErrorReport report) {
+        addServerInfoToCrashReport((CrashReport) report);
     }
 }

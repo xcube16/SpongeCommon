@@ -56,6 +56,14 @@ public final class SpongeTexts {
         return ((IMixinText) text).toComponent(locale);
     }
 
+    public static String toPlain(Text text) {
+        return toPlain(text, getDefaultLocale());
+    }
+
+    public static String toPlain(Text text, Locale locale) {
+        return ((IMixinText) text).toPlain(locale);
+    }
+
     public static Text toText(IChatComponent component) {
         return ((IMixinChatComponent) component).toText();
     }

@@ -32,9 +32,11 @@ import com.google.inject.Injector;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.Game;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.service.error.ErrorReportService;
 import org.spongepowered.common.configuration.SpongeConfig;
 import org.spongepowered.common.launch.SpongeLaunch;
 import org.spongepowered.common.registry.SpongeGameRegistry;
+import org.spongepowered.common.service.error.SpongeErrorReportService;
 
 import java.io.File;
 
@@ -85,6 +87,10 @@ public class Sponge {
 
     public static Injector getInjector() {
         return getInstance().injector;
+    }
+
+    public static ErrorReportService getErrorReportService() {
+        return SpongeErrorReportService.INSTANCE;
     }
 
     public static SpongeGame getGame() {

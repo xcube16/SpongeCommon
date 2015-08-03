@@ -24,6 +24,7 @@
  */
 package org.spongepowered.common;
 
+
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
@@ -37,6 +38,7 @@ import org.spongepowered.api.service.ProviderExistsException;
 import org.spongepowered.api.service.command.CommandService;
 import org.spongepowered.api.service.command.SimpleCommandService;
 import org.spongepowered.api.service.config.ConfigService;
+import org.spongepowered.api.service.error.ErrorReportService;
 import org.spongepowered.api.service.pagination.PaginationService;
 import org.spongepowered.api.service.permission.PermissionService;
 import org.spongepowered.api.service.persistence.SerializationService;
@@ -55,6 +57,7 @@ import org.spongepowered.common.data.property.SpongePropertyRegistry;
 import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.registry.SpongeGameRegistry;
 import org.spongepowered.common.service.config.SpongeConfigService;
+import org.spongepowered.common.service.error.SpongeErrorReportService;
 import org.spongepowered.common.service.pagination.SpongePaginationService;
 import org.spongepowered.common.service.persistence.SpongeSerializationService;
 import org.spongepowered.common.service.profile.SpongeProfileResolver;
@@ -79,6 +82,7 @@ public final class SpongeBootstrap {
     private static final Logger slf4jLogger = new SLF4JLogger((AbstractLogger) Sponge.getLogger(), Sponge.getLogger().getName());
 
     public static void initializeServices() {
+        registerService(ErrorReportService.class, SpongeErrorReportService.INSTANCE);
         SimpleCommandService commandService = new SimpleCommandService(Sponge.getGame(), slf4jLogger,
                 new SpongeCommandDisambiguator(Sponge.getGame()));
         if (registerService(CommandService.class, commandService)) {

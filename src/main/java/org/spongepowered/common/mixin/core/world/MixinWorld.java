@@ -38,6 +38,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.crash.CrashReport;
+import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.EntityHanging;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.boss.EntityDragonPart;
@@ -130,6 +132,7 @@ import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.event.world.chunk.PopulateChunkEvent;
+import org.spongepowered.api.service.error.ErrorReport;
 import org.spongepowered.api.service.permission.context.Context;
 import org.spongepowered.api.service.persistence.InvalidDataException;
 import org.spongepowered.api.text.Text;
@@ -297,6 +300,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
             boolean isFlaming, boolean isSmoking);
     @Shadow public abstract List<net.minecraft.entity.Entity> getEntities(Class<net.minecraft.entity.Entity> entityType,
             com.google.common.base.Predicate<net.minecraft.entity.Entity> filter);
+    @Shadow public abstract CrashReportCategory addWorldInfoToCrashReport(CrashReport report);
 
     // @formatter:on
 
@@ -2253,5 +2257,10 @@ public abstract class MixinWorld implements World, IMixinWorld {
     @Override
     public void setWeatherStartTime(long weatherStartTime) {
         this.weatherStartTime = weatherStartTime;
+    }
+
+    @Override
+    public void decorateErrorReport(ErrorReport report) {
+        addWorldInfoToCrashReport((CrashReport) report);
     }
 }

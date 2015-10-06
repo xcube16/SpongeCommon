@@ -32,6 +32,7 @@ import static org.spongepowered.api.util.command.args.GenericArguments.optional;
 import static org.spongepowered.api.util.command.args.GenericArguments.seq;
 import static org.spongepowered.api.util.command.args.GenericArguments.string;
 import static org.spongepowered.api.util.command.args.GenericArguments.world;
+import static org.spongepowered.common.util.SpongeCommonTranslationHelper.t;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -47,6 +48,7 @@ import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.util.command.CommandException;
+import org.spongepowered.api.util.command.CommandMessageFormatting;
 import org.spongepowered.api.util.command.CommandResult;
 import org.spongepowered.api.util.command.CommandSource;
 import org.spongepowered.api.util.command.args.ChildCommandElementExecutor;
@@ -256,10 +258,14 @@ public class CommandSponge {
                             throw new CommandException(Texts.of("Key ", Texts.builder(key.get()).color(TextColors.GREEN).build(), " is not "
                                     + "valid"));
                         }
-                        CommentedConfigurationNode setting = config.getSetting(key.get());
 
                         if (value.isPresent()) { // Set
-                            setting.setValue(value.get());
+                            config.updateSetting(key.get(), value.get()).thenRun().exceptionally(thr -> {
+                                source.sendMessage(CommandMessageFormatting.error(
+                                        t("Unable to save configuration: %s", thr.getMessage())));
+                                thr.printStackTrace();
+                                return null;
+                            });
                             return Texts.builder().append(Texts.of(TextColors.GOLD, key), Texts.of(" set to "),
                                     title(String.valueOf(setting.getValue()))).build();
                         } else {

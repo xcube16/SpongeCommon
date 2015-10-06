@@ -41,6 +41,7 @@ import ninja.leaping.configurate.objectmapping.serialize.ConfigSerializable;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializers;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
+import org.spongepowered.api.util.Functional;
 import org.spongepowered.common.util.IpSet;
 
 import java.io.File;
@@ -49,6 +50,8 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ForkJoinPool;
 
 import javax.annotation.Nullable;
 
@@ -187,6 +190,16 @@ public class SpongeConfig<T extends SpongeConfig.ConfigBase> {
         } catch (IOException | ObjectMappingException e) {
             LogManager.getLogger().error(ExceptionUtils.getStackTrace(e));
         }
+    }
+
+    public CompletableFuture<CommentedConfigurationNode> updateSetting(String key, Object value) {
+        return Functional.asyncFailableFuture(() -> {
+            CommentedConfigurationNode upd = getSetting(key);
+            upd.setValue(value);
+            this.configBase = this.configMapper.populate(this.root.getNode(this.modId));
+            this.loader.save(this.root);
+            return upd;
+        }, ForkJoinPool.commonPool());
     }
 
     public CommentedConfigurationNode getRootNode() {

@@ -44,7 +44,6 @@ import org.spongepowered.common.interfaces.IMixinCommandSource;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Mixin(targets = IMixinCommandSender.EXECUTE_COMMAND_SENDER)
 @NonnullByDefault
@@ -99,7 +98,7 @@ public abstract class MixinCommandExecuteAtSender implements ProxySource, IMixin
     }
 
     @Override
-    public boolean hasPermission(Set<Context> contexts, String permission) {
+    public boolean hasPermission(List<Context> contexts, String permission) {
         return getOriginalSource().hasPermission(contexts, permission);
     }
 
@@ -109,7 +108,7 @@ public abstract class MixinCommandExecuteAtSender implements ProxySource, IMixin
     }
 
     @Override
-    public Tristate getPermissionValue(Set<Context> contexts, String permission) {
+    public Tristate getPermissionValue(List<Context> contexts, String permission) {
         return getOriginalSource().getPermissionValue(contexts, permission);
     }
 
@@ -119,7 +118,7 @@ public abstract class MixinCommandExecuteAtSender implements ProxySource, IMixin
     }
 
     @Override
-    public boolean isChildOf(Set<Context> contexts, Subject parent) {
+    public boolean isChildOf(List<Context> contexts, Subject parent) {
         return getOriginalSource().isChildOf(contexts, parent);
     }
 
@@ -129,7 +128,7 @@ public abstract class MixinCommandExecuteAtSender implements ProxySource, IMixin
     }
 
     @Override
-    public List<Subject> getParents(Set<Context> contexts) {
+    public List<Subject> getParents(List<Context> contexts) {
         return getOriginalSource().getParents(contexts);
     }
 
@@ -144,7 +143,7 @@ public abstract class MixinCommandExecuteAtSender implements ProxySource, IMixin
     }
 
     @Override
-    public Set<Context> getActiveContexts() {
+    public List<Context> getActiveContexts() {
         return getOriginalSource().getActiveContexts();
     }
 

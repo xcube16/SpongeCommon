@@ -24,6 +24,8 @@
  */
 package org.spongepowered.common.service.permission.base;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import org.spongepowered.api.service.context.Context;
 import org.spongepowered.api.service.permission.MemorySubjectData;
 import org.spongepowered.api.service.permission.Subject;
@@ -34,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 public abstract class SpongeSubject implements Subject {
+    private static final List<Context> GLOBAL_CONTEXT = ImmutableList.of();
 
     @Override
     public SubjectData getTransientSubjectData() {
@@ -44,7 +47,7 @@ public abstract class SpongeSubject implements Subject {
     public abstract MemorySubjectData getSubjectData();
 
     @Override
-    public boolean hasPermission(Set<Context> contexts, String permission) {
+    public boolean hasPermission(List<Context> contexts, String permission) {
         return getPermissionValue(contexts, permission) == Tristate.TRUE;
     }
 
@@ -54,7 +57,7 @@ public abstract class SpongeSubject implements Subject {
     }
 
     @Override
-    public Tristate getPermissionValue(Set<Context> contexts, String permission) {
+    public Tristate getPermissionValue(List<Context> contexts, String permission) {
         return getDataPermissionValue(getSubjectData(), permission);
     }
 
@@ -63,7 +66,7 @@ public abstract class SpongeSubject implements Subject {
 
         if (res == Tristate.UNDEFINED) {
             for (Subject parent : subject.getParents(SubjectData.GLOBAL_CONTEXT)) {
-                Tristate tempRes = parent.getPermissionValue(SubjectData.GLOBAL_CONTEXT, permission);
+                Tristate tempRes = parent.getPermissionValue(GLOBAL_CONTEXT, permission);
                 if (tempRes != Tristate.UNDEFINED) {
                     res = tempRes;
                     break;
@@ -79,8 +82,8 @@ public abstract class SpongeSubject implements Subject {
     }
 
     @Override
-    public boolean isChildOf(Set<Context> contexts, Subject parent) {
-        return getSubjectData().getParents(contexts).contains(parent);
+    public boolean isChildOf(List<Context> contexts, Subject parent) {
+        return getSubjectData().getParents(ImmutableSet.copyOf(contexts)).contains(parent);
     }
 
     @Override
@@ -89,12 +92,12 @@ public abstract class SpongeSubject implements Subject {
     }
 
     @Override
-    public List<Subject> getParents(Set<Context> contexts) {
-        return getSubjectData().getParents(contexts);
+    public List<Subject> getParents(List<Context> contexts) {
+        return getSubjectData().getParents(ImmutableSet.copyOf(contexts));
     }
 
     @Override
-    public Set<Context> getActiveContexts() {
-        return SubjectData.GLOBAL_CONTEXT;
+    public List<Context> getActiveContexts() {
+        return GLOBAL_CONTEXT;
     }
 }

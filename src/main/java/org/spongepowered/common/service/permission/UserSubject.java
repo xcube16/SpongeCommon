@@ -36,6 +36,7 @@ import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.common.service.permission.base.SingleParentMemorySubjectData;
 import org.spongepowered.common.service.permission.base.SpongeSubject;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -112,7 +113,7 @@ public class UserSubject extends SpongeSubject {
     }
 
     @Override
-    public Tristate getPermissionValue(Set<Context> contexts, String permission) {
+    public Tristate getPermissionValue(List<Context> contexts, String permission) {
         Tristate ret = super.getPermissionValue(contexts, permission);
         if (ret == Tristate.UNDEFINED) {
             ret = getDataPermissionValue(this.collection.getService().getDefaultData(), permission);

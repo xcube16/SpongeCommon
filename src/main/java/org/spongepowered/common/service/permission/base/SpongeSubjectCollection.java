@@ -31,6 +31,7 @@ import org.spongepowered.api.util.Tristate;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,7 +60,7 @@ public abstract class SpongeSubjectCollection implements SubjectCollection {
     }
 
     @Override
-    public Map<Subject, Boolean> getAllWithPermission(Set<Context> contexts, String permission) {
+    public Map<Subject, Boolean> getAllWithPermission(List<Context> contexts, String permission) {
         final Map<Subject, Boolean> ret = new HashMap<>();
         for (Subject subj : getAllSubjects()) {
             Tristate state = subj.getPermissionValue(contexts, permission);

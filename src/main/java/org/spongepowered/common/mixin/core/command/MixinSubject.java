@@ -51,7 +51,6 @@ import org.spongepowered.common.service.permission.SubjectSettingCallback;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -121,7 +120,7 @@ public abstract class MixinSubject implements Subject, IMixinCommandSource, IMix
     }
 
     @Override
-    public boolean hasPermission(Set<Context> contexts, String permission) {
+    public boolean hasPermission(List<Context> contexts, String permission) {
         Subject subj = internalSubject();
         if (subj == null) {
             return this.permDefault(permission).asBoolean();
@@ -142,7 +141,7 @@ public abstract class MixinSubject implements Subject, IMixinCommandSource, IMix
     }
 
     @Override
-    public Tristate getPermissionValue(Set<Context> contexts, String permission) {
+    public Tristate getPermissionValue(List<Context> contexts, String permission) {
         Subject subj = internalSubject();
         return subj == null ? this.permDefault(permission) : subj.getPermissionValue(contexts, permission);
     }
@@ -154,7 +153,7 @@ public abstract class MixinSubject implements Subject, IMixinCommandSource, IMix
     }
 
     @Override
-    public boolean isChildOf(Set<Context> contexts, Subject parent) {
+    public boolean isChildOf(List<Context> contexts, Subject parent) {
         Subject subj = internalSubject();
         return subj != null && subj.isChildOf(contexts, parent);
     }
@@ -166,14 +165,14 @@ public abstract class MixinSubject implements Subject, IMixinCommandSource, IMix
     }
 
     @Override
-    public List<Subject> getParents(Set<Context> contexts) {
+    public List<Subject> getParents(List<Context> contexts) {
         Subject subj = internalSubject();
         return subj == null ? Collections.<Subject>emptyList() : subj.getParents(contexts);
     }
 
     @Override
-    public Set<Context> getActiveContexts() {
+    public List<Context> getActiveContexts() {
         Subject subj = internalSubject();
-        return subj == null ? Collections.<Context>emptySet() : subj.getActiveContexts();
+        return subj == null ? Collections.<Context>emptyList() : subj.getActiveContexts();
     }
 }

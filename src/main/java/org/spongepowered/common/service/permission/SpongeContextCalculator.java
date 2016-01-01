@@ -29,6 +29,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import org.spongepowered.api.command.CommandSource;
@@ -41,6 +42,7 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
 
 import java.net.InetAddress;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -49,19 +51,19 @@ import java.util.function.Function;
  * A context calculator handling world contexts.
  */
 public class SpongeContextCalculator implements ContextCalculator<Subject> {
-    private final LoadingCache<RemoteSource, Set<Context>> remoteIpCache = buildAddressCache(Context.REMOTE_IP_KEY,
+    private final LoadingCache<RemoteSource, List<Context>> remoteIpCache = buildAddressCache(Context.REMOTE_IP_KEY,
                                                                                              input -> input.getConnection().getAddress().getAddress());
 
-    private final LoadingCache<RemoteSource, Set<Context>> localIpCache = buildAddressCache(Context.LOCAL_IP_KEY,
+    private final LoadingCache<RemoteSource, List<Context>> localIpCache = buildAddressCache(Context.LOCAL_IP_KEY,
                                                                                             input -> input.getConnection().getVirtualHost().getAddress());
 
-    private LoadingCache<RemoteSource, Set<Context>> buildAddressCache(final String contextKey, final Function<RemoteSource, InetAddress> function) {
+    private LoadingCache<RemoteSource, List<Context>> buildAddressCache(final String contextKey, final Function<RemoteSource, InetAddress> function) {
         return CacheBuilder.newBuilder()
             .weakKeys()
-            .build(new CacheLoader<RemoteSource, Set<Context>>() {
+            .build(new CacheLoader<RemoteSource, List<Context>>() {
                 @Override
-                public Set<Context> load(RemoteSource key) throws Exception {
-                    ImmutableSet.Builder<Context> builder = ImmutableSet.builder();
+                public List<Context> load(RemoteSource key) throws Exception {
+                    ImmutableList.Builder<Context> builder = ImmutableList.builder();
                     final InetAddress addr = checkNotNull(function.apply(key), "addr");
                     builder.add(new Context(contextKey, addr.getHostAddress()));
                     for (String set : Maps.filterValues(SpongeImpl.getGlobalConfig().getConfig().getIpSets(), input -> {
@@ -75,7 +77,7 @@ public class SpongeContextCalculator implements ContextCalculator<Subject> {
     }
 
     @Override
-    public void accumulateContexts(Subject subject, Set<Context> accumulator) {
+    public void accumulateContexts(Subject subject, List<Context> accumulator) {
         Optional<CommandSource> subjSource = subject.getCommandSource();
         if (subjSource.isPresent()) {
             CommandSource source = subjSource.get();

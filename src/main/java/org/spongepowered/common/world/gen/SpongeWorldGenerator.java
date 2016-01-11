@@ -27,7 +27,6 @@ package org.spongepowered.common.world.gen;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import net.minecraft.world.World;
 import org.spongepowered.api.world.biome.BiomeGenerationSettings;
@@ -36,7 +35,9 @@ import org.spongepowered.api.world.gen.BiomeGenerator;
 import org.spongepowered.api.world.gen.GenerationPopulator;
 import org.spongepowered.api.world.gen.Populator;
 import org.spongepowered.api.world.gen.WorldGenerator;
+import org.spongepowered.api.world.gen.structure.Structure;
 import org.spongepowered.common.interfaces.world.gen.IChunkProviderOverworld;
+import org.spongepowered.common.util.NonNullArrayList;
 
 import java.util.List;
 import java.util.Map;
@@ -59,16 +60,18 @@ public final class SpongeWorldGenerator implements WorldGenerator {
      * {@link #getGenerationPopulators()}.
      */
     private List<GenerationPopulator> generationPopulators;
+    private List<Structure> structures;
     private Map<BiomeType, BiomeGenerationSettings> biomeSettings;
     private BiomeGenerator biomeGenerator;
     private GenerationPopulator baseGenerator;
 
     public SpongeWorldGenerator(World world, BiomeGenerator biomeGenerator, GenerationPopulator baseGenerator) {
         this.world = checkNotNull(world);
-        this.biomeGenerator = checkNotNull(biomeGenerator);
-        this.baseGenerator = checkNotNull(baseGenerator);
-        this.populators = Lists.newArrayList();
-        this.generationPopulators = Lists.newArrayList();
+        this.biomeGenerator = checkNotNull(biomeGenerator, "biomeGenerator");
+        this.baseGenerator = checkNotNull(baseGenerator, "baseGenerator");
+        this.populators = new NonNullArrayList<>();
+        this.structures = new NonNullArrayList<>();
+        this.generationPopulators = new NonNullArrayList<>();
         this.biomeSettings = Maps.newHashMap();
         this.world.provider.biomeProvider = CustomBiomeProvider.of(biomeGenerator);
         if (this.baseGenerator instanceof IChunkProviderOverworld) {
@@ -81,9 +84,23 @@ public final class SpongeWorldGenerator implements WorldGenerator {
         return this.generationPopulators;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<GenerationPopulator> getGenerationPopulators(Class<? extends GenerationPopulator> type) {
-        return this.generationPopulators.stream().filter((p) -> type.isAssignableFrom(p.getClass())).collect(Collectors.toList());
+    public <G extends GenerationPopulator> List<G> getGenerationPopulators(Class<G> type) {
+        return (List<G>) this.generationPopulators.stream().filter((p) -> type.isInstance(p)).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Structure> getStructures() {
+        return this.structures;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <S extends Structure> List<S> getStructures(Class<S> type) {
+        return (List<S>) this.structures.stream().filter((p) -> {
+            return type.isAssignableFrom(p.getClass());
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -91,9 +108,10 @@ public final class SpongeWorldGenerator implements WorldGenerator {
         return this.populators;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public List<Populator> getPopulators(Class<? extends Populator> type) {
-        return this.populators.stream().filter((p) -> type.isAssignableFrom(p.getClass())).collect(Collectors.toList());
+    public <P extends Populator> List<P> getPopulators(Class<P> type) {
+        return (List<P>) this.populators.stream().filter((p) -> type.isAssignableFrom(p.getClass())).collect(Collectors.toList());
     }
 
     @Override

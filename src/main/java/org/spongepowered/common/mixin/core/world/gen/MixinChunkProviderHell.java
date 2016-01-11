@@ -37,6 +37,7 @@ import org.spongepowered.api.world.gen.GenerationPopulator;
 import org.spongepowered.api.world.gen.Populator;
 import org.spongepowered.api.world.gen.WorldGenerator;
 import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.api.world.gen.structure.Structure;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.interfaces.world.gen.IPopulatorProvider;
@@ -60,8 +61,8 @@ public abstract class MixinChunkProviderHell implements IChunkProvider, Generati
         generator.getGenerationPopulators().add((GenerationPopulator) this.genNetherCaves);
 
         if (this.generateStructures) {
-            generator.getGenerationPopulators().add((GenerationPopulator) this.genNetherBridge);
-            generator.getPopulators().add((Populator) this.genNetherBridge);
+            this.genNetherBridge.worldObj = world;
+            generator.getStructures().add((Structure) this.genNetherBridge);
         }
     }
 

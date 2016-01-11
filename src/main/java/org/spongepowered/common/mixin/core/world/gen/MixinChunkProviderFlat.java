@@ -41,11 +41,11 @@ import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.extent.ImmutableBiomeArea;
 import org.spongepowered.api.world.extent.MutableBlockVolume;
 import org.spongepowered.api.world.gen.GenerationPopulator;
-import org.spongepowered.api.world.gen.Populator;
 import org.spongepowered.api.world.gen.WorldGenerator;
 import org.spongepowered.api.world.gen.populator.Dungeon;
 import org.spongepowered.api.world.gen.populator.Lake;
 import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.api.world.gen.structure.Structure;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
@@ -68,11 +68,10 @@ public class MixinChunkProviderFlat implements GenerationPopulator, IPopulatorPr
     @Override
     public void addPopulators(WorldGenerator generator) {
         for (Object o : this.structureGenerators) {
-            if (o instanceof MapGenBase) {
+            if (o instanceof MapGenStructure) {
+                generator.getStructures().add((Structure) o);
+            } else if (o instanceof MapGenBase) {
                 generator.getGenerationPopulators().add((GenerationPopulator) o);
-                if (o instanceof MapGenStructure) {
-                    generator.getPopulators().add((Populator) o);
-                }
             }
         }
 

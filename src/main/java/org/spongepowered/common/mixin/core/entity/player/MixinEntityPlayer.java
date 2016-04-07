@@ -32,6 +32,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.entity.player.PlayerCapabilities;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.item.ItemStack;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.util.BlockPos;
@@ -87,6 +88,7 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
     @Shadow private BlockPos spawnChunk;
     @Shadow private BlockPos playerLocation;
     @Shadow protected FoodStats foodStats;
+    @Shadow public InventoryEnderChest theInventoryEnderChest;
 
     @Shadow public abstract int xpBarCap();
     @Shadow public abstract GameProfile getGameProfile();
@@ -248,6 +250,4 @@ public abstract class MixinEntityPlayer extends MixinEntityLivingBase implements
                 .build();
         return ((org.spongepowered.api.world.World) world).spawnEntity((Entity) entity, Cause.of(NamedCause.source(spawnCause)));
     }
-
-
 }

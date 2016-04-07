@@ -26,6 +26,7 @@ package org.spongepowered.common.mixin.core.item.inventory;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.tileentity.TileEntityChest;
 import org.spongepowered.api.item.inventory.EmptyInventory;
 import org.spongepowered.api.item.inventory.Inventory;
@@ -45,7 +46,8 @@ import java.util.List;
 @Mixin({
     net.minecraft.inventory.Slot.class,
         InventoryPlayer.class,
-        TileEntityChest.class
+        TileEntityChest.class,
+        InventoryEnderChest.class
 })
 @Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))
 public abstract class TraitInventoryAdapter implements MinecraftInventoryAdapter {

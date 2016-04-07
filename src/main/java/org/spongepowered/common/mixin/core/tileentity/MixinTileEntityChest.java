@@ -26,24 +26,53 @@ package org.spongepowered.common.mixin.core.tileentity;
 
 import static org.spongepowered.api.data.DataQuery.of;
 
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityChest;
 import org.spongepowered.api.block.tileentity.carrier.Chest;
+import org.spongepowered.api.block.tileentity.carrier.TileEntityCarrier;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.mutable.block.ConnectedDirectionData;
+import org.spongepowered.api.item.inventory.type.TileEntityInventory;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.interfaces.data.IMixinCustomNameable;
+import org.spongepowered.common.item.inventory.adapter.impl.MinecraftInventoryAdapter;
+import org.spongepowered.common.item.inventory.lens.Fabric;
+import org.spongepowered.common.item.inventory.lens.Lens;
+import org.spongepowered.common.item.inventory.lens.SlotProvider;
+import org.spongepowered.common.item.inventory.lens.impl.collections.SlotCollection;
+import org.spongepowered.common.item.inventory.lens.impl.comp.GridInventoryLensImpl;
+import org.spongepowered.common.item.inventory.lens.impl.fabric.DefaultInventoryFabric;
 
 import java.util.List;
 import java.util.Optional;
 
 @NonnullByDefault
 @Mixin(TileEntityChest.class)
+@Implements({@Interface(iface = MinecraftInventoryAdapter.class, prefix = "inventory$"),
+             @Interface(iface = TileEntityInventory.class, prefix = "tileentityinventory$")})
 public abstract class MixinTileEntityChest extends MixinTileEntityLockable implements Chest, IMixinCustomNameable {
 
     @Shadow public String customName;
+
+    private Fabric<IInventory> inventory;
+    private SlotCollection slots;
+    private Lens<IInventory, ItemStack> lens;
+
+    @Inject(method = "<init>", at = @At("RETURN"))
+    public void onConstructed(CallbackInfo ci) {
+        this.inventory = new DefaultInventoryFabric(this);
+        this.slots = new SlotCollection.Builder().add(27).build();
+        this.lens = new GridInventoryLensImpl(0, 9, 3, 9, slots);
+    }
 
     @Override
     public DataContainer toContainer() {
@@ -68,4 +97,32 @@ public abstract class MixinTileEntityChest extends MixinTileEntityLockable imple
         ((TileEntityChest) (Object) this).setCustomName(customName);
     }
 
+    @Override
+    public TileEntityInventory<TileEntityCarrier> getInventory() {
+        return (TileEntityInventory<TileEntityCarrier>) (Object) this;
+    }
+
+    public SlotProvider<IInventory, ItemStack> inventory$getSlotProvider() {
+        return slots;
+    }
+
+    public Lens<IInventory, ItemStack> inventory$getRootLens() {
+        return lens;
+    }
+
+    public Fabric<IInventory> inventory$getInventory() {
+        return inventory;
+    }
+
+    public void tilentityinventory$markDirty() {
+        ((IInventory) (Object) this).markDirty();
+    }
+
+    public Optional<Chest> tileentityinventory$getTileEntity() {
+        return Optional.of(this);
+    }
+
+    public Optional<Chest> tileentityinventory$getCarrier() {
+        return Optional.of(this);
+    }
 }

@@ -41,28 +41,11 @@ import org.spongepowered.common.mixin.plugin.entityactivation.interfaces.IModDat
 @Mixin(net.minecraft.world.World.class)
 public abstract class MixinWorld_Activation implements IMixinWorld {
 
-    @Shadow @Final public Profiler theProfiler;
-
-    @Shadow public abstract boolean isAreaLoaded(int xStart, int yStart, int zStart, int xEnd, int yEnd, int zEnd, boolean allowEmpty);
-    @Shadow public abstract boolean isChunkLoaded(int x, int z, boolean allowEmpty);
-
     @Inject(method = "updateEntities()V", at = @At(value = "INVOKE_STRING",
             target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V", args = {"ldc=regular"}))
     private void onInvokeProfiler(CallbackInfo ci) {
         if (!((net.minecraft.world.World) (Object) this).isRemote) {
             ActivationRange.activateEntities(((net.minecraft.world.World) (Object) this));
-        }
-    }
-
-    @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE",
-            target = "Lnet/minecraftforge/event/ForgeEventFactory;canEntityUpdate(Lnet/minecraft/entity/Entity;)Z",
-            shift = At.Shift.BY, by = 3, ordinal = 0, remap = false), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void onUpdateEntityWithOptionalForce(net.minecraft.entity.Entity entity, boolean forceUpdate, CallbackInfo ci, int i, int j,
-            boolean isForced, int k, boolean canUpdate) {
-        if (!isForced && !ActivationRange.checkIfActive(entity)) { // ignore if forced by forge event update or entity's chunk
-            entity.ticksExisted++;
-            ((IModData_Activation) entity).inactiveTick();
-            ci.cancel();
         }
     }
 

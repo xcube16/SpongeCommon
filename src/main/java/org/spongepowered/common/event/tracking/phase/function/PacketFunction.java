@@ -377,7 +377,12 @@ public interface PacketFunction {
                                 .named(NamedCause.of(InternalNamedCauses.Packet.ITEM_USED, snapshot))
                                 .build();
                         EventConsumer.event(SpongeEventFactory.createSpawnEntityEvent(cause, entities, world))
-                                .nonCancelled(event -> EntityListConsumer.FORCE_SPAWN.apply(event.getEntities(), ((IMixinWorldServer) world).getCauseTracker()))
+                                .nonCancelled(event ->
+                                        event.getEntities().forEach(entity -> {
+                                            EntityUtil.toMixin(entity).trackEntityUniqueId(NbtDataUtil.SPONGE_ENTITY_CREATOR, player.getUniqueID());
+                                            causeTracker.getMixinWorld().forceSpawnEntity(entity);
+                                        })
+                                )
                                 .process();
 
                     });

@@ -360,6 +360,28 @@ public interface PacketFunction {
                                 )
                                 .process();
                     });
+
+            // We need to check captured entities here, since CPacketPlayerDigging.Action.RELEASE_USE_ITEM triggers
+            // entity spawning (shooting a bow from an arrow)
+            context.getCapturedEntitySupplier()
+                    .orElseThrow(PhaseUtil.throwWithContext("Expected to be capturing entity spawns, but we're not capturing them...", context))
+                    .ifPresentAndNotEmpty(entities -> {
+                        final ItemStack itemStack = context.firstNamed(InternalNamedCauses.Packet.ITEM_USED, ItemStack.class).orElse(null);
+                        final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(itemStack);
+                        final World world = (World) player.worldObj;
+
+                        final Cause cause = Cause.source(EntitySpawnCause.builder()
+                                .entity(EntityUtil.fromNative(player))
+                                .type(InternalSpawnTypes.PROJECTILE)
+                                .build())
+                                .named(NamedCause.of(InternalNamedCauses.Packet.ITEM_USED, snapshot))
+                                .build();
+                        EventConsumer.event(SpongeEventFactory.createSpawnEntityEvent(cause, entities, world))
+                                .nonCancelled(event -> EntityListConsumer.FORCE_SPAWN.apply(event.getEntities(), ((IMixinWorldServer) world).getCauseTracker()))
+                                .process();
+
+                    });
+
             context.getCapturedEntityDropSupplier()
                     .orElseThrow(PhaseUtil.throwWithContext("Expected to be capturing item drops, but we're not capturing them...", context))
                     .ifPresentAndNotEmpty(map -> {

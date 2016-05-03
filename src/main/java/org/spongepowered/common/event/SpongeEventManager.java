@@ -40,6 +40,7 @@ import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.EventListener;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
 import org.spongepowered.api.event.EventManager;
@@ -255,11 +256,14 @@ public class SpongeEventManager implements EventManager {
     protected static boolean post(Event event, List<RegisteredListener<?>> handlers) {
         for (@SuppressWarnings("rawtypes") RegisteredListener handler : handlers) {
             try {
+                ((AbstractEvent) event).currentOrder = handler.getOrder();
                 handler.handle(event);
             } catch (Throwable e) {
                 SpongeImpl.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), handler.getPlugin(), e);
+                ((AbstractEvent) event).currentOrder = null;
             }
         }
+        ((AbstractEvent) event).currentOrder = null;
 
         return event instanceof Cancellable && ((Cancellable) event).isCancelled();
     }
@@ -268,7 +272,7 @@ public class SpongeEventManager implements EventManager {
     public boolean post(Event event) {
         return post(event, getHandlerCache(event).getListeners());
     }
-    
+
     public boolean post(Event event, boolean allowClientThread) {
         return post(event);
     }

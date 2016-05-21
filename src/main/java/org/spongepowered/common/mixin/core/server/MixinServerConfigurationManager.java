@@ -133,6 +133,8 @@ public abstract class MixinServerConfigurationManager {
     @Shadow public abstract void playerLoggedIn(EntityPlayerMP playerIn);
     @Shadow public abstract void updateTimeAndWeatherForPlayer(EntityPlayerMP playerIn, WorldServer worldIn);
     @Nullable @Shadow public abstract String allowUserToConnect(SocketAddress address, GameProfile profile);
+    @Shadow public abstract void transferEntityToWorld(Entity entityIn, int p_82448_2_, WorldServer oldWorldIn, WorldServer toWorldIn);
+    @Shadow public abstract void syncPlayerInventory(EntityPlayerMP playerIn);
 
     /**
      * Bridge methods to proxy modified method in Vanilla, nothing in Forge
@@ -570,4 +572,33 @@ public abstract class MixinServerConfigurationManager {
         SpongePlayerDataHandler.savePlayer(playerMP.getUniqueID());
     }
 
+    @Overwrite
+    public void transferPlayerToDimension(EntityPlayerMP playerIn, int dimension)
+    {
+        // Sponge Start - If the dimension we are going to is same as the one we are in then that means we failed to initialize the to dimension.
+        // Return early here.
+        final WorldServer worldserver = this.mcServer.worldServerForDimension(playerIn.dimension);
+        final WorldServer worldserver1 = this.mcServer.worldServerForDimension(dimension);
+
+        if (worldserver.provider.getDimensionId() == worldserver1.provider.getDimensionId()) {
+            return;
+        }
+        // Sponge End
+        int i = playerIn.dimension;
+        playerIn.dimension = dimension;
+        playerIn.playerNetServerHandler.sendPacket(new S07PacketRespawn(playerIn.dimension, playerIn.worldObj.getDifficulty(), playerIn.worldObj.getWorldInfo().getTerrainType(), playerIn.theItemInWorldManager.getGameType()));
+        worldserver.removePlayerEntityDangerously(playerIn);
+        playerIn.isDead = false;
+        this.transferEntityToWorld(playerIn, i, worldserver, worldserver1);
+        this.preparePlayer(playerIn, worldserver);
+        playerIn.playerNetServerHandler.setPlayerLocation(playerIn.posX, playerIn.posY, playerIn.posZ, playerIn.rotationYaw, playerIn.rotationPitch);
+        playerIn.theItemInWorldManager.setWorld(worldserver1);
+        this.updateTimeAndWeatherForPlayer(playerIn, worldserver1);
+        this.syncPlayerInventory(playerIn);
+
+        for (PotionEffect potioneffect : playerIn.getActivePotionEffects())
+        {
+            playerIn.playerNetServerHandler.sendPacket(new S1DPacketEntityEffect(playerIn.getEntityId(), potioneffect));
+        }
+    }
 }

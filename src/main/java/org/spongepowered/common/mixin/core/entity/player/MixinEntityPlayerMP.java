@@ -46,6 +46,7 @@ import net.minecraft.network.play.server.S02PacketChat;
 import net.minecraft.network.play.server.S05PacketSpawnPosition;
 import net.minecraft.network.play.server.S23PacketBlockChange;
 import net.minecraft.network.play.server.S29PacketSoundEffect;
+import net.minecraft.network.play.server.S2BPacketChangeGameState;
 import net.minecraft.network.play.server.S48PacketResourcePackSend;
 import net.minecraft.scoreboard.IScoreObjectiveCriteria;
 import net.minecraft.scoreboard.Score;
@@ -53,6 +54,7 @@ import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ItemInWorldManager;
+import net.minecraft.stats.AchievementList;
 import net.minecraft.stats.StatBase;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.BlockPos;
@@ -60,6 +62,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.GameRules;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldSettings;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
@@ -167,7 +170,9 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements P
     @Shadow public abstract void setSpectatingEntity(Entity entityToSpectate);
     @Shadow public abstract void sendPlayerAbilities();
     @Shadow public abstract void func_175145_a(StatBase p_175145_1_);
-
+    @Shadow public boolean playerConqueredTheEnd;
+    @Shadow private float lastHealth;
+    @Shadow private int lastFoodLevel;
     private Set<SkinPart> skinParts = Sets.newHashSet();
     private int viewDistance;
     private TabList tabList = new SpongeTabList((EntityPlayerMP) (Object) this);
@@ -677,4 +682,49 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements P
         this.playerNetServerHandler.sendPacket(packet);
     }
 
+    @Overwrite
+    public void travelToDimension(int dimensionId) {
+        // We have beaten Mother, win the game
+        if (this.dimension == 1 && dimensionId == 1)
+        {
+            this.triggerAchievement(AchievementList.theEnd2);
+            this.worldObj.removeEntity((Entity) (Object) this);
+            this.playerConqueredTheEnd = true;
+            this.playerNetServerHandler.sendPacket(new S2BPacketChangeGameState(4, 0.0F));
+        } else {
+            final WorldServer fromWorld = this.mcServer.worldServerForDimension(this.dimension);
+            final WorldServer toWorld = this.mcServer.worldServerForDimension(dimensionId);
+            // Sponge Start - If the dimension we are going to is same as the one we are in then that means we failed to initialize the to dimension.
+            // Return early here.
+            if (fromWorld.provider.getDimensionId() == toWorld.provider.getDimensionId()) {
+                return;
+            }
+            // Sponge End
+            if (this.dimension == 0 && dimensionId == 1)
+            {
+                this.triggerAchievement(AchievementList.theEnd);
+                BlockPos blockpos = this.mcServer.worldServerForDimension(dimensionId).getSpawnCoordinate();
+
+                if (blockpos != null)
+                {
+                    this.playerNetServerHandler.setPlayerLocation((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ(), 0.0F, 0.0F);
+                }
+
+                dimensionId = 1;
+            }
+
+            // Sponge Start - Only give players the portal achievement if they have went from Overworld -> The Nether. This preserves Vanilla
+            // mechanics.
+            else if (this.dimension == 0 && dimensionId == -1)
+            {
+                this.triggerAchievement(AchievementList.portal);
+            }
+
+            // Sponge End
+            this.mcServer.getConfigurationManager().transferPlayerToDimension(((EntityPlayerMP) (Object) this), dimensionId);
+            this.lastExperience = -1;
+            this.lastHealth = -1.0F;
+            this.lastFoodLevel = -1;
+        }
+    }
 }

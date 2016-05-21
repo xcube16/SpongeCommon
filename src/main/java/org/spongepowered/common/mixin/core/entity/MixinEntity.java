@@ -1405,4 +1405,55 @@ public abstract class MixinEntity implements Entity, IMixinEntity {
     public void setSpawnCause(SpawnCause spawnCause) {
         this.spawnCause = spawnCause;
     }
+
+    @Overwrite
+    public void travelToDimension(int dimensionId)
+    {
+        if (!this.worldObj.isRemote && !this.isDead)
+        {
+            this.worldObj.theProfiler.startSection("changeDimension");
+            MinecraftServer minecraftserver = MinecraftServer.getServer();
+            int i = this.dimension;
+            WorldServer worldserver = minecraftserver.worldServerForDimension(i);
+            WorldServer worldserver1 = minecraftserver.worldServerForDimension(dimensionId);
+            // Sponge Start -> If the entity is going to the same dimension that we are in, fail early as no transfer is needed
+            if (worldserver.provider.getDimensionId() == worldserver1.provider.getDimensionId()) {
+                return;
+            }
+            // Sponge End
+            this.dimension = dimensionId;
+
+            if (i == 1 && dimensionId == 1)
+            {
+                worldserver1 = minecraftserver.worldServerForDimension(0);
+                this.dimension = 0;
+            }
+
+            this.worldObj.removeEntity(((net.minecraft.entity.Entity) (Object) this));
+            this.isDead = false;
+            this.worldObj.theProfiler.startSection("reposition");
+            minecraftserver.getConfigurationManager().transferEntityToWorld((net.minecraft.entity.Entity) (Object) this, i, worldserver, worldserver1);
+            this.worldObj.theProfiler.endStartSection("reloading");
+            net.minecraft.entity.Entity entity = EntityList.createEntityByName(EntityList.getEntityString((net.minecraft.entity.Entity) (Object) this), worldserver1);
+
+            if (entity != null)
+            {
+                entity.copyDataFromOld(((net.minecraft.entity.Entity) (Object) this));
+
+                if (i == 1 && dimensionId == 1)
+                {
+                    BlockPos blockpos = this.worldObj.getTopSolidOrLiquidBlock(worldserver1.getSpawnPoint());
+                    entity.moveToBlockPosAndAngles(blockpos, entity.rotationYaw, entity.rotationPitch);
+                }
+
+                worldserver1.spawnEntityInWorld(entity);
+            }
+
+            this.isDead = true;
+            this.worldObj.theProfiler.endSection();
+            worldserver.resetUpdateEntityTick();
+            worldserver1.resetUpdateEntityTick();
+            this.worldObj.theProfiler.endSection();
+        }
+    }
 }

@@ -39,7 +39,7 @@ import net.minecraft.world.WorldProviderHell;
 import net.minecraft.world.WorldProviderSurface;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.WorldServerMulti;
-import net.minecraft.world.storage.ISaveHandler;
+import net.minecraft.world.chunk.storage.AnvilSaveHandler;
 import net.minecraft.world.storage.SaveHandler;
 import org.apache.logging.log4j.Level;
 import org.spongepowered.api.world.Dimension;
@@ -52,6 +52,7 @@ import org.spongepowered.common.interfaces.IMixinMinecraftServer;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.interfaces.world.IMixinWorldProvider;
 import org.spongepowered.common.registry.type.world.DimensionRegistryModule;
+import org.spongepowered.common.world.storage.WorldServerMultiAdapterWorldInfo;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -315,17 +316,23 @@ public class DimensionManager {
         if (overworld == null) {
             throw new RuntimeException("Cannot Hotload Dim: Overworld is not Loaded!");
         }
+
+        WorldProvider provider;
         try {
-            DimensionManager.getProviderType(dim);
+            provider = createProviderFor(dim);
         } catch (Exception e) {
             SpongeImpl.getLogger().log(Level.ERROR, "Cannot Hotload Dim: " + e.getMessage());
             return; // If a provider hasn't been registered then we can't hotload the dim
         }
-        MinecraftServer mcServer = overworld.getMinecraftServer();
-        ISaveHandler savehandler = overworld.getSaveHandler();
 
-        WorldServer world =
-                (dim == 0 ? overworld : (WorldServer) (new WorldServerMulti(mcServer, savehandler, dim, overworld, mcServer.theProfiler).init()));
+        final MinecraftServer mcServer = overworld.getMinecraftServer();
+
+        final AnvilSaveHandler savehandler = dim == 0 ? (AnvilSaveHandler) overworld.getSaveHandler() : new AnvilSaveHandler(SpongeImpl.getGame()
+                .getSavesDirectory().resolve(MinecraftServer.getServer().getFolderName()).toFile(), provider.getDimensionName(), true);
+
+        final WorldServer world =
+                (dim == 0 ? overworld : (WorldServer) (new WorldServerMulti(mcServer, new WorldServerMultiAdapterWorldInfo(savehandler, savehandler
+                        .loadWorldInfo()), dim, overworld, mcServer.theProfiler).init()));
         world.addWorldAccess(new WorldManager(mcServer, world));
         SpongeImpl.postEvent(SpongeImplHooks.createLoadWorldEvent((org.spongepowered.api.world.World) world));
         if (!mcServer.isSinglePlayer()) {

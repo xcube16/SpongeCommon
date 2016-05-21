@@ -177,13 +177,14 @@ public abstract class MixinServerConfigurationManager {
             user.save();
         }
         NBTTagCompound nbttagcompound = this.readPlayerDataFromFile(playerIn);
-        WorldServer worldserver = DimensionManager.getWorldFromDimId(playerIn.dimension);
+        WorldServer worldserver = this.mcServer.worldServerForDimension(playerIn.dimension);
 
-        if (worldserver == null) {
+        // If the dim id doesn't match then that means the world failed to initialize, log it and put them in the overworld's spawn
+        // TODO Fire event and let plugins handle it?
+        if (worldserver.provider.getDimensionId() != playerIn.dimension) {
             SpongeImpl.getLogger().warn("Player [{}] has attempted to login to unloaded dimension [{}]. This is not safe so we have moved them to "
                     + "the default world's spawn point.", playerIn.getName(), playerIn.dimension);
             playerIn.dimension = 0;
-            worldserver = this.mcServer.worldServerForDimension(0);
             BlockPos spawnPoint = ((IMixinWorldProvider) worldserver.provider).getRandomizedSpawnPoint();
             playerIn.setPosition(spawnPoint.getX(), spawnPoint.getY(), spawnPoint.getZ());
         }

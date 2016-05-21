@@ -508,6 +508,11 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, IMi
             if (compound.hasKey(NbtDataUtil.SPONGE_DATA)) {
                 final NBTTagCompound spongeData = compound.getCompoundTag(NbtDataUtil.SPONGE_DATA);
 
+                // Only load mods when they ask us too
+                if (spongeData.hasKey(NbtDataUtil.IS_MOD) && spongeData.getBoolean(NbtDataUtil.IS_MOD)) {
+                    continue;
+                }
+
                 if (!spongeData.hasKey(NbtDataUtil.DIMENSION_ID)) {
                     SpongeImpl.getLogger().error("World [{}] has no dimension id. This is a critical error and should be reported to Sponge ASAP.",
                             worldCandidateFile.getName());
@@ -1007,9 +1012,33 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, IMi
     @Overwrite
     public WorldServer worldServerForDimension(int dim) {
         WorldServer ret = DimensionManager.getWorldFromDimId(dim);
+        if (ret != null) {
+            return ret;
+        }
+        try {
+            final WorldProvider provider = DimensionManager.createProviderFor(dim);
+            final String dimName = ((IMixinWorldProvider) provider).getSaveFolder();
+
+            final SpongeConfig<?> config = SpongeHooks.getActiveConfig(((Dimension) provider).getType().getName(), dimName);
+            if (config.getType() == SpongeConfig.Type.DIMENSION) {
+                final SpongeConfig<SpongeConfig.DimensionConfig> dimConfig = (SpongeConfig<SpongeConfig.DimensionConfig>) config;
+                if (dimConfig.getConfig().isConfigEnabled() && !dimConfig.getConfig().getWorld().isWorldEnabled()) {
+                    return worldServers[0];
+                }
+            } else if (config.getType() == SpongeConfig.Type.WORLD) {
+                final SpongeConfig<SpongeConfig.WorldConfig> worldConfig = (SpongeConfig<SpongeConfig.WorldConfig>) config;
+                if (worldConfig.getConfig().isConfigEnabled() && !worldConfig.getConfig().getWorld().isWorldEnabled()) {
+                    return worldServers[0];
+                }
+            }
+        } catch (Exception ex) {
+            return worldServers[0];
+        }
+
+        DimensionManager.initDimension(dim);
+        ret = DimensionManager.getWorldFromDimId(dim);
         if (ret == null) {
-            DimensionManager.initDimension(dim);
-            ret = DimensionManager.getWorldFromDimId(dim);
+            ret = worldServers[0];
         }
         return ret;
     }

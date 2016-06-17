@@ -36,11 +36,15 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.world.storage.ChunkDataStream;
 import org.spongepowered.api.world.storage.WorldProperties;
 import org.spongepowered.api.world.storage.WorldStorage;
+import org.spongepowered.asm.lib.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.event.CauseTracker;
@@ -157,6 +161,11 @@ public abstract class MixinChunkProviderServer implements WorldStorage, IMixinCh
 
     @Inject(method = "unloadQueuedChunks", at = @At("HEAD"))
     public void onUnloadQueuedChunksStart(CallbackInfoReturnable<Boolean> ci) {
+        int size = this.droppedChunksSet.size();
+        if (size > 0) {
+            System.out.println(String.format("Unloading %s chunks!", Math.min(sizewf,
+                    ((IMixinWorld) this.worldObj).getActiveConfig().getConfig().getWorld().getMaxChunkUnloads())));
+        }
         IMixinWorld spongeWorld = (IMixinWorld) this.worldObj;
         spongeWorld.getTimingsHandler().doChunkUnload.startTiming();
     }
@@ -165,5 +174,11 @@ public abstract class MixinChunkProviderServer implements WorldStorage, IMixinCh
     public void onUnloadQueuedChunksEnd(CallbackInfoReturnable<Boolean> ci) {
         IMixinWorld spongeWorld = (IMixinWorld) this.worldObj;
         spongeWorld.getTimingsHandler().doChunkUnload.stopTiming();
+    }
+
+    @ModifyConstant(method = "unloadQueuedChunks", constant = @Constant(intValue = 100))
+    public int modifyUnloadCount(int original) {
+        int unloads = ((IMixinWorld) this.worldObj).getActiveConfig().getConfig().getWorld().getMaxChunkUnloads();
+        return unloads;
     }
 }

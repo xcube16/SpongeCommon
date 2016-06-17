@@ -75,6 +75,9 @@ public class WorldCategory extends ConfigCategory {
     @Setting(value = "chunk-gc-load-threshold", comment = "The number of newly loaded chunks before triggering a forced cleanup. \nNote: When triggered, the loaded chunk threshold will reset and start incrementing. \nDisabled by default.")
     private int chunkGCLoadThreshold = 0;
 
+    @Setting(value = "max-chunk-unloads-per-tick", comment = "The maximum number of queued unloaded chunks that will be unloaded in a single tick. \nNote: With the chunk gc enabled, this setting only applies to the ticks where the gc runs (controlled by 'chunk-gc-tick-interval')")
+    private int maxChunkUnloads = 200;
+
     @Setting(value = "item-merge-radius", comment = "The defined merge radius for Item entities such that when two items are"
                                                     + "\nwithin the defined radius of each other, they will attempt to merge. Usually,"
                                                     + "\nthe default radius is set to 0.5 in Vanilla, however, for performance reasons"
@@ -171,6 +174,10 @@ public class WorldCategory extends ConfigCategory {
 
     public int getChunkLoadThreadhold() {
         return this.chunkGCLoadThreshold;
+    }
+
+    public int getMaxChunkUnloads() {
+        return this.maxChunkUnloads;
     }
 
     public double getItemMergeRadius() {

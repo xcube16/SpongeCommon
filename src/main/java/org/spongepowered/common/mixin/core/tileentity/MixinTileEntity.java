@@ -64,6 +64,7 @@ import org.spongepowered.common.interfaces.block.tile.IMixinTileEntity;
 import org.spongepowered.common.interfaces.data.IMixinCustomDataHolder;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
 import org.spongepowered.common.registry.type.block.TileEntityTypeRegistryModule;
+import org.spongepowered.common.util.StaticMixinHelper;
 import org.spongepowered.common.util.VecHelper;
 
 import java.util.Collection;
@@ -81,7 +82,6 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
 
     @Shadow protected boolean tileEntityInvalid;
     @Shadow protected net.minecraft.world.World worldObj;
-    @Shadow private int blockMetadata;
     @Shadow protected BlockPos pos;
 
     @Shadow public abstract BlockPos getPos();
@@ -94,8 +94,12 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
         this.markDirty();
     }
 
-    @Inject(method = "markDirty", at = @At(value = "HEAD"))
+    @Inject(method = "markDirty", at = @At(value = "HEAD"), cancellable = true)
     public void onMarkDirty(CallbackInfo ci) {
+        if (!StaticMixinHelper.shouldPerformDirtyUpdate) {
+            ci.cancel();
+            return;
+        }
         if (this.worldObj != null && !this.worldObj.isRemote) {
             IMixinWorld world = (IMixinWorld) this.worldObj;
             // This handles transfers to this TE from a source such as a Hopper

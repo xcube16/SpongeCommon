@@ -28,6 +28,7 @@ import static org.spongepowered.api.data.DataQuery.of;
 
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.util.BlockPos;
@@ -41,12 +42,14 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.entity.PlayerTracker;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.data.IMixinCustomNameable;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
+import org.spongepowered.common.util.StaticMixinHelper;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +60,19 @@ public abstract class MixinTileEntityHopper extends MixinTileEntityLockable impl
 
     @Shadow private int transferCooldown;
     @Shadow private String customName;
+
+    @Redirect(method = "insertStack", at = @At(value = "INVOKE", target = "Lnet/minecraft/inventory/IInventory;setInventorySlotContents"
+            + "(ILnet/minecraft/item/ItemStack;)V"))
+    private static void toggleTickableUpdate(IInventory inventoryIn, int index, ItemStack stack) {
+        StaticMixinHelper.shouldPerformDirtyUpdate = false;
+        inventoryIn.setInventorySlotContents(index, stack);
+        StaticMixinHelper.shouldPerformDirtyUpdate = true;
+    }
+
+    @Redirect(method = "insertStack", at = @At(value = "INVOKE", target = "Lnet/minecraft/inventory/IInventory;markDirty()V", ordinal = 0))
+    private static void nullRouteFirstMarkDirty(IInventory inventoryIn) {
+        // Do nothing
+    }
 
     @Inject(method = "putDropInInventoryAllSlots", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/item/EntityItem;getEntityItem()Lnet/minecraft/item/ItemStack;"))
     private static void onPutDrop(IInventory inventory, EntityItem entityItem, CallbackInfoReturnable<Boolean> callbackInfo) {

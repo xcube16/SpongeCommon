@@ -28,8 +28,6 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import org.spongepowered.api.world.gen.PopulatorType;
@@ -67,4 +65,7 @@ public class StaticMixinHelper {
     public static int lastSecondaryPacketTick = 0;
     public static int lastPrimaryPacketTick = 0;
     public static EntityPlayerMP lastAnimationPlayer = null;
+
+    // TileEntity
+    public static boolean shouldPerformDirtyUpdate = true;
 }

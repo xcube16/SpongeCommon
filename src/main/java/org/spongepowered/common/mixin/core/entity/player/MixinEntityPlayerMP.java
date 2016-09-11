@@ -42,7 +42,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.NetHandlerPlayServer;
 import net.minecraft.network.Packet;
@@ -92,6 +91,7 @@ import org.spongepowered.api.event.cause.entity.spawn.SpawnCause;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.ChangeGameModeEvent;
 import org.spongepowered.api.item.inventory.Carrier;
+import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.network.PlayerConnection;
@@ -503,20 +503,27 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements P
     }
 
     @Override
-    public org.spongepowered.api.item.inventory.Container openInventory(Inventory inventory, Cause cause) throws IllegalArgumentException {
+    public Optional<Container> openInventory(Inventory inventory, Cause cause) throws IllegalArgumentException {
         if (inventory instanceof IInteractionObject) {
             String guid = ((IInteractionObject) inventory).getGuiID();
             if ("EntityHorse".equals(guid)) {
-                //displayGUIHorse(new EntityHorse(null), (IInventory) inventory);
-                // TODO horseID needed here for mc return;
+                // If Carrier is Horse open Inventory
+                if (inventory instanceof CarriedInventory) {
+                    if (((CarriedInventory) inventory).getCarrier().isPresent()
+                     && ((CarriedInventory) inventory).getCarrier().get() instanceof EntityHorse) {
+                        openGuiHorseInventory(((EntityHorse) ((CarriedInventory) inventory).getCarrier().get()), (IInventory) inventory);
+                        return Optional.ofNullable((Container) this.openContainer);
+                    }
+                }
+                return Optional.empty();
             }
             if ("minecraft:crafting_table".equals(guid) || "minecraft:anvil".equals(guid) || "minecraft:enchanting_table".equals(guid)) {
                 displayGui(((IInteractionObject) inventory));
-                return ((org.spongepowered.api.item.inventory.Container) this.openContainer);
+                return Optional.ofNullable((Container) this.openContainer);
             }
         }
         displayGUIChest(((IInventory) inventory));
-        return ((org.spongepowered.api.item.inventory.Container) this.openContainer);
+        return Optional.ofNullable((Container) this.openContainer);
     }
 
     @Override

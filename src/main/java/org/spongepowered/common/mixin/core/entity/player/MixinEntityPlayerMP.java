@@ -143,6 +143,7 @@ import org.spongepowered.common.interfaces.IMixinTeam;
 import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.text.IMixinTitle;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.item.inventory.util.ContainerUtil;
 import org.spongepowered.common.registry.type.event.InternalSpawnTypes;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.text.chat.SpongeChatType;
@@ -498,32 +499,19 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements P
     }
 
     @Override
-    public boolean isViewingInventory() {
-        return this.openContainer != null;
+    public Optional<Container> getOpenInventory() {
+        return Optional.ofNullable((Container) this.openContainer);
     }
 
     @Override
-    public Optional<Container> openInventory(Inventory inventory, Cause cause) throws IllegalArgumentException {
-        if (inventory instanceof IInteractionObject) {
-            String guid = ((IInteractionObject) inventory).getGuiID();
-            if ("EntityHorse".equals(guid)) {
-                // If Carrier is Horse open Inventory
-                if (inventory instanceof CarriedInventory) {
-                    if (((CarriedInventory) inventory).getCarrier().isPresent()
-                     && ((CarriedInventory) inventory).getCarrier().get() instanceof EntityHorse) {
-                        openGuiHorseInventory(((EntityHorse) ((CarriedInventory) inventory).getCarrier().get()), (IInventory) inventory);
-                        return Optional.ofNullable((Container) this.openContainer);
-                    }
-                }
-                return Optional.empty();
-            }
-            if ("minecraft:crafting_table".equals(guid) || "minecraft:anvil".equals(guid) || "minecraft:enchanting_table".equals(guid)) {
-                displayGui(((IInteractionObject) inventory));
-                return Optional.ofNullable((Container) this.openContainer);
-            }
-        }
-        displayGUIChest(((IInventory) inventory));
-        return Optional.ofNullable((Container) this.openContainer);
+    public Optional<org.spongepowered.api.item.inventory.Container> openInventory(Inventory inventory, Cause cause) throws IllegalArgumentException {
+        return Optional.ofNullable((org.spongepowered.api.item.inventory.Container) SpongeCommonEventFactory.displayContainer(cause, this$,
+                inventory));
+    }
+
+    @Override
+    public void closeInventory(Cause cause) throws IllegalArgumentException {
+        SpongeCommonEventFactory.callInteractInventoryCloseEvent(cause, this$);
     }
 
     @Override

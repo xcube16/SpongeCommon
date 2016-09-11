@@ -34,10 +34,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketCreativeInventoryAction;
@@ -47,6 +49,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.WorldServer;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
@@ -75,6 +78,7 @@ import org.spongepowered.api.event.message.MessageEvent;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
+import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.util.Direction;
@@ -440,5 +444,50 @@ public class SpongeCommonEventFactory {
             }
             return true;
         }
+    }
+
+    public static boolean callInteractInventoryCloseEvent(Cause cause, EntityPlayerMP player) {
+        // TODO Aaron
+        return false;
+    }
+
+    @Nullable
+    public static Container displayContainer(Cause cause, EntityPlayerMP player, Inventory inventory) {
+        net.minecraft.inventory.Container previousContainer = player.openContainer;
+        net.minecraft.inventory.Container container = null;
+
+        if (inventory instanceof IInteractionObject) {
+            switch (((IInteractionObject) inventory).getGuiID()) {
+                case "EntityHorse":
+                    // If Carrier is Horse open Inventory
+                    if (inventory instanceof CarriedInventory) {
+                        if (((CarriedInventory) inventory).getCarrier().isPresent()
+                                && ((CarriedInventory) inventory).getCarrier().get() instanceof EntityHorse) {
+                            player.openGuiHorseInventory(((EntityHorse) ((CarriedInventory) inventory).getCarrier().get()), (IInventory) inventory);
+                            container = player.openContainer;
+                        }
+                    }
+                    break;
+                case "minecraft:crafting_table":
+                case "minecraft:anvil":
+                case "minecraft:enchanting_table":
+                    player.displayGui((IInteractionObject) inventory);
+                    container = player.openContainer;
+                    break;
+            }
+        } else {
+            player.displayGUIChest(((IInventory) inventory));
+            container = player.openContainer;
+        }
+
+        if (previousContainer == container) {
+            return null;
+        }
+
+        if (!callInteractInventoryOpenEvent(cause, player)) {
+            return null;
+        }
+
+        return container;
     }
 }

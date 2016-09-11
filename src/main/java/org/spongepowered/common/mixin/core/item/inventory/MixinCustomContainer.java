@@ -58,6 +58,8 @@ import java.util.Optional;
 @Mixin(CustomContainer.class)
 public abstract class MixinCustomContainer implements MinecraftInventoryAdapter, Inventory {
 
+    @Shadow private CustomInventory inv;
+
     private Fabric<IInventory> inventory;
     private SlotCollection slots;
     private CustomContainerLens lens;
@@ -87,5 +89,10 @@ public abstract class MixinCustomContainer implements MinecraftInventoryAdapter,
 
     @Override
     public void notify(Object source, InventoryEventArgs eventArgs) {
+    }
+
+    @Override
+    public InventoryArchetype getArchetype() {
+        return this.inv.getArchetype();
     }
 }

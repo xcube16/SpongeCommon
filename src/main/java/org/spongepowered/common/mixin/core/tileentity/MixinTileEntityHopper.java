@@ -36,7 +36,10 @@ import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.CooldownData;
 import org.spongepowered.api.entity.living.player.User;
+import org.spongepowered.api.item.inventory.type.TileEntityInventory;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
+import org.spongepowered.asm.mixin.Implements;
+import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -47,6 +50,7 @@ import org.spongepowered.common.entity.PlayerTracker;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.data.IMixinCustomNameable;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
+import org.spongepowered.common.item.inventory.adapter.impl.MinecraftInventoryAdapter;
 
 import java.util.List;
 import java.util.Optional;
@@ -55,6 +59,8 @@ import javax.annotation.Nullable;
 
 @NonnullByDefault
 @Mixin(TileEntityHopper.class)
+/*@Implements({@Interface(iface = MinecraftInventoryAdapter.class, prefix = "inventory$"),
+        @Interface(iface = TileEntityInventory.class, prefix = "tileentityinventory$")})*/
 public abstract class MixinTileEntityHopper extends MixinTileEntityLockable implements Hopper, IMixinCustomNameable {
 
     @Shadow private int transferCooldown;

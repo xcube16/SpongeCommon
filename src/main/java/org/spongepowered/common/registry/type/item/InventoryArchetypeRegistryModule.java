@@ -28,10 +28,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import net.minecraft.block.BlockChest;
-import net.minecraft.entity.passive.EntityHorse;
-import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.inventory.ContainerBeacon;
 import net.minecraft.inventory.ContainerBrewingStand;
 import net.minecraft.inventory.ContainerChest;
@@ -48,7 +44,6 @@ import net.minecraft.tileentity.TileEntityBrewingStand;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityDispenser;
 import net.minecraft.tileentity.TileEntityDropper;
-import net.minecraft.tileentity.TileEntityEnchantmentTable;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.tileentity.TileEntityHopper;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
@@ -67,7 +62,6 @@ import org.spongepowered.common.registry.SpongeAdditionalCatalogRegistryModule;
 import org.spongepowered.common.text.translation.SpongeTranslation;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -137,6 +131,8 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
         InventoryArchetype PLAYER;
 
         InventoryArchetype CRAFTING;
+
+        InventoryArchetype UNKNOWN;
 
         //--------------------------------------------------------------
         InventoryArchetype.Builder builder = new SpongeInventoryArchetypeBuilder();
@@ -239,6 +235,9 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
                         "Player Hotbar"))
                 .build("minecraft:player", "Player");
 
+        UNKNOWN = new SpongeInventoryArchetypeBuilder()
+                .build("minecraft:unknown", "UKNOWN");
+
         registerAdditionalCatalog(SLOT);
         registerAdditionalCatalog(MENU_ROW);
         registerAdditionalCatalog(MENU_GRID);
@@ -277,6 +276,7 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
         registerAdditionalCatalog(HORSE_WITH_CHEST);
         registerAdditionalCatalog(CRAFTING);
         registerAdditionalCatalog(PLAYER);
+        registerAdditionalCatalog(UNKNOWN);
     }
 
     InventoryArchetypeRegistryModule() {}

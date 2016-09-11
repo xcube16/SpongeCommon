@@ -107,6 +107,7 @@ public class Inventory2DLensImpl extends OrderedInventoryLensImpl implements Inv
                 }
             }
         }
+        super.cache();
     }
 
     @Override

@@ -29,6 +29,9 @@ import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import org.spongepowered.api.item.inventory.Carrier;
+import org.spongepowered.api.item.inventory.InventoryArchetype;
+import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -53,6 +56,7 @@ import org.spongepowered.common.item.inventory.util.ContainerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @NonnullByDefault
 @Mixin(Container.class)
@@ -79,12 +83,24 @@ public abstract class MixinContainer implements org.spongepowered.api.item.inven
     private SlotCollection slots;
     private Lens<IInventory, ItemStack> lens;
     private boolean initialized;
+    private InventoryArchetype archetype;
+    protected Optional<Carrier> carrier;
 
     private void init() {
         this.initialized = true;
         this.inventory = MinecraftFabric.of(this$);
         this.slots = ContainerUtil.countSlots(this$);
         this.lens = MinecraftLens.of(this$, this.slots);
+        this.archetype = ContainerUtil.getArchetype(this$);
+        this.carrier = Optional.ofNullable(ContainerUtil.getCarrier(this));
+    }
+
+    @Override
+    public InventoryArchetype getArchetype() {
+        if (!this.initialized) {
+            this.init();
+        }
+        return this.archetype;
     }
 
     /**

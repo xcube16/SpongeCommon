@@ -93,6 +93,7 @@ import org.spongepowered.api.event.entity.living.humanoid.ChangeGameModeEvent;
 import org.spongepowered.api.item.inventory.Carrier;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
+import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.item.inventory.type.CarriedInventory;
 import org.spongepowered.api.network.PlayerConnection;
 import org.spongepowered.api.profile.GameProfile;
@@ -144,6 +145,7 @@ import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 import org.spongepowered.common.interfaces.text.IMixinTitle;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.item.inventory.util.ContainerUtil;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 import org.spongepowered.common.registry.type.event.InternalSpawnTypes;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.text.chat.SpongeChatType;
@@ -504,14 +506,15 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements P
     }
 
     @Override
-    public Optional<org.spongepowered.api.item.inventory.Container> openInventory(Inventory inventory, Cause cause) throws IllegalArgumentException {
-        return Optional.ofNullable((org.spongepowered.api.item.inventory.Container) SpongeCommonEventFactory.displayContainer(cause, this$,
+    public Optional<Container> openInventory(Inventory inventory, Cause cause) throws IllegalArgumentException {
+        return Optional.ofNullable((Container) SpongeCommonEventFactory.displayContainer(cause, this$,
                 inventory));
     }
 
     @Override
-    public void closeInventory(Cause cause) throws IllegalArgumentException {
-        SpongeCommonEventFactory.callInteractInventoryCloseEvent(cause, this$);
+    public boolean closeInventory(Cause cause) throws IllegalArgumentException {
+        ItemStackSnapshot cursor = ItemStackUtil.snapshotOf(this.inventory.getItemStack());
+        return !SpongeCommonEventFactory.callInteractInventoryCloseEvent(cause, this.openContainer, this$, cursor, cursor).isCancelled();
     }
 
     @Override

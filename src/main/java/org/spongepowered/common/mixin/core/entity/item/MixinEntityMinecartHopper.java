@@ -22,21 +22,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.common.item.inventory.lens.comp;
+package org.spongepowered.common.mixin.core.entity.item;
 
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.ItemStack;
-import org.spongepowered.common.item.inventory.lens.slots.SlotLens;
+import net.minecraft.entity.item.EntityMinecartHopper;
+import org.spongepowered.api.entity.vehicle.minecart.HopperMinecart;
+import org.spongepowered.asm.mixin.Mixin;
 
-import org.spongepowered.common.item.inventory.lens.Lens;
-
-
-public interface OrderedInventoryLens<TInventory, TStack> extends Lens<TInventory, TStack> {
-
-    public abstract int getStride();
-
-    public abstract SlotLens<IInventory, ItemStack> getSlot(int ordinal);
-
-    boolean hasSlotRealIndex(int index);
+@Mixin(EntityMinecartHopper.class)
+public abstract class MixinEntityMinecartHopper implements HopperMinecart {
 
 }

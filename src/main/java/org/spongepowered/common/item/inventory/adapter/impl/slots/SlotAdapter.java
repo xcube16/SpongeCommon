@@ -24,6 +24,7 @@
  */
 package org.spongepowered.common.item.inventory.adapter.impl.slots;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.inventory.IInventory;
 import org.apache.commons.lang3.NotImplementedException;
 import org.spongepowered.api.item.ItemType;
@@ -54,12 +55,13 @@ public class SlotAdapter extends Adapter implements Slot {
     private final int ordinal;
 
     private SlotAdapter nextSlot;
+    private final ImmutableList<Inventory> slots;
 
     // Internal use for events, will be removed soon!
     public int slotNumber = -1;
 
     public SlotAdapter(net.minecraft.inventory.Slot slot) {
-        this(MinecraftFabric.of(slot), new SlotLensImpl(((IMixinSlot)slot).getSlotIndex()), (Inventory)slot.inventory);
+        this(MinecraftFabric.of(slot), new SlotLensImpl(((IMixinSlot)slot).getSlotIndex()), slot.inventory instanceof Inventory ? (Inventory) slot.inventory : null);
         this.slotNumber = slot.slotNumber;
     }
 
@@ -67,6 +69,7 @@ public class SlotAdapter extends Adapter implements Slot {
         super(inventory, lens, parent);
         this.slot = lens;
         this.ordinal = lens.getOrdinal(inventory);
+        this.slots = ImmutableList.of(this);
     }
 
     public int getOrdinal() {
@@ -79,10 +82,10 @@ public class SlotAdapter extends Adapter implements Slot {
         return stack != null ? stack.stackSize : 0;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Inventory> Iterable<T> slots() {
-        // TODO!
-        throw new NotImplementedException("Iterate slot slots");
+        return (Iterable<T>) this.slots;
     }
 
     @SuppressWarnings("unchecked")

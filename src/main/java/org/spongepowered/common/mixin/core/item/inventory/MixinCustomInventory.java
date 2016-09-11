@@ -58,6 +58,7 @@ import java.util.function.Consumer;
 @Mixin(CustomInventory.class)
 public abstract class MixinCustomInventory implements MinecraftInventoryAdapter, Inventory, CarriedInventory<Carrier> {
 
+    @Shadow private InventoryArchetype archetype;
     @Shadow public InventoryBasic inv;
     @Shadow public Carrier carrier;
 
@@ -90,6 +91,11 @@ public abstract class MixinCustomInventory implements MinecraftInventoryAdapter,
 
     @Override
     public void notify(Object source, InventoryEventArgs eventArgs) {
+    }
+
+    @Override
+    public InventoryArchetype getArchetype() {
+        return this.archetype;
     }
 
     @Override

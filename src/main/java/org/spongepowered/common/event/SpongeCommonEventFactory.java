@@ -43,6 +43,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketCreativeInventoryAction;
+import net.minecraft.network.play.server.SPacketOpenWindow;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EntityDamageSource;
 import net.minecraft.util.EnumFacing;
@@ -90,6 +91,7 @@ import org.spongepowered.common.entity.PlayerTracker;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
+import org.spongepowered.common.event.tracking.phase.util.PacketPhaseUtil;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinContainer;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
@@ -97,6 +99,7 @@ import org.spongepowered.common.interfaces.entity.player.IMixinInventoryPlayer;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.item.inventory.SpongeItemStackSnapshot;
 import org.spongepowered.common.item.inventory.adapter.impl.slots.SlotAdapter;
+import org.spongepowered.common.item.inventory.util.ContainerUtil;
 import org.spongepowered.common.registry.provider.DirectionFacingProvider;
 import org.spongepowered.common.text.SpongeTexts;
 import org.spongepowered.common.util.VecHelper;
@@ -446,9 +449,36 @@ public class SpongeCommonEventFactory {
         }
     }
 
-    public static boolean callInteractInventoryCloseEvent(Cause cause, EntityPlayerMP player) {
-        // TODO Aaron
-        return false;
+    public static InteractInventoryEvent.Close callInteractInventoryCloseEvent(Cause cause, Container container, EntityPlayerMP player, ItemStackSnapshot lastCursor, ItemStackSnapshot newCursor) {
+        Transaction<ItemStackSnapshot> cursorTransaction = new Transaction<>(lastCursor, newCursor);
+        final InteractInventoryEvent.Close
+                event =
+                SpongeEventFactory.createInteractInventoryEventClose(cause, cursorTransaction, ContainerUtil.fromNative(container));
+        SpongeImpl.postEvent(event);
+        if (event.isCancelled()) {
+            if (container.getSlot(0) != null) {
+                player.openContainer = container;
+                final Slot slot = container.getSlot(0);
+                final String guiId;
+                final IInventory slotInventory = slot.inventory;
+                if (slotInventory instanceof IInteractionObject) {
+                    guiId = ((IInteractionObject) slotInventory).getGuiID();
+                } else {
+                    guiId = "unknown";
+                }
+                slotInventory.openInventory(player);
+                player.connection.sendPacket(new SPacketOpenWindow(container.windowId, guiId, slotInventory
+                        .getDisplayName(), slotInventory.getSizeInventory()));
+                // resync data to client
+                player.sendContainerToPlayer(container);
+            }
+        } else {
+            // Custom cursor
+            if (event.getCursorTransaction().getCustom().isPresent()) {
+                PacketPhaseUtil.handleCustomCursor(player, event.getCursorTransaction().getFinal());
+            }
+        }
+        return event;
     }
 
     @Nullable

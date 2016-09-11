@@ -55,7 +55,7 @@ public class CustomInventory implements IInventory, IInteractionObject {
     public static final String TITLE_PROPERTY = "TitleProperty";
 
     private InventoryBasic inv;
-    private InventoryArchetype archetype;
+    protected InventoryArchetype archetype;
     private Map<String, InventoryProperty> properties;
     private Carrier carrier;
 

@@ -31,6 +31,7 @@ import org.spongepowered.api.item.inventory.InventoryProperty;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult;
 import org.spongepowered.api.item.inventory.transaction.InventoryTransactionResult.Type;
+import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.common.item.inventory.observer.InventoryEventArgs;
 import org.spongepowered.common.text.translation.SpongeTranslation;
@@ -245,4 +246,8 @@ public class EmptyInventoryImpl implements EmptyInventory, Observer<InventoryEve
     public void notify(Object source, InventoryEventArgs eventArgs) {
     }
 
+    @Override
+    public PluginContainer getPlugin() {
+        return null; // TODO?
+    }
 }

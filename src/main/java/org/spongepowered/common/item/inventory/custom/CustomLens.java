@@ -28,7 +28,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryProperty;
-import org.spongepowered.api.item.inventory.property.InventorySize;
+import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 import org.spongepowered.common.item.inventory.lens.Lens;
 import org.spongepowered.common.item.inventory.lens.SlotProvider;
@@ -53,17 +53,17 @@ public class CustomLens extends MinecraftLens {
     @Override
     protected void init(SlotProvider<IInventory, ItemStack> slots) {
 
-        InventorySize size = (InventorySize) archetype.getProperty("InventorySize").orElse(null);
-        if (size != null) {
-            Lens<IInventory, ItemStack> lens = new GridInventoryLensImpl(0, size.getColumns(), size.getRows(), size.getColumns(), slots);
+        InventoryDimension dimension = (InventoryDimension) archetype.getProperty(CustomInventory.INVENTORY_DIMENSION).orElse(null);
+        if (dimension != null) {
+            Lens<IInventory, ItemStack> lens = new GridInventoryLensImpl(0, dimension.getColumns(), dimension.getRows(), dimension.getColumns(), slots);
             this.addSpanningChild(lens);
         }
         else {
             int base = 0;
             for (InventoryArchetype childArchetype : archetype.getChildArchetypes()) {
-                size = childArchetype.getProperty(InventorySize.class, "InventorySize").get(); // TODO handle not present
-                this.addSpanningChild(new GridInventoryLensImpl(base, size.getColumns(), size.getRows(), size.getColumns(), slots));
-                base += size.getColumns() * size.getRows();
+                dimension = childArchetype.getProperty(InventoryDimension.class, CustomInventory.INVENTORY_DIMENSION).get();
+                this.addSpanningChild(new GridInventoryLensImpl(base, dimension.getColumns(), dimension.getRows(), dimension.getColumns(), slots));
+                base += dimension.getColumns() * dimension.getRows();
             }
         }
     }

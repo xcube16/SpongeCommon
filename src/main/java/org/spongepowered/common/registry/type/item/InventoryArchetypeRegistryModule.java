@@ -49,7 +49,7 @@ import net.minecraft.tileentity.TileEntityHopper;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.property.AcceptsItems;
-import org.spongepowered.api.item.inventory.property.InventorySize;
+import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
 import org.spongepowered.api.item.inventory.property.TitleProperty;
 import org.spongepowered.api.registry.AlternateCatalogRegistryModule;
@@ -58,6 +58,7 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.common.item.inventory.SpongeInventoryBuilder;
 import org.spongepowered.common.item.inventory.archetype.SlotArchetype;
 import org.spongepowered.common.item.inventory.archetype.SpongeInventoryArchetypeBuilder;
+import org.spongepowered.common.item.inventory.custom.CustomInventory;
 import org.spongepowered.common.registry.SpongeAdditionalCatalogRegistryModule;
 import org.spongepowered.common.text.translation.SpongeTranslation;
 
@@ -112,7 +113,7 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
 
     @Override
     public void registerDefaults() {
-        InventoryArchetype SLOT = new SlotArchetype(ImmutableMap.of("InventorySize", new InventorySize(1, 1)));
+        InventoryArchetype SLOT = new SlotArchetype(ImmutableMap.of(CustomInventory.INVENTORY_DIMENSION, new InventoryDimension(1, 1)));
         InventoryArchetype MENU_ROW;
         InventoryArchetype MENU_GRID;
         InventoryArchetype CHEST;
@@ -129,113 +130,144 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
         InventoryArchetype HORSE;
         InventoryArchetype HORSE_WITH_CHEST;
         InventoryArchetype PLAYER;
-
         InventoryArchetype CRAFTING;
-
         InventoryArchetype UNKNOWN;
 
-        //--------------------------------------------------------------
-        InventoryArchetype.Builder builder = new SpongeInventoryArchetypeBuilder();
+
+        final InventoryArchetype.Builder builder = new SpongeInventoryArchetypeBuilder();
         for (int i = 0; i < 9; i++) {
-            builder.with(new SpongeInventoryArchetypeBuilder().from(SLOT).property(SlotIndex.of(i)).build("minecraft:slot" + i, "Slot"));
+            builder.with(new SpongeInventoryArchetypeBuilder()
+                    .from(SLOT)
+                    .property(SlotIndex.of(i))
+                    .build("minecraft:slot" + i, "Slot"));
         }
-        MENU_ROW = builder.build("sponge:menu_row", "MenuRow");
-        //--------------------------------------------------------------
-        builder = new SpongeInventoryArchetypeBuilder();
-        for (int i = 0; i < 3; i++) {
-            //builder.with(new SpongeInventoryArchetypeBuilder().from(MENU_ROW).property(RowProperty.of(i)).build("minecraft:menurow" + i,
-            // "MenuRow"));
-        }
-        builder.property(new InventorySize(9, 3));
-        MENU_GRID = builder.build("sponge:menu_grid", "MenuGrid");
-        //--------------------------------------------------------------
-        builder = new SpongeInventoryArchetypeBuilder();
-        builder.with(MENU_GRID)
-                .property(new InventorySize(9, 3))
-                .property(TitleProperty.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))));
-        CHEST = builder.build("minecraft:chest", "Chest");
-        //--------------------------------------------------------------
-        builder = new SpongeInventoryArchetypeBuilder();
-        builder.with(CHEST)
-                .with(CHEST)
-                .property(new InventorySize(9, 6))
-                .property(TitleProperty.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))));
-        DOUBLE_CHEST = builder.build("minecraft:double_chest", "DoubleChest");
-        //--------------------------------------------------------------
-        FURNACE = new SpongeInventoryArchetypeBuilder()
-                .with(new SpongeInventoryArchetypeBuilder().from(SLOT).property(new SlotIndex(0)).build("minecraft:furnace_input", "FurnaceInput"))
-                .with(new SpongeInventoryArchetypeBuilder().from(SLOT).property(new SlotIndex(1)).property(AcceptsItems.of(/*fuelsPredicate?*/))
-                        .build("minecraft:furnace_fuel", "FurnaceFuel"))
-                .with(new SpongeInventoryArchetypeBuilder().from(SLOT).property(new SlotIndex(2)).property(AcceptsItems.of()).build("minecraft:furnace_output", "FurnaceOutput"))
-                .property(new TitleProperty(Text.of(new SpongeTranslation("minecraft.tile.furnace.name"))))
-                .property(new InventorySize(3, 1))
-                .build("minecraft:furnace", "Furnace");
-        DISPENSER = new SpongeInventoryArchetypeBuilder()
+        MENU_ROW = builder.property(new InventoryDimension(9, 1))
+                .build("sponge:menu_row", "Menu Row");
+
+        MENU_GRID = builder.reset()
+                .with(MENU_ROW)
+                .with(MENU_ROW)
+                .with(MENU_ROW)
+                .property(new InventoryDimension(9, 3))
+                .build("sponge:menu_grid", "Menu Grid");
+
+        CHEST = builder.reset()
                 .with(MENU_GRID)
-                .property(new InventorySize(3, 3))
+                .property(TitleProperty.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))))
+                .build("minecraft:chest", "Chest");
+
+        DOUBLE_CHEST = builder.reset()
+                .with(CHEST)
+                .with(CHEST)
+                .property(new InventoryDimension(9, 6))
+                .property(TitleProperty.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))))
+                .build("minecraft:double_chest", "DoubleChest");
+
+        FURNACE = builder.reset()
+                .with(new SpongeInventoryArchetypeBuilder()
+                        .from(SLOT)
+                        .property(new SlotIndex(0))
+                        .build("minecraft:furnace_input", "FurnaceInput"))
+                .with(new SpongeInventoryArchetypeBuilder()
+                        .from(SLOT)
+                        .property(new SlotIndex(1))
+                        .property(AcceptsItems.of(/*fuelsPredicate?*/))
+                        .build("minecraft:furnace_fuel", "FurnaceFuel"))
+                .with(new SpongeInventoryArchetypeBuilder()
+                        .from(SLOT)
+                        .property(new SlotIndex(2))
+                        .property(AcceptsItems.of())
+                        .build("minecraft:furnace_output", "FurnaceOutput"))
+                .property(new TitleProperty(Text.of(new SpongeTranslation("minecraft.tile.furnace.name"))))
+                .property(new InventoryDimension(3, 1))
+                .build("minecraft:furnace", "Furnace");
+
+        DISPENSER = builder.reset()
+                .with(MENU_GRID)
+                .property(new InventoryDimension(3, 3))
                 .build("minecraft:dispenser", "Dispenser");
 
-        WORKBENCH = new SpongeInventoryArchetypeBuilder()
-                .with(new SpongeInventoryArchetypeBuilder().from(MENU_GRID).property(new InventorySize(3, 3)).build("minecraft:workbench_grid", "Workbench Grid"))
+        WORKBENCH = builder.reset()
+                .with(new SpongeInventoryArchetypeBuilder()
+                        .from(MENU_GRID)
+                        .property(new InventoryDimension(3, 3))
+                        .build("minecraft:workbench_grid", "Workbench Grid"))
                 .with(SLOT)
                 .build("minecraft:workbench", "Workbench");
 
-        BREWING_STAND = new SpongeInventoryArchetypeBuilder()
+        BREWING_STAND = builder.reset()
                 .with(MENU_ROW)
-                .property(new InventorySize(4, 1))
+                .property(new InventoryDimension(4, 1))
                 .build("minecraft:brewing_stand", "BrewingStand");
 
-        HOPPER = new SpongeInventoryArchetypeBuilder()
+        HOPPER = builder.reset()
                 .with(MENU_ROW)
-                .property(new InventorySize(5, 1))
+                .property(new InventoryDimension(5, 1))
                 .build("minecraft:hopper", "Hopper");
 
-        BEACON = new SpongeInventoryArchetypeBuilder()
+        BEACON = builder.reset()
                 .with(SLOT)
-                .property(new InventorySize(1, 1))
+                .property(new InventoryDimension(1, 1))
                 .build("minecraft:beacon", "Beacon");
 
-        ENCHANTING_TABLE = new SpongeInventoryArchetypeBuilder()
-                .with(SLOT).with(SLOT)
-                .property(new InventorySize(2, 1))
+        ENCHANTING_TABLE = builder.reset()
+                .with(SLOT)
+                .with(SLOT)
+                .property(new InventoryDimension(2, 1))
                 .build("minecraft:enchanting_table", "EnchantingTable");
 
-        ANVIL = new SpongeInventoryArchetypeBuilder()
-                .with(SLOT).with(SLOT).with(SLOT)
-                .property(new InventorySize(3, 1))
+        ANVIL = builder.reset()
+                .with(SLOT)
+                .with(SLOT)
+                .with(SLOT)
+                .property(new InventoryDimension(3, 1))
                 .build("minecraft:anvil", "Anvil");
 
-        VILLAGER = new SpongeInventoryArchetypeBuilder()
-                .with(SLOT).with(SLOT).with(SLOT)
-                .property(new InventorySize(3, 1))
+        VILLAGER = builder.reset()
+                .with(SLOT)
+                .with(SLOT)
+                .with(SLOT)
+                .property(new InventoryDimension(3, 1))
                 .build("minecraft:villager", "Villager");
 
-        HORSE = new SpongeInventoryArchetypeBuilder()
-                .with(SLOT).with(SLOT)
-                .property(new InventorySize(2, 1))
+        HORSE = builder.reset()
+                .with(SLOT)
+                .with(SLOT)
+                .property(new InventoryDimension(2, 1))
                 .build("minecraft:horse", "Horse");
-        HORSE_WITH_CHEST = new SpongeInventoryArchetypeBuilder()
+
+        HORSE_WITH_CHEST = builder.reset()
                 .with(HORSE)
-                .with(new SpongeInventoryArchetypeBuilder().from(MENU_GRID).property(new InventorySize(5,3)).build("horse_grid", "HorseGrid"))
+                .with(new SpongeInventoryArchetypeBuilder()
+                        .from(MENU_GRID)
+                        .property(new InventoryDimension(5,3))
+                        .build("horse_grid", "HorseGrid"))
                 // TODO Size
                 .build("minecraft:horse_with_chest", "Horse with Chest");
 
-        CRAFTING = new SpongeInventoryArchetypeBuilder()
+        CRAFTING = builder.reset()
                 .with(SLOT)
-                .with(new SpongeInventoryArchetypeBuilder().from(MENU_GRID).property(new InventorySize(2, 2)).build("minecraft:crafting_grid",
-                        "Crafting Grid"))
+                .with(new SpongeInventoryArchetypeBuilder()
+                        .from(MENU_GRID)
+                        .property(new InventoryDimension(2, 2))
+                        .build("minecraft:crafting_grid", "Crafting Grid"))
                 .build("minecraft:crafting", "Crafting");
 
-        PLAYER = new SpongeInventoryArchetypeBuilder()
+        PLAYER = builder.reset()
                 .with(CRAFTING)
-                .with(new SpongeInventoryArchetypeBuilder().from(MENU_GRID).property(new InventorySize(1, 4)).build("minecraft:armor", "Armor"))
-                .with(new SpongeInventoryArchetypeBuilder().from(MENU_GRID).property(new InventorySize(9, 3)).build("minecraft:player_main",
-                        "Player Main"))
-                .with(new SpongeInventoryArchetypeBuilder().from(MENU_GRID).property(new InventorySize(9, 1)).build("minecraft:player_hotbar",
-                        "Player Hotbar"))
+                .with(new SpongeInventoryArchetypeBuilder()
+                        .from(MENU_GRID)
+                        .property(new InventoryDimension(1, 4))
+                        .build("minecraft:armor", "Armor"))
+                .with(new SpongeInventoryArchetypeBuilder()
+                        .from(MENU_GRID)
+                        .property(new InventoryDimension(9, 3)).build("minecraft:player_main", "Player Main"))
+                .with(new SpongeInventoryArchetypeBuilder()
+                        .from(MENU_GRID)
+                        .property(new InventoryDimension(9, 1)).build("minecraft:player_hotbar", "Player Hotbar"))
                 .build("minecraft:player", "Player");
 
-        UNKNOWN = new SpongeInventoryArchetypeBuilder()
+        UNKNOWN = builder.reset()
                 .build("minecraft:unknown", "UKNOWN");
 
         registerAdditionalCatalog(SLOT);
@@ -279,7 +311,7 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
         registerAdditionalCatalog(UNKNOWN);
     }
 
-    InventoryArchetypeRegistryModule() {}
+    private InventoryArchetypeRegistryModule() {}
 
     private static final class Holder {
         static final InventoryArchetypeRegistryModule INSTANCE = new InventoryArchetypeRegistryModule();

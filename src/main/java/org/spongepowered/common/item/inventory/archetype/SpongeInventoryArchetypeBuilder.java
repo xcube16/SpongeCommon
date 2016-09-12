@@ -27,13 +27,6 @@ package org.spongepowered.common.item.inventory.archetype;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryProperty;
-import org.spongepowered.api.item.inventory.property.AcceptsItems;
-import org.spongepowered.api.item.inventory.property.InventorySize;
-import org.spongepowered.api.item.inventory.property.SlotIndex;
-import org.spongepowered.api.item.inventory.property.TitleProperty;
-import org.spongepowered.api.text.Text;
-import org.spongepowered.common.registry.CommonModuleRegistry;
-import org.spongepowered.common.text.translation.SpongeTranslation;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -63,9 +56,7 @@ public class SpongeInventoryArchetypeBuilder implements InventoryArchetype.Build
 
     @Override
     public InventoryArchetype.Builder with(InventoryArchetype... archetypes) {
-        for (InventoryArchetype archetype : archetypes) {
-            this.types.add(archetype);
-        }
+        Collections.addAll(this.types, archetypes);
         return this;
     }
 
@@ -87,8 +78,9 @@ public class SpongeInventoryArchetypeBuilder implements InventoryArchetype.Build
 
     @Override
     public InventoryArchetype.Builder reset() {
-        this.types = new ArrayList<>();
-        this.properties = new HashMap<>();
+        this.types.clear();
+        this.properties.clear();
+        this.events.clear();
         return this;
     }
 

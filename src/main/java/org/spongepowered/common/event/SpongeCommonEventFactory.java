@@ -487,7 +487,9 @@ public class SpongeCommonEventFactory {
         net.minecraft.inventory.Container container = null;
 
         if (inventory instanceof IInteractionObject) {
-            switch (((IInteractionObject) inventory).getGuiID()) {
+            final String guiId = ((IInteractionObject) inventory).getGuiID();
+
+            switch (guiId) {
                 case "EntityHorse":
                     // If Carrier is Horse open Inventory
                     if (inventory instanceof CarriedInventory) {
@@ -497,6 +499,10 @@ public class SpongeCommonEventFactory {
                             container = player.openContainer;
                         }
                     }
+                    break;
+                case "minecraft:chest":
+                    player.displayGUIChest((IInventory) inventory);
+                    container = player.openContainer;
                     break;
                 case "minecraft:crafting_table":
                 case "minecraft:anvil":

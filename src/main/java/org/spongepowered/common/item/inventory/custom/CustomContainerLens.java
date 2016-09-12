@@ -26,9 +26,7 @@ package org.spongepowered.common.item.inventory.custom;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.item.inventory.property.InventorySize;
 import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
-import org.spongepowered.common.item.inventory.lens.Lens;
 import org.spongepowered.common.item.inventory.lens.SlotProvider;
 import org.spongepowered.common.item.inventory.lens.impl.MinecraftLens;
 import org.spongepowered.common.item.inventory.lens.impl.comp.GridInventoryLensImpl;

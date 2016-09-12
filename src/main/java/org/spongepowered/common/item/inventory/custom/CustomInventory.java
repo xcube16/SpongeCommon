@@ -39,7 +39,7 @@ import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.InventoryProperty;
-import org.spongepowered.api.item.inventory.property.InventorySize;
+import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.item.inventory.property.TitleProperty;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.serializer.TextSerializers;
@@ -53,8 +53,8 @@ import java.util.function.Consumer;
 
 public class CustomInventory implements IInventory, IInteractionObject {
 
-    public static final String INVENTORY_SIZE = "InventorySize";
-    public static final String TITLE_PROPERTY = "TitleProperty";
+    public static final String INVENTORY_DIMENSION = "inventorydimension";
+    public static final String TITLE = "titleproperty";
 
     private InventoryBasic inv;
     protected InventoryArchetype archetype;
@@ -70,21 +70,21 @@ public class CustomInventory implements IInventory, IInteractionObject {
         this.carrier = carrier;
 
         int count = 0;
-        InventorySize size = (InventorySize)properties.getOrDefault(INVENTORY_SIZE, archetype.getProperty(INVENTORY_SIZE).orElse(null));
+        InventoryDimension size = (InventoryDimension)properties.getOrDefault(INVENTORY_DIMENSION, archetype.getProperty(INVENTORY_DIMENSION).orElse(null));
         if (size != null) {
             count = size.getColumns() * size.getRows();
         }
         else {
             for (InventoryArchetype childArchetype : archetype.getChildArchetypes()) {
-                Optional<InventorySize> property = childArchetype.getProperty(InventorySize.class, INVENTORY_SIZE);
+                Optional<InventoryDimension> property = childArchetype.getProperty(InventoryDimension.class, INVENTORY_DIMENSION);
                 if (!property.isPresent()) {
-                    throw new IllegalArgumentException("Missing size");
+                    throw new IllegalArgumentException("Missing dimensions!");
                 }
                 count += property.get().getColumns() * property.get().getRows();
             }
         }
 
-        TitleProperty titleProperty = (TitleProperty) properties.getOrDefault(TITLE_PROPERTY, archetype.getProperty(TITLE_PROPERTY).orElse(null));
+        TitleProperty titleProperty = (TitleProperty) properties.getOrDefault(TITLE, archetype.getProperty(TITLE).orElse(null));
         boolean isCustom = !(titleProperty.getValue() instanceof TranslatableText);
 
         String title = isCustom ? TextSerializers.LEGACY_FORMATTING_CODE.serialize(titleProperty.getValue())

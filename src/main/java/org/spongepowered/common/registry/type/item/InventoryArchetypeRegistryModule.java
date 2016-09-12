@@ -51,7 +51,7 @@ import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.property.AcceptsItems;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
 import org.spongepowered.api.item.inventory.property.SlotIndex;
-import org.spongepowered.api.item.inventory.property.TitleProperty;
+import org.spongepowered.api.item.inventory.property.Title;
 import org.spongepowered.api.registry.AlternateCatalogRegistryModule;
 import org.spongepowered.api.registry.util.RegisterCatalog;
 import org.spongepowered.api.text.Text;
@@ -153,14 +153,14 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
 
         CHEST = builder.reset()
                 .with(MENU_GRID)
-                .property(TitleProperty.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))))
+                .property(Title.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))))
                 .build("minecraft:chest", "Chest");
 
         DOUBLE_CHEST = builder.reset()
                 .with(CHEST)
                 .with(CHEST)
                 .property(new InventoryDimension(9, 6))
-                .property(TitleProperty.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))))
+                .property(Title.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))))
                 .build("minecraft:double_chest", "DoubleChest");
 
         FURNACE = builder.reset()
@@ -178,7 +178,7 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
                         .property(new SlotIndex(2))
                         .property(AcceptsItems.of())
                         .build("minecraft:furnace_output", "FurnaceOutput"))
-                .property(new TitleProperty(Text.of(new SpongeTranslation("minecraft.tile.furnace.name"))))
+                .property(new Title(Text.of(new SpongeTranslation("minecraft.tile.furnace.name"))))
                 .property(new InventoryDimension(3, 1))
                 .build("minecraft:furnace", "Furnace");
 

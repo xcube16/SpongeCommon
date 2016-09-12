@@ -40,12 +40,13 @@ import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.InventoryProperty;
 import org.spongepowered.api.item.inventory.property.InventoryDimension;
-import org.spongepowered.api.item.inventory.property.TitleProperty;
+import org.spongepowered.api.item.inventory.property.Title;
 import org.spongepowered.api.text.TranslatableText;
 import org.spongepowered.api.text.serializer.TextSerializers;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -53,8 +54,8 @@ import java.util.function.Consumer;
 
 public class CustomInventory implements IInventory, IInteractionObject {
 
-    public static final String INVENTORY_DIMENSION = "inventorydimension";
-    public static final String TITLE = "titleproperty";
+    public static final String INVENTORY_DIMENSION = InventoryDimension.class.getSimpleName().toLowerCase(Locale.ENGLISH);
+    public static final String TITLE = Title.class.getSimpleName().toLowerCase(Locale.ENGLISH);
 
     private InventoryBasic inv;
     protected InventoryArchetype archetype;
@@ -70,7 +71,8 @@ public class CustomInventory implements IInventory, IInteractionObject {
         this.carrier = carrier;
 
         int count = 0;
-        InventoryDimension size = (InventoryDimension)properties.getOrDefault(INVENTORY_DIMENSION, archetype.getProperty(INVENTORY_DIMENSION).orElse(null));
+        InventoryDimension size = (InventoryDimension)properties.getOrDefault(INVENTORY_DIMENSION,
+                archetype.getProperty(INVENTORY_DIMENSION).orElse(null));
         if (size != null) {
             count = size.getColumns() * size.getRows();
         }
@@ -84,7 +86,7 @@ public class CustomInventory implements IInventory, IInteractionObject {
             }
         }
 
-        TitleProperty titleProperty = (TitleProperty) properties.getOrDefault(TITLE, archetype.getProperty(TITLE).orElse(null));
+        Title titleProperty = (Title) properties.getOrDefault(TITLE, archetype.getProperty(TITLE).orElse(null));
         boolean isCustom = !(titleProperty.getValue() instanceof TranslatableText);
 
         String title = isCustom ? TextSerializers.LEGACY_FORMATTING_CODE.serialize(titleProperty.getValue())

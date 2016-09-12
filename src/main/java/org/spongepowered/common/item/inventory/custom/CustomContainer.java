@@ -105,7 +105,7 @@ public class CustomContainer extends Container {
         // This would not be needed if the Container enforces the same restrictions on slots as vanilla
 
         // Cursor Item
-        for (IContainerListener crafter : listeners) {
+        /*for (IContainerListener crafter : listeners) {
             crafter.updateCraftingInventory(this, this.getInventory());
         }
         // Inventory
@@ -113,6 +113,6 @@ public class CustomContainer extends Container {
             for (IContainerListener crafter : listeners) {
                 crafter.sendSlotContents(this, i, this.inventorySlots.get(i).getStack());
             }
-        }
+        }*/
     }
 }

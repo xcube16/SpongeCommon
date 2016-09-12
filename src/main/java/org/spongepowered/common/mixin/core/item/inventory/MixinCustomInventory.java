@@ -68,7 +68,7 @@ public abstract class MixinCustomInventory implements MinecraftInventoryAdapter,
 
     @Inject(method = "<init>*", at = @At("RETURN"), remap = false)
     private void onConstructed(InventoryArchetype archetype, Map<String, InventoryProperty> properties, Carrier carrier, Map<Class<? extends
-            InteractInventoryEvent>, List<Consumer<? extends InteractInventoryEvent>>> listeners, CallbackInfo ci) {
+            InteractInventoryEvent>, List<Consumer<? extends InteractInventoryEvent>>> listeners, Object plugin, CallbackInfo ci) {
         this.inventory = MinecraftFabric.of(this);
         this.slots = new SlotCollection.Builder().add(inv.getSizeInventory()).build();
         this.lens = new CustomLens(this, slots, archetype, properties);
@@ -100,6 +100,6 @@ public abstract class MixinCustomInventory implements MinecraftInventoryAdapter,
 
     @Override
     public Optional<Carrier> getCarrier() {
-        return Optional.of(this.carrier);
+        return Optional.ofNullable(this.carrier);
     }
 }

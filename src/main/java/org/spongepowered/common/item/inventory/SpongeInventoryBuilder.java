@@ -81,7 +81,7 @@ public class SpongeInventoryBuilder implements Inventory.Builder {
 
     @Override
     public Inventory build(Object plugin) {
-        return (Inventory) new CustomInventory(archetype, properties, carrier, listeners);
+        return (Inventory) new CustomInventory(archetype, properties, carrier, listeners, plugin);
     }
 
     @Override

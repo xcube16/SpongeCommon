@@ -32,8 +32,10 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.IInteractionObject;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.item.inventory.InteractInventoryEvent;
 import org.spongepowered.api.item.inventory.Carrier;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryArchetypes;
 import org.spongepowered.api.item.inventory.InventoryProperty;
@@ -62,7 +64,7 @@ public class CustomInventory implements IInventory, IInteractionObject {
     private Set<EntityPlayer> viewers = new HashSet<>();
 
     public CustomInventory(InventoryArchetype archetype, Map<String, InventoryProperty> properties, Carrier carrier,
-            Map<Class<? extends InteractInventoryEvent>, List<Consumer<? extends InteractInventoryEvent>>> listeners) {
+            Map<Class<? extends InteractInventoryEvent>, List<Consumer<? extends InteractInventoryEvent>>> listeners, Object plugin) {
         this.archetype = archetype;
         this.properties = properties;
         this.carrier = carrier;
@@ -94,7 +96,9 @@ public class CustomInventory implements IInventory, IInteractionObject {
             v.openContainer.detectAndSendChanges();
         }));
 
-        // TODO register listeners? without plugin?
+        for (Map.Entry<Class<? extends InteractInventoryEvent>, List<Consumer<? extends InteractInventoryEvent>>> entry: listeners.entrySet()) {
+            Sponge.getEventManager().registerListener(plugin, entry.getKey(), new CustomInventoryListener((Inventory) this, entry.getValue()));
+        }
     }
 
     public InventoryArchetype getArchetype() {

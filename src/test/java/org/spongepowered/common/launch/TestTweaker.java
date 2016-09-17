@@ -28,7 +28,10 @@ import static org.spongepowered.asm.mixin.MixinEnvironment.Side.SERVER;
 
 import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.spongepowered.asm.mixin.MixinEnvironment;
-import org.spongepowered.test.launchwrapper.AbstractTestTweaker;
+import org.spongepowered.asm.mixin.Mixins;
+import org.spongepowered.lwts.AbstractTestTweaker;
+
+import java.io.File;
 
 public class TestTweaker extends AbstractTestTweaker {
 
@@ -38,7 +41,10 @@ public class TestTweaker extends AbstractTestTweaker {
 
         registerAccessTransformer("META-INF/common_at.cfg");
 
+        SpongeLaunch.initPaths(new File("."));
+
         SpongeLaunch.setupMixinEnvironment();
+        Mixins.addConfiguration("mixins.common.test.json");
         MixinEnvironment.getDefaultEnvironment().setSide(SERVER);
     }
 

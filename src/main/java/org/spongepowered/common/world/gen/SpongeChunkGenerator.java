@@ -79,7 +79,6 @@ import org.spongepowered.common.interfaces.world.gen.IChunkProviderOverworld;
 import org.spongepowered.common.interfaces.world.gen.IFlaggedPopulator;
 import org.spongepowered.common.interfaces.world.gen.IGenerationPopulator;
 import org.spongepowered.common.util.NonNullArrayList;
-import org.spongepowered.common.util.gen.ByteArrayMutableBiomeBuffer;
 import org.spongepowered.common.util.gen.ChunkPrimerBuffer;
 import org.spongepowered.common.util.gen.VirtualMutableBiomeBuffer;
 import org.spongepowered.common.world.extent.SoftBufferExtentViewDownsize;
@@ -254,6 +253,7 @@ public class SpongeChunkGenerator implements WorldGenerator, IChunkGenerator {
         return settings;
     }
 
+    @Override
     public Chunk provideChunk(int chunkX, int chunkZ) {
         this.rand.setSeed(chunkX * 341873128712L + chunkZ * 132897987541L);
         this.cachedBiomes.reuse(new Vector2i(chunkX * 16, chunkZ * 16));
@@ -359,7 +359,7 @@ public class SpongeChunkGenerator implements WorldGenerator, IChunkGenerator {
 
         Sponge.getGame().getEventManager().post(SpongeEventFactory.createPopulateChunkEventPre(populateCause, populators, chunk));
         List<String> flags = Lists.newArrayList();
-        
+
         Vector3i min = new Vector3i(chunkX * 16 + 8, 0, chunkZ * 16 + 8);
         org.spongepowered.api.world.World spongeWorld = (org.spongepowered.api.world.World) this.world;
         Extent volume = new SoftBufferExtentViewDownsize(chunk.getWorld(), min, min.add(15, 255, 15), min.sub(8, 0, 8), min.add(23, 255, 23));
@@ -371,16 +371,32 @@ public class SpongeChunkGenerator implements WorldGenerator, IChunkGenerator {
             if (type == null) {
                 System.err.printf("Found a populator with a null type: %s populator%n", structure);
             }
-            causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
-                    .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
-                    .addEntityCaptures()
-                    .complete());
-            if (structure instanceof IFlaggedPopulator) {
-                ((IFlaggedPopulator) structure).populate(chunk, this.rand, flags);
-            } else {
-                structure.populate(chunk, this.rand);
+            Timing timing = null;
+            if (Timings.isTimingsEnabled()) {
+                timing = this.populatorTimings.get(type.getId());
+                if (timing == null) {
+                    timing = SpongeTimingsFactory.ofSafe("populate - " + type.getId());
+                    this.populatorTimings.put(type.getId(), timing);
+                }
+                timing.startTimingIfSync();
             }
-            causeTracker.completePhase();
+            if (CauseTracker.ENABLED) {
+                causeTracker.switchToPhase(GenerationPhase.State.POPULATOR_RUNNING, PhaseContext.start()
+                        .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
+                        .addEntityCaptures()
+                        .complete());
+            }
+            if (structure instanceof IFlaggedPopulator) {
+                ((IFlaggedPopulator) structure).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
+            } else {
+                structure.populate(spongeWorld, volume, this.rand, biomeBuffer);
+            }
+            if (CauseTracker.ENABLED) {
+                causeTracker.completePhase();
+            }
+            if (Timings.isTimingsEnabled()) {
+                timing.stopTimingIfSync();
+            }
         }
         // Run the biome structures as well
         for (Structure structure : this.biomeSettings.get(biome).getStructures()) {
@@ -388,16 +404,32 @@ public class SpongeChunkGenerator implements WorldGenerator, IChunkGenerator {
             if (type == null) {
                 System.err.printf("Found a populator with a null type: %s populator%n", structure);
             }
-            causeTracker.switchToPhase(TrackingPhases.WORLD, WorldPhase.State.POPULATOR_RUNNING, PhaseContext.start()
-                    .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
-                    .addEntityCaptures()
-                    .complete());
-            if (structure instanceof IFlaggedPopulator) {
-                ((IFlaggedPopulator) structure).populate(chunk, this.rand, flags);
-            } else {
-                structure.populate(chunk, this.rand);
+            Timing timing = null;
+            if (Timings.isTimingsEnabled()) {
+                timing = this.populatorTimings.get(type.getId());
+                if (timing == null) {
+                    timing = SpongeTimingsFactory.ofSafe("populate - " + type.getId());
+                    this.populatorTimings.put(type.getId(), timing);
+                }
+                timing.startTimingIfSync();
             }
-            causeTracker.completePhase();
+            if (CauseTracker.ENABLED) {
+                causeTracker.switchToPhase(GenerationPhase.State.POPULATOR_RUNNING, PhaseContext.start()
+                        .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, type))
+                        .addEntityCaptures()
+                        .complete());
+            }
+            if (structure instanceof IFlaggedPopulator) {
+                ((IFlaggedPopulator) structure).populate(spongeWorld, volume, this.rand, biomeBuffer, flags);
+            } else {
+                structure.populate(spongeWorld, volume, this.rand, biomeBuffer);
+            }
+            if (CauseTracker.ENABLED) {
+                causeTracker.completePhase();
+            }
+            if (Timings.isTimingsEnabled()) {
+                timing.stopTimingIfSync();
+            }
         }
         for (Populator populator : populators) {
             final PopulatorType type = populator.getType();
@@ -409,11 +441,10 @@ public class SpongeChunkGenerator implements WorldGenerator, IChunkGenerator {
             }
             Timing timing = null;
             if (Timings.isTimingsEnabled()) {
-                timing = this.populatorTimings.get(populator.getType().getId());
+                timing = this.populatorTimings.get(type.getId());
                 if (timing == null) {
-                    timing = SpongeTimingsFactory.ofSafe("populate - " + populator.getType().getId());// ,
-                                                                                                      // this.chunkGeneratorTiming);
-                    this.populatorTimings.put(populator.getType().getId(), timing);
+                    timing = SpongeTimingsFactory.ofSafe("populate - " + type.getId());
+                    this.populatorTimings.put(type.getId(), timing);
                 }
                 timing.startTimingIfSync();
             }
@@ -468,7 +499,7 @@ public class SpongeChunkGenerator implements WorldGenerator, IChunkGenerator {
                     final CauseTracker causeTracker = ((IMixinWorldServer) this.world).getCauseTracker();
                     if (CauseTracker.ENABLED) {
                         causeTracker.switchToPhase(GenerationPhase.State.POPULATOR_RUNNING, PhaseContext.start()
-                                .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, populator.getType()))
+                                .add(NamedCause.of(InternalNamedCauses.WorldGeneration.CAPTURED_POPULATOR, structure.getType()))
                                 .addEntityCaptures()
                                 .complete());
                     }

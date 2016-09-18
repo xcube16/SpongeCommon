@@ -22,13 +22,13 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.common.mixin.core.world.gen;
+package org.spongepowered.common.mixin.core.world.gen.structure;
 
-import net.minecraft.world.gen.structure.MapGenStronghold;
-import org.spongepowered.api.world.gen.structure.Stronghold;
+import net.minecraft.world.gen.structure.StructureOceanMonument;
+import org.spongepowered.api.world.gen.structure.OceanMonument;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(MapGenStronghold.class)
-public abstract class MixinMapGenStronghold extends MixinMapGenStructure implements Stronghold {
+@Mixin(StructureOceanMonument.class)
+public abstract class MixinMapGenOceanMonument implements OceanMonument {
 
 }

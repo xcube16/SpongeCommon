@@ -28,9 +28,9 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.Lists;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.structure.MapGenStructure;
 import net.minecraft.world.gen.structure.MapGenVillage;
-import net.minecraft.world.gen.structure.MapGenVillage.Start;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.api.world.gen.structure.Village;
@@ -57,18 +57,16 @@ public abstract class MixinMapGenVillage extends MapGenStructure implements IFla
 
     @Shadow private int terrainType;
     @Shadow private int field_82665_g; // distance
-    
-    @SuppressWarnings("unchecked")
+
     private List<BiomeType> validBiomes = Lists.newArrayList();
 
-
-    @Inject(method = "<init>()V", at = @At("RETURN") )
+    @Inject(method = "<init>()V", at = @At("RETURN"))
     public void onConstructed(CallbackInfo ci) {
-        for(BiomeGenBase biome: MapGenVillage.VILLAGE_SPAWN_BIOMES) {
+        for (Biome biome : MapGenVillage.VILLAGE_SPAWN_BIOMES) {
             this.validBiomes.add((BiomeType) biome);
         }
     }
-    
+
     @Override
     public void populate(org.spongepowered.api.world.World worldIn, Extent extent, Random random, List<String> flags) {
         Vector3i min = extent.getBlockMin();
@@ -85,28 +83,27 @@ public abstract class MixinMapGenVillage extends MapGenStructure implements IFla
         World world = (World) worldIn;
         generateStructure(world, random, new ChunkPos((min.getX() - 8) / 16, (min.getZ() - 8) / 16));
     }
-    
+
     @Override
     public int getSize() {
         return this.terrainType;
     }
-    
+
     @Override
     public void setSize(int range) {
         this.terrainType = range;
     }
-    
+
     @Override
     public List<BiomeType> getValidBiomes() {
         return this.validBiomes;
     }
 
     @SuppressWarnings("unchecked")
-    @Redirect(method = "canSpawnStructureAtCoords", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/biome/BiomeProvider;areBiomesViable(IIILjava/util/List;)Z") )
-    private boolean onAreBiomesViable(int x, int z, int radius, List<BiomeGenBase> types) {
-        //Replace the list with our own
-        return this.worldObj.getBiomeProvider().areBiomesViable(x, z, radius,(List<BiomeGenBase>)(Object) this.validBiomes);
+    @Redirect(method = "canSpawnStructureAtCoords", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/biome/BiomeProvider;areBiomesViable(IIILjava/util/List;)Z"))
+    private boolean onAreBiomesViable(int x, int z, int radius, List<Biome> types) {
+        // Replace the list with our own
+        return this.worldObj.getBiomeProvider().areBiomesViable(x, z, radius, (List<Biome>) (Object) this.validBiomes);
     }
-    
+
 }

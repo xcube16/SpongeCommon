@@ -26,13 +26,13 @@ package org.spongepowered.common.world.gen.structure;
 
 import net.minecraft.init.Biomes;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.gen.structure.ComponentScatteredFeaturePieces;
 import net.minecraft.world.gen.structure.MapGenScatteredFeature;
 import net.minecraft.world.gen.structure.StructureStart;
-import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.World;
+import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.api.world.extent.ImmutableBiomeArea;
 import org.spongepowered.api.world.extent.MutableBlockVolume;
 import org.spongepowered.api.world.gen.PopulatorType;
@@ -68,16 +68,16 @@ public class WitchHutStructure implements WitchHut {
     }
 
     @Override
-    public void populate(Chunk chunk, Random random) {
-        net.minecraft.world.World world = (net.minecraft.world.World) chunk.getWorld();
-        this.gen.generateStructure(world, random, new ChunkCoordIntPair(chunk.getBlockMin().getX() / 16, chunk.getBlockMin().getZ() / 16));
+    public void populate(World world, Extent volume, Random random) {
+        this.gen.generateStructure((net.minecraft.world.World) world, random,
+                new ChunkPos((volume.getBlockMin().getX() - 8) / 16, (volume.getBlockMin().getZ() - 8) / 16));
     }
 
     public static class Start extends StructureStart {
 
         public Start(net.minecraft.world.World world, Random rand, int chunkX, int chunkZ) {
             super(chunkX, chunkZ);
-            BiomeGenBase biomegenbase = world.getBiomeGenForCoords(new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8));
+            Biome biomegenbase = world.getBiome(new BlockPos(chunkX * 16 + 8, 0, chunkZ * 16 + 8));
 
             if (biomegenbase == Biomes.SWAMPLAND) {
                 ComponentScatteredFeaturePieces.SwampHut comp =

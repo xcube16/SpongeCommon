@@ -43,11 +43,14 @@ import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
+import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.entity.PlayerTracker;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
+import org.spongepowered.common.event.tracking.phase.packet.PacketPhase;
+import org.spongepowered.common.event.tracking.phase.tick.TickPhase;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.block.IMixinBlockEventData;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
@@ -61,27 +64,7 @@ import javax.annotation.Nullable;
 
 public abstract class TrackingPhase {
 
-    @Nullable private final TrackingPhase parent;
-
     private final List<TrackingPhase> children = new ArrayList<>();
-
-    TrackingPhase(@Nullable TrackingPhase parent) {
-        this.parent = parent;
-    }
-
-    @Nullable
-    public TrackingPhase getParent() {
-        return this.parent;
-    }
-
-    public List<TrackingPhase> getChildren() {
-        return this.children;
-    }
-
-    public TrackingPhase addChild(TrackingPhase child) {
-        this.children.add(child);
-        return this;
-    }
 
     /**
      * The exit point of any phase. Every phase should have an unwinding
@@ -134,7 +117,7 @@ public abstract class TrackingPhase {
     public void postDispatch(CauseTracker causeTracker, IPhaseState unwindingState, PhaseContext unwindingContext, PhaseContext postContext) {
     }
 
-    protected void processPostItemSpawns(CauseTracker causeTracker, IPhaseState unwindingState, ArrayList<Entity> items) {
+    public void processPostItemSpawns(CauseTracker causeTracker, IPhaseState unwindingState, ArrayList<Entity> items) {
         final SpawnEntityEvent
                 event =
                 SpongeEventFactory.createSpawnEntityEvent(InternalSpawnTypes.UNKNOWN_CAUSE, items, causeTracker.getWorld());
@@ -146,14 +129,18 @@ public abstract class TrackingPhase {
         }
     }
 
-    protected void processPostEntitySpawns(CauseTracker causeTracker, IPhaseState unwindingState, PhaseContext phaseContext,
+    public void processPostEntitySpawns(CauseTracker causeTracker, IPhaseState unwindingState, PhaseContext phaseContext,
             ArrayList<Entity> entities) {
         final SpawnEntityEvent
                 event =
                 SpongeEventFactory.createSpawnEntityEvent(InternalSpawnTypes.UNKNOWN_CAUSE, entities, causeTracker.getWorld());
+        final User creator = phaseContext.getNotifier().orElseGet(() -> phaseContext.getOwner().orElse(null));
         SpongeImpl.postEvent(event);
         if (!event.isCancelled()) {
             for (Entity entity : event.getEntities()) {
+                if (creator != null) {
+                    EntityUtil.toMixin(entity).setCreator(creator.getUniqueId());
+                }
                 causeTracker.getMixinWorld().forceSpawnEntity(entity);
             }
         }
@@ -332,9 +319,17 @@ public abstract class TrackingPhase {
         return Cause.of(NamedCause.source(TeleportCause.builder().type(TeleportTypes.UNKNOWN).build()));
     }
 
-
-    public void appendPreBlockProtectedCheck(Cause.Builder builder, IPhaseState phaseState, PhaseContext context, CauseTracker causeTracker) {
-        context.getSource(Player.class).ifPresent(player -> builder.named(NamedCause.notifier(player)));
+    /**
+     * Adds a notifier to the builder, if necessasry
+     *
+     * @return Whether a notifier was added
+     */
+    public boolean appendPreBlockProtectedCheck(Cause.Builder builder, IPhaseState phaseState, PhaseContext context, CauseTracker causeTracker) {
+        if (context.getSource(Player.class).isPresent()) {
+            builder.named(NamedCause.notifier(context.getSource(Player.class).get()));
+            return true;
+        }
+        return false;
     }
 
     public boolean isTicking(IPhaseState state) {
@@ -347,5 +342,13 @@ public abstract class TrackingPhase {
 
     public boolean requiresDimensionTransferBetweenWorlds(IPhaseState state) {
         return false;
+    }
+
+    public void appendContextPreExplosion(PhaseContext phaseContext, PhaseData currentPhaseData) {
+
+    }
+
+    public void appendExplosionCause(PhaseData phaseData) {
+
     }
 }

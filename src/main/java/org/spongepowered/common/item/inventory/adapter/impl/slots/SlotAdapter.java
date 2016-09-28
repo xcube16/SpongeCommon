@@ -40,6 +40,7 @@ import org.spongepowered.common.interfaces.inventory.IMixinSlot;
 import org.spongepowered.common.item.inventory.adapter.impl.Adapter;
 import org.spongepowered.common.item.inventory.lens.Fabric;
 import org.spongepowered.common.item.inventory.lens.impl.MinecraftFabric;
+import org.spongepowered.common.item.inventory.lens.impl.slots.FakeSlotLensImpl;
 import org.spongepowered.common.item.inventory.lens.impl.slots.SlotLensImpl;
 import org.spongepowered.common.item.inventory.lens.slots.SlotLens;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
@@ -61,7 +62,7 @@ public class SlotAdapter extends Adapter implements Slot {
     public int slotNumber = -1;
 
     public SlotAdapter(net.minecraft.inventory.Slot slot) {
-        this(MinecraftFabric.of(slot), new SlotLensImpl(((IMixinSlot)slot).getSlotIndex()), slot.inventory instanceof Inventory ? (Inventory) slot.inventory : null);
+        this(MinecraftFabric.of(slot), ((IMixinSlot)slot).getSlotIndex() >= 0 ? new SlotLensImpl(((IMixinSlot)slot).getSlotIndex()) : new FakeSlotLensImpl(slot), slot.inventory instanceof Inventory ? (Inventory) slot.inventory : null);
         this.slotNumber = slot.slotNumber;
     }
 
@@ -92,20 +93,6 @@ public class SlotAdapter extends Adapter implements Slot {
     @Override
     public <T extends Inventory> T first() {
         return (T) this;
-    }
-
-    SlotAdapter setNext(SlotAdapter next) {
-        this.nextSlot = next;
-        return this;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Inventory> T next() {
-        if (this.nextSlot != null) {
-            return (T) this.nextSlot;
-        }
-        return (T) this.emptyInventory();
     }
 
     @Override

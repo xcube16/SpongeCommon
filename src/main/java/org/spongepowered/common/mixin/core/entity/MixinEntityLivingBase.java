@@ -87,7 +87,7 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
-import org.spongepowered.common.event.tracking.phase.EntityPhase;
+import org.spongepowered.common.event.tracking.phase.entity.EntityPhase;
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.type.event.DamageSourceRegistryModule;
@@ -127,7 +127,12 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
     @Shadow protected int recentlyHit;
     @Shadow protected float lastDamage;
     @Shadow @Nullable protected EntityPlayer attackingPlayer;
-    @Shadow protected abstract void damageArmor(float p_70675_1_);
+    @Shadow protected ItemStack activeItemStack;
+    // Empty body so that we can call super() in MixinEntityPlayer
+    @Shadow public void stopActiveHand() {
+
+    }
+
     @Shadow protected abstract void setBeenAttacked();
     @Shadow protected abstract SoundEvent getDeathSound();
     @Shadow protected abstract float getSoundVolume();
@@ -150,7 +155,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
     @Shadow @Nullable public abstract ItemStack getItemStackFromSlot(EntityEquipmentSlot slotIn);
     @Shadow protected abstract void applyEntityAttributes();
     @Shadow protected abstract void playHurtSound(net.minecraft.util.DamageSource p_184581_1_);
-    @Shadow protected abstract boolean canBlockDamageSource(DamageSource p_184583_1_);
     @Shadow protected abstract void damageShield(float p_184590_1_);
     @Shadow public abstract void setActiveHand(EnumHand hand);
     @Shadow @Nullable public abstract ItemStack getHeldItem(EnumHand hand);
@@ -169,6 +173,9 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
     @Shadow protected abstract void dropLoot(boolean wasRecentlyHit, int lootingModifier, DamageSource source);
     @Shadow protected abstract boolean canDropLoot();
     @Shadow public abstract Random getRNG();
+    @Shadow private boolean canBlockDamageSource(DamageSource p_184583_1_) {
+        return false; // Shadowed
+    }
 
     @Override
     public Vector3d getHeadRotation() {
@@ -659,7 +666,7 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
                 if (!world.isRemote) {
                     Transform<org.spongepowered.api.world.World> fromTransform = this.getTransform().setPosition(new Vector3d(d0, d1, d2));
                     Transform<org.spongepowered.api.world.World> toTransform = this.getTransform().setPosition(new Vector3d(this.posX, this.posY, this.posZ));
-    
+
                     MoveEntityEvent.Teleport event = EntityUtil.handleDisplaceEntityTeleportEvent((Entity) (Object) this, fromTransform, toTransform, false);
                     if (event.isCancelled()) {
                         this.posX = d0;
@@ -803,7 +810,6 @@ public abstract class MixinEntityLivingBase extends MixinEntity implements Livin
 //            EntityUtil.toMixin(entityItem).setDestructCause(Cause.of(NamedCause.of("PickedUp", this)));
         }
     }
-
     // Data delegated methods
 
     @Override

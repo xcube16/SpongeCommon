@@ -105,8 +105,8 @@ import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
-import org.spongepowered.common.event.tracking.phase.TickPhase;
-import org.spongepowered.common.event.tracking.phase.util.PacketPhaseUtil;
+import org.spongepowered.common.event.tracking.phase.tick.TickPhase;
+import org.spongepowered.common.event.tracking.phase.packet.PacketPhaseUtil;
 import org.spongepowered.common.interfaces.IMixinNetworkManager;
 import org.spongepowered.common.interfaces.IMixinPacketResourcePackSend;
 import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
@@ -543,11 +543,15 @@ public abstract class MixinNetHandlerPlayServer implements PlayerConnection, IMi
         // since the client will send the server a CPacketTryUseItem right after this packet is done processing.
         if (actionResult != EnumActionResult.SUCCESS) {
             SpongeCommonEventFactory.ignoreRightClickAirEvent = true;
-            final CauseTracker causeTracker = ((IMixinWorldServer) player.worldObj).getCauseTracker();
-            final PhaseData peek = causeTracker.getCurrentPhaseData();
-            final ItemStack itemStack = peek.context.firstNamed(InternalNamedCauses.Packet.ITEM_USED, ItemStack.class).orElse(null);
-            PacketPhaseUtil.handlePlayerSlotRestore((EntityPlayerMP) player, itemStack, hand);
+            // If a plugin or mod has changed the item, avoid restoring
+            if (!SpongeCommonEventFactory.playerInteractItemChanged) {
+                final CauseTracker causeTracker = ((IMixinWorldServer) player.worldObj).getCauseTracker();
+                final PhaseData peek = causeTracker.getCurrentPhaseData();
+                final ItemStack itemStack = peek.context.firstNamed(InternalNamedCauses.Packet.ITEM_USED, ItemStack.class).orElse(null);
+                PacketPhaseUtil.handlePlayerSlotRestore((EntityPlayerMP) player, itemStack, hand);
+            }
         }
+        SpongeCommonEventFactory.playerInteractItemChanged = false;
         return actionResult;
     }
 
@@ -704,5 +708,10 @@ public abstract class MixinNetHandlerPlayServer implements PlayerConnection, IMi
             SpongeCommonEventFactory.lastAnimationPacketTick = SpongeImpl.getServer().getTickCounter();
             SpongeCommonEventFactory.lastAnimationPlayer = this.playerEntity;
         }
+    }
+
+    @Override
+    public void setLastMoveLocation(Location<World> location) {
+        this.lastMoveLocation = location;
     }
 }

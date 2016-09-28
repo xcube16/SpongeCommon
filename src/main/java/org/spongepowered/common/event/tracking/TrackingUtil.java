@@ -56,22 +56,19 @@ import org.spongepowered.api.event.block.TickBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.cause.entity.spawn.BlockSpawnCause;
-import org.spongepowered.api.event.entity.DamageEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.api.util.Identifiable;
 import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
-import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.event.InternalNamedCauses;
-import org.spongepowered.common.event.tracking.phase.BlockPhase;
-import org.spongepowered.common.event.tracking.phase.GeneralPhase;
-import org.spongepowered.common.event.tracking.phase.TickPhase;
+import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
+import org.spongepowered.common.event.tracking.phase.general.GeneralPhase;
+import org.spongepowered.common.event.tracking.phase.tick.TickPhase;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.block.IMixinBlockEventData;
 import org.spongepowered.common.interfaces.block.tile.IMixinTileEntity;
@@ -91,7 +88,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -304,19 +300,40 @@ public final class TrackingUtil {
 
     static boolean trackBlockChange(CauseTracker causeTracker, Chunk chunk, IBlockState currentState, IBlockState newState, BlockPos pos, int flags,
             PhaseContext phaseContext, IPhaseState phaseState) {
-        final WorldServer minecraftWorld = causeTracker.getMinecraftWorld();
-        final IBlockState actualState = currentState.getActualState(minecraftWorld, pos);
-        final SpongeBlockSnapshot originalBlockSnapshot = causeTracker.getMixinWorld().createSpongeBlockSnapshot(currentState, actualState, pos, flags);
-        final List<BlockSnapshot> capturedSnapshots = phaseContext.getCapturedBlocks();
-        final Block newBlock = newState.getBlock();
-
-        associateBlockChangeWithSnapshot(phaseState, newBlock, currentState, originalBlockSnapshot, capturedSnapshots);
-        final IMixinChunk mixinChunk = (IMixinChunk) chunk;
-        final IBlockState originalBlockState = mixinChunk.setBlockState(pos, newState, currentState, originalBlockSnapshot);
-        if (originalBlockState == null) {
-            capturedSnapshots.remove(originalBlockSnapshot);
-            return false;
+        if (pos.getX() == 802 && pos.getY() == 86 && pos.getZ() == -148) {
+            new PrettyPrinter(100).add("Position changing!").centre().hr()
+                    .add("The position: 802, 86, -148 is changing!!! Here is some debugging information:")
+                    .addWrapped(100, " %s : %s", "Original State", currentState)
+                    .addWrapped(100, " %s : %s", "New State", newState)
+                    .hr()
+                    .add("Exception")
+                    .add(new Exception())
+                    .trace();
         }
+        final SpongeBlockSnapshot originalBlockSnapshot;
+        final WorldServer minecraftWorld = causeTracker.getMinecraftWorld();
+        if (phaseState.shouldCaptureBlockChangeOrSkip(phaseContext, pos)) {
+            final IBlockState actualState = currentState.getActualState(minecraftWorld, pos);
+            originalBlockSnapshot = causeTracker.getMixinWorld().createSpongeBlockSnapshot(currentState, actualState, pos, flags);
+            final List<BlockSnapshot> capturedSnapshots = phaseContext.getCapturedBlocks();
+            final Block newBlock = newState.getBlock();
+
+            associateBlockChangeWithSnapshot(phaseState, newBlock, currentState, originalBlockSnapshot, capturedSnapshots);
+            final IMixinChunk mixinChunk = (IMixinChunk) chunk;
+            final IBlockState originalBlockState = mixinChunk.setBlockState(pos, newState, currentState, originalBlockSnapshot);
+            if (originalBlockState == null) {
+                capturedSnapshots.remove(originalBlockSnapshot);
+                return false;
+            }
+        } else {
+            originalBlockSnapshot = (SpongeBlockSnapshot) BlockSnapshot.NONE;
+            final IMixinChunk mixinChunk = (IMixinChunk) chunk;
+            final IBlockState originalBlockState = mixinChunk.setBlockState(pos, newState, currentState, originalBlockSnapshot);
+            if (originalBlockState == null) {
+                return false;
+            }
+        }
+
 
         if (newState.getLightOpacity() != currentState.getLightOpacity() || newState.getLightValue() != currentState.getLightValue()) {
             minecraftWorld.theProfiler.startSection("checkLight");
@@ -533,7 +550,7 @@ public final class TrackingUtil {
         }
     }
 
-    private static boolean performBlockAdditions(CauseTracker causeTracker, List<Transaction<BlockSnapshot>> transactions, Cause.Builder builder, IPhaseState phaseState, PhaseContext phaseContext, boolean noCancelledTransactions) {
+    public static boolean performBlockAdditions(CauseTracker causeTracker, List<Transaction<BlockSnapshot>> transactions, Cause.Builder builder, IPhaseState phaseState, PhaseContext phaseContext, boolean noCancelledTransactions) {
         // We have to use a proxy so that our pending changes are notified such that any accessors from block
         // classes do not fail on getting the incorrect block state from the IBlockAccess
         final WorldServer minecraftWorld = causeTracker.getMinecraftWorld();
@@ -567,9 +584,10 @@ public final class TrackingUtil {
             final BlockChangeFlag changeFlag = oldBlockSnapshot.getChangeFlag();
             final IBlockState originalState = (IBlockState) oldBlockSnapshot.getState();
             final IBlockState newState = (IBlockState) newBlockSnapshot.getState();
-            // Containers get placed automatically
-            if (changeFlag.performBlockPhysics() && originalState.getBlock() != newState.getBlock() && !SpongeImplHooks
-                    .blockHasTileEntity(newState.getBlock(), newState)) {
+            // We call onBlockAdded here for both TE blocks (BlockContainer's) and other blocks.
+            // MixinChunk#setBlockState will only call onBlockAdded for BlockContainers when it's passed a null newBlockSnapshot,
+            // which only happens when capturing is not being done.
+            if (changeFlag.performBlockPhysics() && originalState.getBlock() != newState.getBlock()) {
                 newState.getBlock().onBlockAdded(minecraftWorld, pos, newState);
                 final PhaseData peek = causeTracker.getCurrentPhaseData();
                 if (peek.state == GeneralPhase.Post.UNWINDING) {

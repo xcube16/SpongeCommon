@@ -58,7 +58,7 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
-import org.spongepowered.common.event.tracking.phase.BlockPhase;
+import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 
@@ -70,7 +70,7 @@ import java.util.Optional;
 public abstract class MixinBlockLeaves extends MixinBlock {
 
     @Inject(method = "<init>", at = @At(value = "RETURN"))
-    public void onConstruction(CallbackInfo ci) {
+    public void onLeavesConstruction(CallbackInfo ci) {
         this.setTickRandomly(SpongeImpl.getGlobalConfig().getConfig().getWorld().getLeafDecay());
     }
 

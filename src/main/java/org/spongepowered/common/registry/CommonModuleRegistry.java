@@ -35,6 +35,7 @@ import org.spongepowered.api.block.trait.IntegerTrait;
 import org.spongepowered.api.boss.BossBarColor;
 import org.spongepowered.api.boss.BossBarOverlay;
 import org.spongepowered.api.boss.ServerBossBar;
+import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.meta.PatternLayer;
 import org.spongepowered.api.data.persistence.DataFormat;
 import org.spongepowered.api.data.persistence.DataTranslator;
@@ -52,8 +53,10 @@ import org.spongepowered.api.entity.ai.task.AITaskType;
 import org.spongepowered.api.entity.ai.task.builtin.SwimmingAITask;
 import org.spongepowered.api.entity.ai.task.builtin.creature.AttackLivingAITask;
 import org.spongepowered.api.entity.ai.task.builtin.creature.AvoidEntityAITask;
+import org.spongepowered.api.entity.ai.task.builtin.LookIdleAITask;
+import org.spongepowered.api.entity.ai.task.builtin.creature.RangeAgentAITask;
 import org.spongepowered.api.entity.ai.task.builtin.creature.WanderAITask;
-import org.spongepowered.api.entity.ai.task.builtin.creature.WatchClosestAITask;
+import org.spongepowered.api.entity.ai.task.builtin.WatchClosestAITask;
 import org.spongepowered.api.entity.ai.task.builtin.creature.horse.RunAroundLikeCrazyAITask;
 import org.spongepowered.api.entity.ai.task.builtin.creature.target.FindNearestAttackableTargetAITask;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
@@ -103,7 +106,9 @@ import org.spongepowered.api.world.GeneratorType;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.PortalAgentType;
+import org.spongepowered.api.world.biome.BiomeGenerationSettings;
 import org.spongepowered.api.world.biome.BiomeType;
+import org.spongepowered.api.world.biome.VirtualBiomeType;
 import org.spongepowered.api.world.difficulty.Difficulty;
 import org.spongepowered.api.world.explosion.Explosion;
 import org.spongepowered.api.world.gen.PopulatorObject;
@@ -157,6 +162,7 @@ import org.spongepowered.common.registry.type.boss.BossBarOverlayRegistryModule;
 import org.spongepowered.common.registry.type.data.DataFormatRegistryModule;
 import org.spongepowered.common.registry.type.data.DataTranslatorRegistryModule;
 import org.spongepowered.common.registry.type.data.HandTypeRegistryModule;
+import org.spongepowered.common.registry.type.data.KeyRegistryModule;
 import org.spongepowered.common.registry.type.economy.TransactionTypeRegistryModule;
 import org.spongepowered.common.registry.type.effect.ParticleRegistryModule;
 import org.spongepowered.common.registry.type.effect.PotionEffectTypeRegistryModule;
@@ -187,6 +193,8 @@ import org.spongepowered.common.scoreboard.builder.SpongeScoreboardBuilder;
 import org.spongepowered.common.scoreboard.builder.SpongeTeamBuilder;
 import org.spongepowered.common.world.SpongeExplosionBuilder;
 import org.spongepowered.common.world.SpongeWorldArchetypeBuilder;
+import org.spongepowered.common.world.biome.SpongeBiomeGenerationSettingsBuilder;
+import org.spongepowered.common.world.biome.SpongeVirtualBiomeTypeBuilder;
 import org.spongepowered.common.world.schematic.SpongeSchematicBuilder;
 import org.spongepowered.common.world.gen.builders.*;
 
@@ -253,6 +261,8 @@ public final class CommonModuleRegistry {
             .registerBuilderSupplier(WatchClosestAITask.Builder.class, SpongeWatchClosestAIBuilder::new)
             .registerBuilderSupplier(FindNearestAttackableTargetAITask.Builder.class, SpongeFindNearestAttackableTargetAIBuilder::new)
             .registerBuilderSupplier(AttackLivingAITask.Builder.class, SpongeAttackLivingAIBuilder::new)
+            .registerBuilderSupplier(RangeAgentAITask.Builder.class, SpongeRangeAgentAIBuilder::new)
+            .registerBuilderSupplier(LookIdleAITask.Builder.class, SpongeLookIdleAIBuilder::new)
             .registerBuilderSupplier(PatternLayer.Builder.class, SpongePatternLayerBuilder::new)
             .registerBuilderSupplier(ResizableParticle.Builder.class, SpongeParticleEffectBuilder.BuilderResizable::new)
             .registerBuilderSupplier(BlockParticle.Builder.class, SpongeParticleEffectBuilder.BuilderBlock::new)
@@ -303,6 +313,8 @@ public final class CommonModuleRegistry {
             .registerBuilderSupplier(EntityArchetype.Builder.class, SpongeEntityArchetypeBuilder::new)
             .registerBuilderSupplier(TileEntityArchetype.Builder.class, SpongeTileEntityArchetypeBuilder::new)
             .registerBuilderSupplier(Schematic.Builder.class, SpongeSchematicBuilder::new)
+            .registerBuilderSupplier(VirtualBiomeType.Builder.class, SpongeVirtualBiomeTypeBuilder::new)
+            .registerBuilderSupplier(BiomeGenerationSettings.Builder.class, SpongeBiomeGenerationSettingsBuilder::new)
             .registerBuilderSupplier(InventoryArchetype.Builder.class, SpongeInventoryArchetypeBuilder::new)
             .registerBuilderSupplier(Inventory.Builder.class, SpongeInventoryBuilder::new)
         ;
@@ -410,6 +422,7 @@ public final class CommonModuleRegistry {
             .registerModule(PickupRule.class, new PickupRuleRegistryModule())
             .registerModule(BlockPaletteType.class, new PaletteTypeRegistryModule())
             .registerModule(CollisionRule.class, new CollisionRuleRegistryModule())
+            .registerModule((Class<Key<?>>) (Class<?>) Key.class, KeyRegistryModule.getInstance())
             .registerModule(InventoryArchetype.class, InventoryArchetypeRegistryModule.getInstance())
             ;
     }

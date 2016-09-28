@@ -46,7 +46,6 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseData;
-import org.spongepowered.common.event.tracking.phase.PacketPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 
 import java.net.InetSocketAddress;
@@ -98,12 +97,14 @@ public abstract class MixinDedicatedServer extends MinecraftServer {
         final CauseTracker causeTracker = ((IMixinWorldServer) worldServer).getCauseTracker();
         final PhaseData peek = causeTracker.getCurrentPhaseData();
         final IPhaseState phaseState = peek.state;
-        if (phaseState == null || (phaseState != PacketPhase.General.PLACE_BLOCK && phaseState != PacketPhase.General.USE_ITEM && 
-                phaseState != PacketPhase.General.INTERACTION)) {
+        if (phaseState == null || !phaseState.isInteraction()) {
             final Cause.Builder builder = Cause.source(playerIn);
-            peek.context.getNotifier().ifPresent(builder::notifier);
             peek.context.getOwner().ifPresent(builder::owner);
-            phaseState.getPhase().appendPreBlockProtectedCheck(builder, phaseState, peek.context, causeTracker);
+
+            if (!(phaseState.getPhase().appendPreBlockProtectedCheck(builder, phaseState, peek.context, causeTracker))) {
+                peek.context.getNotifier().ifPresent(builder::notifier);
+            }
+
             Location<World> location = new Location<>((World) worldIn, pos.getX(), pos.getY(), pos.getZ());
             ChangeBlockEvent.Pre event = SpongeEventFactory.createChangeBlockEventPre(builder.build(), ImmutableList.of(location), (World) worldIn);
             SpongeImpl.postEvent(event);

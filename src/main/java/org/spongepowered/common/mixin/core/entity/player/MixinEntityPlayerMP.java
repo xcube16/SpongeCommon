@@ -91,6 +91,7 @@ import org.spongepowered.api.event.cause.entity.spawn.SpawnCause;
 import org.spongepowered.api.event.entity.MoveEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.ChangeGameModeEvent;
 import org.spongepowered.api.item.inventory.Carrier;
+import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.Container;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
@@ -134,7 +135,7 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
-import org.spongepowered.common.event.tracking.phase.EntityPhase;
+import org.spongepowered.common.event.tracking.phase.entity.EntityPhase;
 import org.spongepowered.common.interfaces.IMixinCommandSender;
 import org.spongepowered.common.interfaces.IMixinCommandSource;
 import org.spongepowered.common.interfaces.IMixinPacketResourcePackSend;
@@ -190,8 +191,8 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements P
     // Inventory
     @Shadow public abstract void addChatMessage(ITextComponent component);
     @Shadow public abstract void closeScreen();
-    @Shadow public abstract void getNextWindowId();
     @Shadow public int currentWindowId;
+    @Shadow private void getNextWindowId() { }
 
     private EntityPlayerMP this$ = (EntityPlayerMP) (Object) this;
 
@@ -778,5 +779,30 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements P
         // ASK MUMFREY HOW TO GET THE FRIGGING SLOT FOR THE EVENT?!
 
         return this.dropItem(this.inventory.decrStackSize(this.inventory.currentItem, dropAll && currentItem != null ? currentItem.stackSize : 1), false, true);
+    }
+
+    @Override
+    public void stopActiveHand() {
+        // Our using item state is probably desynced from the client (e.g. from the initial air interaction of a bow being cancelled).
+        // We need to re-send the player's inventory to overwrite any client-side inventory changes that may have occured as a result
+        // of the client (but not the server) calling Item#onPlayerStoppedUsing (which in the case of a bow, removes one arrow from the inventory).
+        if (this.activeItemStack == null) {
+            this$.sendContainerToPlayer(this$.inventoryContainer);
+        }
+        super.stopActiveHand();
+    }
+
+    @Override
+    public Inventory getEnderChestInventory() {
+        return (Inventory) this.theInventoryEnderChest;
+    }
+
+    @Override
+    public boolean respawnPlayer() {
+        if (this.getHealth() > 0.0F) {
+            return false;
+        }
+        this.mcServer.getPlayerList().recreatePlayerEntity(this$, this$.dimension, false);
+        return true;
     }
 }

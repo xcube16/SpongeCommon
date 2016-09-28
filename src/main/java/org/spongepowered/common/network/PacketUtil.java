@@ -34,14 +34,16 @@ import net.minecraft.network.play.client.CPacketClientStatus;
 import net.minecraft.network.play.client.CPacketCreativeInventoryAction;
 import net.minecraft.network.play.client.CPacketUpdateSign;
 import net.minecraft.tileentity.TileEntitySign;
+import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
-import org.spongepowered.common.event.tracking.phase.PacketPhase;
+import org.spongepowered.common.event.tracking.phase.packet.IPacketState;
 import org.spongepowered.common.event.tracking.phase.TrackingPhases;
+import org.spongepowered.common.event.tracking.phase.packet.PacketPhase;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 
@@ -96,7 +98,7 @@ public class PacketUtil {
                 final ItemStackSnapshot cursor = ItemStackUtil.snapshotOf(packetPlayer.inventory.getItemStack());
                 final IMixinWorldServer world = (IMixinWorldServer) packetPlayer.worldObj;
                 final CauseTracker causeTracker = world.getCauseTracker();
-                final PacketPhase.IPacketState packetState = TrackingPhases.PACKET.getStateForPacket(packetIn);
+                final IPacketState packetState = TrackingPhases.PACKET.getStateForPacket(packetIn);
                 if (packetState == null) {
                     throw new IllegalArgumentException("Found a null packet phase for packet: " + packetIn.getClass());
                 }
@@ -110,6 +112,8 @@ public class PacketUtil {
                             .add(NamedCause.of(InternalNamedCauses.Packet.IGNORING_CREATIVE, ignoreCreative));
 
                     TrackingPhases.PACKET.populateContext(packetIn, packetPlayer, packetState, context);
+                    context.owner((Player) packetPlayer);
+                    context.notifier((Player) packetPlayer);
                     context.complete();
                     causeTracker.switchToPhase(packetState, context);
                 } else {

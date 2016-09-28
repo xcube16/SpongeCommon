@@ -33,15 +33,16 @@ import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.DataManipulatorBuilder;
 import org.spongepowered.api.extra.fluid.FluidTypes;
 import org.spongepowered.common.SpongeGame;
+import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.DataRegistrar;
 import org.spongepowered.common.data.SpongeDataManager;
-import org.spongepowered.common.data.key.KeyRegistry;
 import org.spongepowered.common.data.type.SpongeCommonFluidType;
 import org.spongepowered.common.data.util.DataProcessorDelegate;
 import org.spongepowered.common.data.util.ImplementationRequiredForTest;
+import org.spongepowered.common.registry.type.data.KeyRegistryModule;
+import org.spongepowered.common.registry.util.RegistryModuleLoader;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,7 @@ final class DataTestUtil {
 
     @SuppressWarnings("unchecked")
     static List<Object[]> generateManipulatorTestObjects() throws Exception {
+        KeyRegistryModule.getInstance().registerDefaults();
         generateKeyMap();
         setupCatalogTypes();
         SpongeGame mockGame = mock(SpongeGame.class);
@@ -76,9 +78,9 @@ final class DataTestUtil {
 
     @SuppressWarnings("unchecked")
     private static void generateKeyMap() throws Exception {
-        Method mapGetter = KeyRegistry.class.getDeclaredMethod("getKeyMap");
+        Field mapGetter = KeyRegistryModule.class.getDeclaredField("fieldMap");
         mapGetter.setAccessible(true);
-        final Map<String, Key<?>> mapping = (Map<String, Key<?>>) mapGetter.invoke(null);
+        final Map<String, Key<?>> mapping = (Map<String, Key<?>>) mapGetter.get(KeyRegistryModule.getInstance());
         for (Field field : Keys.class.getDeclaredFields()) {
             if (!mapping.containsKey(field.getName().toLowerCase())) {
                 continue;

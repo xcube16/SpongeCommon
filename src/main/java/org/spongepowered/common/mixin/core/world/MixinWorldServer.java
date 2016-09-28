@@ -41,10 +41,12 @@ import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.passive.EntityHorse;
 import net.minecraft.entity.passive.HorseType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.profiler.Profiler;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.PlayerChunkMap;
@@ -55,6 +57,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.DimensionType;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.NextTickListEntry;
 import net.minecraft.world.Teleporter;
 import net.minecraft.world.World;
@@ -95,6 +98,7 @@ import org.spongepowered.api.event.cause.entity.spawn.WeatherSpawnCause;
 import org.spongepowered.api.event.entity.ConstructEntityEvent;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.world.ChangeWorldWeatherEvent;
+import org.spongepowered.api.event.world.ExplosionEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.util.PositionOutOfBoundsException;
@@ -102,6 +106,7 @@ import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.GeneratorType;
 import org.spongepowered.api.world.GeneratorTypes;
+import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.PortalAgent;
 import org.spongepowered.api.world.PortalAgentType;
 import org.spongepowered.api.world.PortalAgentTypes;
@@ -124,6 +129,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.block.SpongeBlockSnapshot;
@@ -141,16 +147,18 @@ import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.event.tracking.TrackingUtil;
-import org.spongepowered.common.event.tracking.phase.EntityPhase;
-import org.spongepowered.common.event.tracking.phase.GenerationPhase;
-import org.spongepowered.common.event.tracking.phase.PluginPhase;
-import org.spongepowered.common.event.tracking.phase.TickPhase;
+import org.spongepowered.common.event.tracking.phase.entity.EntityPhase;
+import org.spongepowered.common.event.tracking.phase.general.GeneralPhase;
+import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
+import org.spongepowered.common.event.tracking.phase.plugin.PluginPhase;
+import org.spongepowered.common.event.tracking.phase.tick.TickPhase;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinNextTickListEntry;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
 import org.spongepowered.common.interfaces.block.IMixinBlockEventData;
 import org.spongepowered.common.interfaces.block.tile.IMixinTileEntity;
 import org.spongepowered.common.interfaces.server.management.IMixinPlayerChunkMap;
+import org.spongepowered.common.interfaces.world.IMixinExplosion;
 import org.spongepowered.common.interfaces.world.IMixinWorldInfo;
 import org.spongepowered.common.interfaces.world.IMixinWorldProvider;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
@@ -221,7 +229,7 @@ public abstract class MixinWorldServer extends MixinWorld implements IMixinWorld
     @Shadow private int updateEntityTick;
 
     @Shadow public abstract boolean fireBlockEvent(BlockEventData event);
-    @Shadow public abstract void createBonusChest();
+    @Shadow protected abstract void createBonusChest();
     @Shadow @Nullable public abstract net.minecraft.entity.Entity getEntityFromUuid(UUID uuid);
     @Shadow public abstract PlayerChunkMap getPlayerChunkMap();
     @Shadow @Override public abstract ChunkProviderServer getChunkProvider();
@@ -233,6 +241,7 @@ public abstract class MixinWorldServer extends MixinWorld implements IMixinWorld
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstruct(MinecraftServer server, ISaveHandler saveHandlerIn, WorldInfo info, int dimensionId, Profiler profilerIn, CallbackInfo callbackInfo) {
+        this.activeConfig = SpongeHooks.getActiveConfig((WorldServer)(Object) this);
         this.prevWeather = getWeather();
         this.weatherStartTime = this.worldInfo.getWorldTotalTime();
         ((World) (Object) this).getWorldBorder().addListener(new PlayerBorderListener(this.getMinecraftServer(), dimensionId));
@@ -673,6 +682,7 @@ public abstract class MixinWorldServer extends MixinWorld implements IMixinWorld
      * @reason Always allow entity cleanup to occur. This prevents issues such as a plugin 
      *         generating chunks with no players causing entities not getting cleaned up.
      */
+    @Override
     @Overwrite
     public void updateEntities() {
         // Sponge start
@@ -989,7 +999,6 @@ public abstract class MixinWorldServer extends MixinWorld implements IMixinWorld
         return this.getDimensionId();
     }
 
-
     /**
      * @author gabizou - February 7th, 2016
      * @author gabizou - September 3rd, 2016 - Moved from MixinWorld since WorldServer overrides the method.
@@ -1013,7 +1022,9 @@ public abstract class MixinWorldServer extends MixinWorld implements IMixinWorld
         }
         List<Entity> entityList = new ArrayList<>();
         for (net.minecraft.entity.Entity entity : entities) {
-            entityList.add((Entity) entity);
+            if (this.canAddEntity(entity)) {
+                entityList.add((Entity) entity);
+            }
         }
         SpawnCause cause = SpawnCause.builder().type(InternalSpawnTypes.CHUNK_LOAD).build();
         List<NamedCause> causes = new ArrayList<>();
@@ -1028,6 +1039,86 @@ public abstract class MixinWorldServer extends MixinWorld implements IMixinWorld
             }
         }
         callbackInfo.cancel();
+    }
+
+    @Override
+    public void triggerExplosion(org.spongepowered.api.world.explosion.Explosion explosion, Cause cause) {
+        checkNotNull(explosion, "explosion");
+        Location<org.spongepowered.api.world.World> origin = explosion.getLocation();
+        checkNotNull(origin, "location");
+        checkNotNull(cause, "Cause cannot be null!");
+        checkArgument(cause.containsType(PluginContainer.class), "Cause must contain a PluginContainer!");
+        if (CauseTracker.ENABLED) {
+            final PhaseContext phaseContext = PhaseContext.start()
+                    .add(NamedCause.source(cause))
+                    .explosion()
+                    .addEntityCaptures()
+                    .addEntityDropCaptures()
+                    .addBlockCaptures();
+            phaseContext.getCaptureExplosion().addExplosion(explosion);
+            phaseContext.complete();
+            this.causeTracker.switchToPhase(PluginPhase.State.CUSTOM_EXPLOSION, phaseContext);
+        }
+        final Explosion mcExplosion;
+        try {
+            // Since we already have the API created implementation Explosion, let's use it.
+            mcExplosion = (Explosion) explosion;
+        } catch (Exception e) {
+            new PrettyPrinter(60).add("Explosion not compatible with this implementation").centre().hr()
+                    .add("An explosion that was expected to be used for this implementation does not")
+                    .add("originate from this implementation.")
+                    .add(e)
+                    .trace();
+            return;
+        }
+        final double x = mcExplosion.explosionX;
+        final double y = mcExplosion.explosionY;
+        final double z = mcExplosion.explosionZ;
+        final boolean isSmoking = mcExplosion.isSmoking;
+        final float strength = explosion.getRadius();
+
+        // Set up the pre event
+        final ExplosionEvent.Pre event = SpongeEventFactory.createExplosionEventPre(cause, explosion, this);
+        if (SpongeImpl.postEvent(event)) {
+            this.processingExplosion = false;
+            if (CauseTracker.ENABLED) {
+                this.causeTracker.completePhase();
+            }
+            return;
+        }
+        // Sponge End
+
+        mcExplosion.doExplosionA();
+        mcExplosion.doExplosionB(false);
+
+        if (!isSmoking) {
+            mcExplosion.clearAffectedBlockPositions();
+        }
+
+        for (EntityPlayer entityplayer : this.playerEntities) {
+            if (entityplayer.getDistanceSq(x, y, z) < 4096.0D) {
+                ((EntityPlayerMP) entityplayer).connection.sendPacket(new SPacketExplosion(x, y, z, strength, mcExplosion.getAffectedBlockPositions(),
+                        mcExplosion.getPlayerKnockbackMap().get(entityplayer)));
+            }
+        }
+
+        // Sponge Start - end processing
+        this.processingExplosion = false;
+        if (CauseTracker.ENABLED) {
+            this.causeTracker.completePhase();
+        }
+        // Sponge End
+    }
+
+    @Override
+    public void triggerInternalExplosion(org.spongepowered.api.world.explosion.Explosion explosion) {
+        checkNotNull(explosion, "explosion");
+        Location<org.spongepowered.api.world.World> origin = explosion.getLocation();
+        checkNotNull(origin, "location");
+        newExplosion(EntityUtil.toNullableNative(explosion.getSourceExplosive().orElse(null)), origin.getX(),
+                origin.getY(), origin.getZ(), explosion.getRadius(), explosion.canCauseFire(),
+                explosion.shouldBreakBlocks()
+        );
     }
 
     // ------------------------- Start Cause Tracking overrides of Minecraft World methods ----------
@@ -1349,15 +1440,82 @@ public abstract class MixinWorldServer extends MixinWorld implements IMixinWorld
         return new SpongeBlockSnapshot(this.builder, BlockChangeFlag.ALL.setUpdateNeighbors((updateFlag & 1) != 0), updateFlag);
     }
 
-
-    @Inject(method = "newExplosion", at = @At(value = "HEAD"))
-    public void onExplosionHead(net.minecraft.entity.Entity entityIn, double x, double y, double z, float strength, boolean isFlaming, boolean isSmoking, CallbackInfoReturnable<net.minecraft.world.Explosion> cir) {
+    /**
+     * @author gabizou - September 10th, 2016
+     * @reason Due to the amount of changes, and to ensure that Forge's events are being properly
+     * thrown, we must overwrite to have our hooks in place where we need them to be and when.
+     *
+     * @param entityIn The entity that caused the explosion
+     * @param x The x position
+     * @param y The y position
+     * @param z The z position
+     * @param strength The strength of the explosion, determines what blocks can be destroyed
+     * @param isFlaming Whether fire will be caused from the explosion
+     * @param isSmoking Whether blocks will break
+     * @return The explosion
+     */
+    @Overwrite
+    @Override
+    public Explosion newExplosion(@Nullable net.minecraft.entity.Entity entityIn, double x, double y, double z, float strength, boolean isFlaming,
+            boolean isSmoking) {
+        // Sponge Start - Cause tracking
         this.processingExplosion = true;
-    }
+        if (CauseTracker.ENABLED) {
+            final PhaseContext phaseContext = PhaseContext.start()
+                    .explosion()
+                    .addEntityCaptures()
+                    .addEntityDropCaptures()
+                    .addBlockCaptures();
+            final PhaseData currentPhaseData = this.causeTracker.getCurrentPhaseData();
+            currentPhaseData.state.getPhase().appendContextPreExplosion(phaseContext, currentPhaseData);
+            phaseContext.complete();
+            this.causeTracker.switchToPhase(GeneralPhase.State.EXPLOSION, phaseContext);
+        }
+        // Sponge End
 
-    @Inject(method = "newExplosion", at = @At(value = "RETURN"))
-    public void onExplosionReturn(net.minecraft.entity.Entity entityIn, double x, double y, double z, float strength, boolean isFlaming, boolean isSmoking, CallbackInfoReturnable<net.minecraft.world.Explosion> cir) {
+        Explosion explosion = new Explosion((WorldServer) (Object) this, entityIn, x, y, z, strength, isFlaming, isSmoking);
+
+        // Sponge Start - More cause tracking
+        if (CauseTracker.ENABLED) {
+            try {
+                this.causeTracker.getCurrentContext().getCaptureExplosion().addExplosion(((org.spongepowered.api.world.explosion.Explosion) explosion));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        // Set up the pre event
+        final ExplosionEvent.Pre event = SpongeEventFactory.createExplosionEventPre(((IMixinExplosion) explosion).createCause(),
+                (org.spongepowered.api.world.explosion.Explosion) explosion, this);
+        if (SpongeImpl.postEvent(event)) {
+            this.processingExplosion = false;
+            if (CauseTracker.ENABLED) {
+                this.causeTracker.completePhase();
+            }
+            return explosion;
+        }
+        // Sponge End
+
+        explosion.doExplosionA();
+        explosion.doExplosionB(false);
+
+        if (!isSmoking) {
+            explosion.clearAffectedBlockPositions();
+        }
+
+        for (EntityPlayer entityplayer : this.playerEntities) {
+            if (entityplayer.getDistanceSq(x, y, z) < 4096.0D) {
+                ((EntityPlayerMP) entityplayer).connection.sendPacket(new SPacketExplosion(x, y, z, strength, explosion.getAffectedBlockPositions(),
+                        explosion.getPlayerKnockbackMap().get(entityplayer)));
+            }
+        }
+
+        // Sponge Start - end processing
         this.processingExplosion = false;
+        if (CauseTracker.ENABLED) {
+            this.causeTracker.completePhase();
+        }
+        // Sponge End
+        return explosion;
     }
 
     /**

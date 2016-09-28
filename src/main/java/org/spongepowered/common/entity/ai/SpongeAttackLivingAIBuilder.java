@@ -31,8 +31,13 @@ import org.spongepowered.api.entity.ai.task.builtin.creature.AttackLivingAITask;
 import org.spongepowered.api.entity.living.Creature;
 
 public final class SpongeAttackLivingAIBuilder implements AttackLivingAITask.Builder {
+
     private double speed;
     private boolean longMemory;
+
+    public SpongeAttackLivingAIBuilder() {
+        this.reset();
+    }
 
     @Override
     public AttackLivingAITask.Builder speed(double speed) {

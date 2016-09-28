@@ -88,11 +88,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.config.SpongeConfig;
 import org.spongepowered.common.event.SpongeCommonEventFactory;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
-import org.spongepowered.common.event.tracking.phase.GenerationPhase;
+import org.spongepowered.common.event.tracking.phase.generation.GenerationPhase;
 import org.spongepowered.common.interfaces.IMixinCommandSender;
 import org.spongepowered.common.interfaces.IMixinCommandSource;
 import org.spongepowered.common.interfaces.IMixinMinecraftServer;
@@ -101,7 +100,6 @@ import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.profile.SpongeProfileManager;
 import org.spongepowered.common.resourcepack.SpongeResourcePack;
 import org.spongepowered.common.text.SpongeTexts;
-import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.WorldManager;
 import org.spongepowered.common.world.storage.SpongeChunkLayout;
 
@@ -144,7 +142,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, IMi
     @Shadow protected abstract void outputPercentRemaining(String message, int percent);
     @Shadow protected abstract void clearCurrentTask();
     @Shadow protected abstract void convertMapIfNeeded(String worldNameIn);
-    @Shadow protected abstract void setResourcePackFromWorld(String worldNameIn, ISaveHandler saveHandlerIn);
+    @Shadow public abstract void setResourcePackFromWorld(String worldNameIn, ISaveHandler saveHandlerIn);
     @Shadow public abstract boolean getAllowNether();
     @Shadow public abstract DataFixer getDataFixer();
     @Shadow public abstract int getMaxPlayerIdleMinutes();
@@ -344,9 +342,7 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, IMi
 
     @Override
     public void prepareSpawnArea(WorldServer worldServer) {
-        final SpongeConfig<?> activeConfig = SpongeHooks.getActiveConfig(worldServer);
-
-        if (!activeConfig.getConfig().getWorld().getGenerateSpawnOnLoad()) {
+        if (!((WorldProperties) worldServer.getWorldInfo()).doesGenerateSpawnOnLoad()) {
             return;
         }
 
@@ -362,9 +358,6 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, IMi
         LOG.info("Preparing start region for level {} ({})", ((IMixinWorldServer) worldServer).getDimensionId(), ((World) worldServer).getName());
         BlockPos blockpos = worldServer.getSpawnPoint();
         long j = MinecraftServer.getCurrentTimeMillis();
-        // TODO - blood needs to look at this whether it's still needed.
-//        boolean chunkLoadOverride = world.theChunkProviderServer.chunkLoadOverride;
-//        world.theChunkProviderServer.chunkLoadOverride = true;
         for (int k = -192; k <= 192 && this.isServerRunning(); k += 16) {
             for (int l = -192; l <= 192 && this.isServerRunning(); l += 16) {
                 long i1 = MinecraftServer.getCurrentTimeMillis();
@@ -378,7 +371,6 @@ public abstract class MixinMinecraftServer implements Server, ConsoleSource, IMi
                 worldServer.getChunkProvider().provideChunk(blockpos.getX() + k >> 4, blockpos.getZ() + l >> 4);
             }
         }
-//        world.theChunkProviderServer.chunkLoadOverride = chunkLoadOverride;
         this.clearCurrentTask();
         if (CauseTracker.ENABLED) {
             causeTracker.completePhase();

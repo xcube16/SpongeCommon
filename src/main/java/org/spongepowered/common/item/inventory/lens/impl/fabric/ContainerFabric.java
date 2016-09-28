@@ -30,6 +30,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
 import org.spongepowered.api.text.translation.FixedTranslation;
 import org.spongepowered.api.text.translation.Translation;
 import org.spongepowered.common.item.inventory.lens.impl.MinecraftFabric;
@@ -102,9 +103,7 @@ public class ContainerFabric extends MinecraftFabric {
 
     @Override
     public void clear() {
-        for (IInventory inv : this.all) {
-            inv.clear();
-        }
+        this.all.forEach(IInventory::clear);
     }
 
     @Override
@@ -116,7 +115,9 @@ public class ContainerFabric extends MinecraftFabric {
         if (container.inventorySlots.size() == 0) {
             return new FixedTranslation("Container");
         }
-        return new FixedTranslation(container.getSlot(0).inventory.getDisplayName().getUnformattedText());
+
+        Slot slot = container.getSlot(0);
+        return slot.inventory != null && slot.inventory.getDisplayName() != null ? new FixedTranslation(slot.inventory.getDisplayName().getUnformattedText()) : new FixedTranslation("UNKNOWN: " + container.getClass().getName());
     }
 
 }

@@ -34,7 +34,9 @@ import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(EntityAISwimming.class)
 public abstract class MixinEntityAISwimming implements SwimmingAITask {
+
     @Shadow @Final private EntityLiving theEntity;
+
     float swimChance = 0.8f;
 
     /**

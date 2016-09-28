@@ -25,7 +25,7 @@
 package org.spongepowered.common.event;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.spongepowered.common.event.tracking.phase.util.PacketPhaseUtil.handleCustomCursor;
+import static org.spongepowered.common.event.tracking.phase.packet.PacketPhaseUtil.handleCustomCursor;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableList;
@@ -91,7 +91,6 @@ import org.spongepowered.common.entity.PlayerTracker;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
-import org.spongepowered.common.event.tracking.phase.util.PacketPhaseUtil;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.IMixinContainer;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
@@ -120,6 +119,8 @@ public class SpongeCommonEventFactory {
     // Set before firing an internal Forge BlockBreak event to handle extended blockstate
     public static boolean convertingMapFormat = false;
     public static boolean ignoreRightClickAirEvent = false;
+    // Set if the player's held item changes during InteractBlockEvent.Secondary
+    public static boolean playerInteractItemChanged = false;
 
     // For animation packet
     public static int lastAnimationPacketTick = 0;
@@ -475,7 +476,7 @@ public class SpongeCommonEventFactory {
         } else {
             // Custom cursor
             if (event.getCursorTransaction().getCustom().isPresent()) {
-                PacketPhaseUtil.handleCustomCursor(player, event.getCursorTransaction().getFinal());
+                handleCustomCursor(player, event.getCursorTransaction().getFinal());
             }
         }
         return event;

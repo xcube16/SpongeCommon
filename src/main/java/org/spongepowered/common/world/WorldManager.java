@@ -56,11 +56,13 @@ import net.minecraft.world.chunk.storage.AnvilSaveHandler;
 import net.minecraft.world.storage.ISaveHandler;
 import net.minecraft.world.storage.SaveHandler;
 import net.minecraft.world.storage.WorldInfo;
-import org.apache.commons.io.FileUtils;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
+import org.spongepowered.api.util.file.CopyFileVisitor;
+import org.spongepowered.api.util.file.DeleteFileVisitor;
+import org.spongepowered.api.util.file.ForwardingFileVisitor;
 import org.spongepowered.api.world.DimensionTypes;
 import org.spongepowered.api.world.WorldArchetype;
 import org.spongepowered.api.world.storage.WorldProperties;
@@ -81,12 +83,13 @@ import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.world.storage.WorldServerMultiAdapterWorldInfo;
 
 import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -400,6 +403,8 @@ public final class WorldManager {
         if (worldInfo == null) {
             worldInfo = new WorldInfo((WorldSettings) (Object) archetype, folderName);
         } else {
+            // DimensionType must be set before world config is created to get proper path
+            ((IMixinWorldInfo) worldInfo).setDimensionType(archetype.getDimensionType());
             ((IMixinWorldInfo) worldInfo).createWorldConfig();
             ((WorldProperties) worldInfo).setGeneratorModifiers(archetype.getGeneratorModifiers());
         }
@@ -408,7 +413,6 @@ public final class WorldManager {
         if (((IMixinWorldInfo) worldInfo).getDimensionId() == null || ((IMixinWorldInfo) worldInfo).getDimensionId() == Integer.MIN_VALUE) {
             ((IMixinWorldInfo) worldInfo).setDimensionId(WorldManager.getNextFreeDimensionId());
         }
-        ((IMixinWorldInfo) worldInfo).setDimensionType(archetype.getDimensionType());
         ((WorldProperties) worldInfo).setGeneratorType(archetype.getGeneratorType());
         ((IMixinWorldInfo) worldInfo).getWorldConfig().save();
         registerWorldProperties((WorldProperties) worldInfo);
@@ -611,8 +615,7 @@ public final class WorldManager {
                 (dimensionId).get().getName());
 
         final WorldServer worldServer = createWorldFromProperties(dimensionId, saveHandler, (WorldInfo) properties, new WorldSettings((WorldInfo)
-                        properties),
-                properties.doesGenerateSpawnOnLoad());
+                        properties));
 
         return Optional.of(worldServer);
     }
@@ -714,6 +717,11 @@ public final class WorldManager {
                 // create the WorldInfo
                 worldInfo = createWorldInfoFromSettings(currentSavesDir, (org.spongepowered.api.world.DimensionType) (Object) dimensionType,
                         dimensionId, worldFolderName, worldSettings, generatorOptions);
+            } else {
+                // create config
+                ((IMixinWorldInfo) worldInfo).setDimensionType((org.spongepowered.api.world.DimensionType)(Object) dimensionType);
+                ((IMixinWorldInfo) worldInfo).createWorldConfig();
+                ((WorldProperties) worldInfo).setGenerateSpawnOnLoad(((IMixinDimensionType)(Object) dimensionType).shouldGenerateSpawnOnLoad());
             }
 
             // Safety check to ensure we'll get a unique id no matter what
@@ -731,9 +739,6 @@ public final class WorldManager {
                 server.setResourcePackFromWorld(worldFolderName, saveHandler);
             }
 
-            // TODO Revise this silly configuration system
-            ((IMixinWorldInfo) worldInfo).createWorldConfig();
-
             // Step 6 - Cache the WorldProperties we've made so we don't load from disk later.
             registerWorldProperties((WorldProperties) worldInfo);
 
@@ -744,7 +749,7 @@ public final class WorldManager {
             }
 
             // Step 7 - Finally, we can create the world and tell it to load
-            final WorldServer worldServer = createWorldFromProperties(dimensionId, saveHandler, worldInfo, worldSettings, false);
+            final WorldServer worldServer = createWorldFromProperties(dimensionId, saveHandler, worldInfo, worldSettings);
 
             SpongeImpl.getLogger().info("Loading world [{}] ({})", ((org.spongepowered.api.world.World) worldServer).getName(), getDimensionType
                     (dimensionId).get().getName());
@@ -758,6 +763,7 @@ public final class WorldManager {
         worldSettings.setGeneratorOptions(generatorOptions);
 
         ((IMixinWorldSettings) (Object) worldSettings).setDimensionType(dimensionType);
+        ((IMixinWorldSettings)(Object) worldSettings).setGenerateSpawnOnLoad(((IMixinDimensionType) dimensionType).shouldGenerateSpawnOnLoad());
 
         final WorldInfo worldInfo = new WorldInfo(worldSettings, worldFolderName);
         setUuidOnProperties(dimensionId == 0 ? currentSaveRoot.getParent() : currentSaveRoot, (WorldProperties) worldInfo);
@@ -770,7 +776,7 @@ public final class WorldManager {
     }
 
     public static WorldServer createWorldFromProperties(int dimensionId, ISaveHandler saveHandler, WorldInfo worldInfo, @Nullable WorldSettings
-            worldSettings, boolean prepareSpawn) {
+            worldSettings) {
         final MinecraftServer server = SpongeImpl.getServer();
         final WorldServer worldServer;
         if (dimensionId == 0) {
@@ -802,14 +808,7 @@ public final class WorldManager {
         reorderWorldsVanillaFirst();
 
         SpongeImpl.postEvent(SpongeImplHooks.createLoadWorldEvent((org.spongepowered.api.world.World) worldServer));
-
-        if (prepareSpawn) {
-            ((IMixinMinecraftServer) server).prepareSpawnArea(worldServer);
-        }
-
-        // Ensure that config is initialized
-        SpongeHooks.getActiveConfig(worldServer, true);
-
+        ((IMixinMinecraftServer) server).prepareSpawnArea(worldServer);
         return worldServer;
     }
 
@@ -991,8 +990,8 @@ public final class WorldManager {
     }
 
     public static CompletableFuture<Optional<WorldProperties>> copyWorld(WorldProperties worldProperties, String copyName) {
-        checkArgument(!worldPropertiesByFolderName.containsKey(worldProperties.getWorldName()), "World properties not registered!");
-        checkArgument(worldPropertiesByFolderName.containsKey(copyName), "Destination world name already is registered!");
+        checkArgument(worldPropertiesByFolderName.containsKey(worldProperties.getWorldName()), "World properties not registered!");
+        checkArgument(!worldPropertiesByFolderName.containsKey(copyName), "Destination world name already is registered!");
         final WorldInfo info = (WorldInfo) worldProperties;
 
         final WorldServer worldServer = worldByDimensionId.get(((IMixinWorldInfo) info).getDimensionId().intValue());
@@ -1067,13 +1066,27 @@ public final class WorldManager {
                 return Optional.empty();
             }
 
-            FileFilter filter = null;
+            FileVisitor<Path> visitor = new CopyFileVisitor(newWorldFolder);
             if (((IMixinWorldInfo) this.oldInfo).getDimensionId() == 0) {
                 oldWorldFolder = getCurrentSavesDirectory().get();
-                filter = (file) -> !file.isDirectory() || !new File(file, "level.dat").exists();
+                visitor = new ForwardingFileVisitor<Path>(visitor) {
+
+                    private boolean root = true;
+
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                        if (!this.root && Files.exists(dir.resolve("level.dat"))) {
+                            return FileVisitResult.SKIP_SUBTREE;
+                        }
+
+                        this.root = false;
+                        return super.preVisitDirectory(dir, attrs);
+                    }
+                };
             }
 
-            FileUtils.copyDirectory(oldWorldFolder.toFile(), newWorldFolder.toFile(), filter);
+            // Copy the world folder
+            Files.walkFileTree(oldWorldFolder, visitor);
 
             final WorldInfo info = new WorldInfo(this.oldInfo);
             info.setWorldName(this.newName);
@@ -1104,7 +1117,7 @@ public final class WorldManager {
             }
 
             try {
-                FileUtils.deleteDirectory(worldFolder.toFile());
+                Files.walkFileTree(worldFolder, DeleteFileVisitor.INSTANCE);
                 unregisterWorldProperties(this.props, true);
                 return true;
             } catch (IOException e) {

@@ -26,7 +26,6 @@ package org.spongepowered.common.mixin.core.tileentity;
 
 import static org.spongepowered.api.data.DataQuery.of;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.IInventory;
@@ -48,6 +47,7 @@ import org.spongepowered.api.item.inventory.type.TileEntityInventory;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -81,15 +81,15 @@ public abstract class MixinTileEntityChest extends MixinTileEntityLockable imple
 
     @Shadow public abstract void checkForAdjacentChests();
 
-    private Fabric<IInventory> inventory;
+    private Fabric<IInventory> fabric;
     private SlotCollection slots;
     private Lens<IInventory, ItemStack> lens;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(CallbackInfo ci) {
-        this.inventory = new DefaultInventoryFabric(this);
+        this.fabric = new DefaultInventoryFabric(this);
         this.slots = new SlotCollection.Builder().add(27).build();
-        this.lens = new GridInventoryLensImpl(0, 9, 3, 9, slots);
+        this.lens = new GridInventoryLensImpl(0, 9, 3, 9, this.slots);
     }
 
     /**
@@ -194,25 +194,27 @@ public abstract class MixinTileEntityChest extends MixinTileEntityLockable imple
         ((TileEntityChest) (Object) this).setCustomName(customName);
     }
 
+    @SuppressWarnings({"RedundantCast", "unchecked"})
     @Override
     public TileEntityInventory<TileEntityCarrier> getInventory() {
         return (TileEntityInventory<TileEntityCarrier>) (Object) this;
     }
 
+    @Intrinsic
     public void tilentityinventory$markDirty() {
-        ((IInventory) (Object) this).markDirty();
+        this.markDirty();
     }
 
     public SlotProvider<IInventory, ItemStack> inventory$getSlotProvider() {
-        return slots;
+        return this.slots;
     }
 
     public Lens<IInventory, ItemStack> inventory$getRootLens() {
-        return lens;
+        return this.lens;
     }
 
     public Fabric<IInventory> inventory$getInventory() {
-        return inventory;
+        return this.fabric;
     }
 
     public Optional<Chest> tileentityinventory$getTileEntity() {
@@ -227,7 +229,6 @@ public abstract class MixinTileEntityChest extends MixinTileEntityLockable imple
     public Optional<Inventory> getDoubleChestInventory() {
         for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL) {
             BlockPos blockpos = this.pos.offset(enumfacing);
-            Block block = this.worldObj.getBlockState(blockpos).getBlock();
 
             TileEntity tileentity1 = this.worldObj.getTileEntity(blockpos);
 

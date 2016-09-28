@@ -49,8 +49,8 @@ import org.spongepowered.asm.util.PrettyPrinter;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.entity.PlayerTracker;
-import org.spongepowered.common.event.tracking.phase.GeneralPhase;
 import org.spongepowered.common.event.tracking.phase.TrackingPhase;
+import org.spongepowered.common.event.tracking.phase.general.GeneralPhase;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.interfaces.world.IMixinWorld;
@@ -553,11 +553,6 @@ public final class CauseTracker {
         if (!isForced && !getMixinWorld().isMinecraftChunkLoaded(chunkX, chunkZ, true)) {
             return false;
         } else {
-            if (minecraftEntity instanceof EntityPlayer) {
-                EntityPlayer entityplayer = (EntityPlayer) minecraftEntity;
-                minecraftWorld.playerEntities.add(entityplayer);
-                minecraftWorld.updateAllPlayersSleepingFlag();
-            }
 
             // Sponge Start - throw an event
 
@@ -565,7 +560,7 @@ public final class CauseTracker {
                     event =
                     SpongeEventFactory.createSpawnEntityEventCustom(cause, Arrays.asList(entity), getWorld());
             SpongeImpl.postEvent(event);
-            if (!event.isCancelled()) {
+            if (entity instanceof EntityPlayer || !event.isCancelled()) {
                 getMixinWorld().forceSpawnEntity(entity);
             }
             // Sponge end

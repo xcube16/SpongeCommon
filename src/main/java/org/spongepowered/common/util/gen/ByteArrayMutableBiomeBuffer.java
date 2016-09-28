@@ -30,7 +30,6 @@ import static com.google.common.base.Preconditions.checkState;
 import com.flowpowered.math.vector.Vector2i;
 import net.minecraft.world.biome.Biome;
 import org.spongepowered.api.util.DiscreteTransform2;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.extent.ImmutableBiomeArea;
@@ -51,7 +50,6 @@ import java.util.Arrays;
  * <p>Using {@link #detach()} the underlying byte array can be accessed.
  * The byte array can then be reused by calling {@link #reuse(Vector2i)}.</p>
  */
-@NonnullByDefault
 public final class ByteArrayMutableBiomeBuffer extends AbstractBiomeBuffer implements MutableBiomeArea {
 
     private boolean detached;

@@ -24,12 +24,15 @@
  */
 package org.spongepowered.common.mixin.core.item.inventory;
 
+import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryEnderChest;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.tileentity.TileEntityHopper;
 import org.spongepowered.api.item.inventory.EmptyInventory;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.Slot;
@@ -52,8 +55,11 @@ import java.util.List;
         InventoryPlayer.class,
         TileEntityChest.class,
         TileEntityFurnace.class,
+        TileEntityHopper.class,
+        EntityVillager.class,
         Container.class,
         InventoryLargeChest.class,
+        InventoryEnderChest.class,
         CustomInventory.class
 })
 @Implements(@Interface(iface = Inventory.class, prefix = "inventory$"))

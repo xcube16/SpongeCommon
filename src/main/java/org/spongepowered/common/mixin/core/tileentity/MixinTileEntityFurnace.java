@@ -30,7 +30,6 @@ import static org.spongepowered.api.data.DataQuery.of;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityFurnace;
-import org.spongepowered.api.block.tileentity.carrier.Chest;
 import org.spongepowered.api.block.tileentity.carrier.Furnace;
 import org.spongepowered.api.block.tileentity.carrier.TileEntityCarrier;
 import org.spongepowered.api.data.DataContainer;
@@ -38,6 +37,7 @@ import org.spongepowered.api.item.inventory.type.TileEntityInventory;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
+import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -51,7 +51,6 @@ import org.spongepowered.common.item.inventory.lens.Fabric;
 import org.spongepowered.common.item.inventory.lens.Lens;
 import org.spongepowered.common.item.inventory.lens.SlotProvider;
 import org.spongepowered.common.item.inventory.lens.impl.collections.SlotCollection;
-import org.spongepowered.common.item.inventory.lens.impl.comp.GridInventoryLensImpl;
 import org.spongepowered.common.item.inventory.lens.impl.comp.OrderedInventoryLensImpl;
 import org.spongepowered.common.item.inventory.lens.impl.fabric.DefaultInventoryFabric;
 import org.spongepowered.common.item.inventory.lens.impl.slots.FuelSlotLensImpl;
@@ -67,15 +66,19 @@ public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable imp
 
     @Shadow private String furnaceCustomName;
 
-    private Fabric<IInventory> inventory;
+    private Fabric<IInventory> fabric;
     private SlotCollection slots;
     private Lens<IInventory, ItemStack> lens;
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void onConstructed(CallbackInfo ci) {
-        this.inventory = new DefaultInventoryFabric(this);
+        this.fabric = new DefaultInventoryFabric(this);
         this.slots = new SlotCollection.Builder().add(1)
-                .add(FuelSlotAdapter.class, (i) -> new FuelSlotLensImpl(i, (s) -> TileEntityFurnace.isItemFuel((ItemStack) s) || isBucket((ItemStack) s), t -> true))
+                .add(FuelSlotAdapter.class, (i) -> new FuelSlotLensImpl(i, (s) -> TileEntityFurnace.isItemFuel((ItemStack) s) || isBucket(
+                        (ItemStack) s), t -> {
+                            final ItemStack nmsStack = (ItemStack) org.spongepowered.api.item.inventory.ItemStack.of(t, 1);
+                    return TileEntityFurnace.isItemFuel(nmsStack) || isBucket(nmsStack);
+                }))
                 .add(OutputSlotAdapter.class, (i) -> new OutputSlotLensImpl(i, (s) -> false, (t) -> false))
                 .build();
         this.lens = new OrderedInventoryLensImpl(0, 3, 1, slots);
@@ -99,25 +102,27 @@ public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable imp
         ((TileEntityFurnace) (Object) this).setCustomInventoryName(customName);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public TileEntityInventory<TileEntityCarrier> getInventory() {
         return (TileEntityInventory<TileEntityCarrier>) this;
     }
 
+    @Intrinsic
     public void tilentityinventory$markDirty() {
-        ((IInventory) (Object) this).markDirty();
+        this.markDirty();
     }
 
     public SlotProvider<IInventory, ItemStack> inventory$getSlotProvider() {
-        return slots;
+        return this.slots;
     }
 
     public Lens<IInventory, ItemStack> inventory$getRootLens() {
-        return lens;
+        return this.lens;
     }
 
     public Fabric<IInventory> inventory$getInventory() {
-        return inventory;
+        return this.fabric;
     }
 
     public Optional<Furnace> tileentityinventory$getTileEntity() {

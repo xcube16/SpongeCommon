@@ -97,7 +97,7 @@ import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.event.tracking.TrackingUtil;
-import org.spongepowered.common.event.tracking.phase.EntityPhase;
+import org.spongepowered.common.event.tracking.phase.entity.EntityPhase;
 import org.spongepowered.common.event.tracking.ItemDropData;
 import org.spongepowered.common.interfaces.IMixinPlayerList;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
@@ -198,6 +198,7 @@ public final class EntityUtil {
     @Nullable
     public static Entity teleportPlayerToDimension(IMixinEntityPlayerMP mixinEntityPlayerMP, int suggestedDimensionId) {
         final EntityPlayerMP entityPlayerMP = toNative(mixinEntityPlayerMP);
+        boolean sameDimension = entityPlayerMP.dimension == suggestedDimensionId;
         // If leaving The End via End's Portal
         // Sponge Start - Check the provider, not the world's dimension
         final WorldServer fromWorldServer = ((WorldServer) entityPlayerMP.worldObj);
@@ -217,6 +218,11 @@ public final class EntityUtil {
         } // else { // Sponge - Remove unecessary
 
         final WorldServer toWorldServer = SpongeImpl.getServer().worldServerForDimension(suggestedDimensionId);
+        // If we attempted to travel a new dimension but were denied due to some reason such as world
+        // not being loaded then short-circuit to prevent unnecessary logic from running
+        if (!sameDimension && fromWorldServer == toWorldServer) {
+            return entityPlayerMP;
+        }
         int targetDimensionId = ((IMixinWorldServer) toWorldServer).getDimensionId();
 
         // Sponge Start - Rewrite for vanilla mechanics since multiworlds can change world providers and
@@ -294,11 +300,17 @@ public final class EntityUtil {
         final Transform<World> fromTransform = mixinEntity.getTransform();
         final WorldServer fromWorld = ((WorldServer) entityIn.worldObj);
         final IMixinWorldServer fromMixinWorld = (IMixinWorldServer) fromWorld;
+        boolean sameDimension = entityIn.dimension == targetDimensionId;
         // handle the end
         if (targetDimensionId == 1 && fromWorld.provider instanceof WorldProviderEnd) {
             targetDimensionId = 0;
         }
         WorldServer toWorld = mcServer.worldServerForDimension(targetDimensionId);
+        // If we attempted to travel a new dimension but were denied due to some reason such as world
+        // not being loaded then short-circuit to prevent unnecessary logic from running
+        if (!sameDimension && fromWorld == toWorld) {
+            return null;
+        }
         final IMixinWorldServer toMixinWorld = (IMixinWorldServer) toWorld;
         if (teleporter == null) {
             teleporter = toWorld.getDefaultTeleporter();
@@ -716,6 +728,9 @@ public final class EntityUtil {
                 }
             }
 
+            // Prevent 'lastMoveLocation' from being set to the previous world.
+            ((IMixinNetHandlerPlayServer) entityPlayerMP.connection).setLastMoveLocation(null);
+
             entityPlayerMP.connection.sendPacket(
                     new SPacketRespawn(toDimensionId, toWorld.getDifficulty(), toWorld.getWorldInfo().getTerrainType(),
                             entityPlayerMP.interactionManager.getGameType()));
@@ -733,6 +748,7 @@ public final class EntityUtil {
             for (Object effect : entityPlayerMP.getActivePotionEffects()) {
                 entityPlayerMP.connection.sendPacket(new SPacketEntityEffect(entityPlayerMP.getEntityId(), (PotionEffect) effect));
             }
+            entityPlayerMP.sendPlayerAbilities();
         } else {
             entity.setWorld(toWorld);
             toWorld.spawnEntityInWorld(entity);

@@ -65,7 +65,7 @@ public final class SpongePlayerDataHandler {
 
     public static void init() {
         final SpongePlayerDataHandler handlerInstance = Holder.INSTANCE;
-        if (!Sponge.isServerAvailable() || handlerInstance.hasInitialized) {
+        if (!Sponge.isServerAvailable()) {
             return;
         }
         handlerInstance.playerDataMap = new ConcurrentHashMap<>();
@@ -132,7 +132,7 @@ public final class SpongePlayerDataHandler {
         checkState(Holder.INSTANCE.hasInitialized, "PlayerDataHandler hasn't initialized yet!");
         SpongePlayerDataHandler instance = Holder.INSTANCE;
         try {
-            final Path newDatPath = instance.playerDir.resolve(id + "_new.dat");
+            final Path newDatPath = instance.playerDir.resolve(id + ".dat.tmp");
             if (Files.notExists(newDatPath)) {
                 Files.createFile(newDatPath);
             }

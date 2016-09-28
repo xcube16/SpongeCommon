@@ -25,13 +25,13 @@
 package org.spongepowered.common.event.tracking;
 
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.data.Transaction;
-import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.world.World;
-import org.spongepowered.common.event.tracking.phase.EntityPhase;
 import org.spongepowered.common.event.tracking.phase.TrackingPhase;
+import org.spongepowered.common.event.tracking.phase.entity.EntityPhase;
 import org.spongepowered.common.world.BlockChange;
 
 import javax.annotation.Nullable;
@@ -95,6 +95,13 @@ public interface IPhaseState {
     }
 
     default boolean tracksEntityDeaths() {
+        return false;
+    }
+
+    default boolean shouldCaptureBlockChangeOrSkip(PhaseContext phaseContext, BlockPos pos) {
+        return true;
+    }
+    default boolean isInteraction() {
         return false;
     }
 }

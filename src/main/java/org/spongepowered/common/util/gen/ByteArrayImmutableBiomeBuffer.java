@@ -27,7 +27,6 @@ package org.spongepowered.common.util.gen;
 import com.flowpowered.math.vector.Vector2i;
 import net.minecraft.world.biome.Biome;
 import org.spongepowered.api.util.DiscreteTransform2;
-import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.biome.BiomeType;
 import org.spongepowered.api.world.biome.BiomeTypes;
 import org.spongepowered.api.world.extent.ImmutableBiomeArea;
@@ -42,7 +41,6 @@ import org.spongepowered.common.world.extent.worker.SpongeBiomeAreaWorker;
  * Immutable biome area, backed by a byte array. The array passed to the
  * constructor is copied to ensure that the instance is immutable.
  */
-@NonnullByDefault
 public final class ByteArrayImmutableBiomeBuffer extends AbstractBiomeBuffer implements ImmutableBiomeArea {
 
     private final byte[] biomes;

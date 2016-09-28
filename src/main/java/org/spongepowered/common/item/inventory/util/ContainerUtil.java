@@ -59,16 +59,22 @@ import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.PhaseData;
 import org.spongepowered.common.interfaces.IMixinContainer;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
+import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 import org.spongepowered.common.item.inventory.adapter.impl.MinecraftInventoryAdapter;
 import org.spongepowered.common.item.inventory.adapter.impl.slots.CraftingOutputAdapter;
 import org.spongepowered.common.item.inventory.adapter.impl.slots.EquipmentSlotAdapter;
+import org.spongepowered.common.item.inventory.lens.impl.MinecraftLens;
 import org.spongepowered.common.item.inventory.lens.impl.collections.SlotCollection;
+import org.spongepowered.common.item.inventory.lens.impl.minecraft.ContainerChestInventoryLens;
+import org.spongepowered.common.item.inventory.lens.impl.minecraft.ContainerPlayerInventoryLens;
 import org.spongepowered.common.item.inventory.lens.impl.slots.CraftingOutputSlotLensImpl;
 import org.spongepowered.common.mixin.core.inventory.MixinInventoryHelper;
 import org.spongepowered.common.util.VecHelper;
 
 import java.util.Collection;
 import java.util.Random;
+
+import javax.annotation.Nullable;
 
 public final class ContainerUtil {
 
@@ -190,6 +196,20 @@ public final class ContainerUtil {
                 worldServer.spawnEntityInWorld(entityitem);
             }
         }
+    }
+
+    // TODO Inventory - Container lens
+    // TODO Inventory - Add a fallback Container lens
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public static MinecraftLens getLens(net.minecraft.inventory.Container container, SlotCollection collection) {
+        if (container instanceof ContainerChest) {
+            return new ContainerChestInventoryLens((InventoryAdapter<IInventory, ItemStack>) container, collection, ((ContainerChest) container).numRows);
+        } else if (container instanceof ContainerPlayer) {
+            return new ContainerPlayerInventoryLens((InventoryAdapter<IInventory, ItemStack>) container, collection);
+        }
+
+        return null;
     }
 
     /**

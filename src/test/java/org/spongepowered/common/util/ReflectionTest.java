@@ -27,6 +27,7 @@ package org.spongepowered.common.util;
 import static org.spongepowered.common.util.ReflectionUtil.createInstance;
 import static org.spongepowered.common.util.ReflectionUtil.findConstructor;
 
+import com.google.common.reflect.TypeToken;
 import org.junit.Test;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.key.Key;
@@ -94,10 +95,34 @@ public class ReflectionTest {
     @Test
     public void testImmutableValueCache() {
         final Key<Value<Double>> key = new Key<Value<Double>>() {
+
+            private final TypeToken<Double> type = new TypeToken<Double>() {
+                private static final long serialVersionUID = 2192586007346356478L;
+            };
+
+            private final TypeToken<Value<Double>> token = new TypeToken<Value<Double>>() {
+                private static final long serialVersionUID = -5667097529739857142L;
+            };
+
+            @Override
+            public String getId() {
+                return "test";
+            }
+
+            @Override
+            public String getName() {
+                return "test";
+            }
+
             @SuppressWarnings({"unchecked", "rawtypes"})
             @Override
-            public Class<Value<Double>> getValueClass() {
-                return (Class<Value<Double>>) (Class) Value.class;
+            public TypeToken<Value<Double>> getValueToken() {
+                return this.token;
+            }
+
+            @Override
+            public TypeToken<?> getElementToken() {
+                return this.type;
             }
 
             @Override

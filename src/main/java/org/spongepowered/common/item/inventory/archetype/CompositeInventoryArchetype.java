@@ -24,6 +24,8 @@
  */
 package org.spongepowered.common.item.inventory.archetype;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.spongepowered.api.item.inventory.InventoryArchetype;
 import org.spongepowered.api.item.inventory.InventoryProperty;
 
@@ -42,8 +44,8 @@ public class CompositeInventoryArchetype implements InventoryArchetype {
     public CompositeInventoryArchetype(String id, String name, List<InventoryArchetype> types, Map<String, InventoryProperty<String, ?>> properties) {
         this.id = id;
         this.name = name;
-        this.types = Collections.unmodifiableList(types);
-        this.properties = Collections.unmodifiableMap(properties);
+        this.types = ImmutableList.copyOf(types);
+        this.properties = ImmutableMap.copyOf(properties);
     }
 
     @Override

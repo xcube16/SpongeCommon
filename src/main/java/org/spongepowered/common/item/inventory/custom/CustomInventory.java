@@ -87,10 +87,11 @@ public class CustomInventory implements IInventory, IInteractionObject {
         }
 
         Title titleProperty = (Title) properties.getOrDefault(TITLE, archetype.getProperty(TITLE).orElse(null));
-        boolean isCustom = !(titleProperty.getValue() instanceof TranslatableText);
+        boolean isCustom = !(titleProperty != null && titleProperty.getValue() instanceof TranslatableText);
 
-        String title = isCustom ? TextSerializers.LEGACY_FORMATTING_CODE.serialize(titleProperty.getValue())
-                                : ((TranslatableText) titleProperty.getValue()).getTranslation().getId();
+        String title = titleProperty == null ? "" :
+                isCustom ? TextSerializers.LEGACY_FORMATTING_CODE.serialize(titleProperty.getValue())
+                        : ((TranslatableText) titleProperty.getValue()).getTranslation().getId();
         this.inv = new InventoryBasic(title, isCustom, count);
 
         // Updates the Inventory for all viewers on any change

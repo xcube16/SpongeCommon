@@ -153,14 +153,14 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
 
         CHEST = builder.reset()
                 .with(MENU_GRID)
-                .property(Title.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))))
+                .property(Title.of(Text.of(new SpongeTranslation("container.chest"))))
                 .build("minecraft:chest", "Chest");
 
         DOUBLE_CHEST = builder.reset()
                 .with(CHEST)
                 .with(CHEST)
                 .property(new InventoryDimension(9, 6))
-                .property(Title.of(Text.of(new SpongeTranslation("minecraft.tile.chest.name"))))
+                .property(Title.of(Text.of(new SpongeTranslation("container.chestDouble"))))
                 .build("minecraft:double_chest", "DoubleChest");
 
         FURNACE = builder.reset()
@@ -178,13 +178,14 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
                         .property(new SlotIndex(2))
                         .property(AcceptsItems.of())
                         .build("minecraft:furnace_output", "FurnaceOutput"))
-                .property(new Title(Text.of(new SpongeTranslation("minecraft.tile.furnace.name"))))
+                .property(new Title(Text.of(new SpongeTranslation("container.furnace"))))
                 .property(new InventoryDimension(3, 1))
                 .build("minecraft:furnace", "Furnace");
 
         DISPENSER = builder.reset()
                 .with(MENU_GRID)
                 .property(new InventoryDimension(3, 3))
+                .property(Title.of(Text.of(new SpongeTranslation("container.dispenser"))))
                 .build("minecraft:dispenser", "Dispenser");
 
         WORKBENCH = builder.reset()
@@ -193,27 +194,32 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
                         .property(new InventoryDimension(3, 3))
                         .build("minecraft:workbench_grid", "Workbench Grid"))
                 .with(SLOT)
+                .property(Title.of(Text.of(new SpongeTranslation("container.crafting"))))
                 .build("minecraft:workbench", "Workbench");
 
         BREWING_STAND = builder.reset()
                 .with(MENU_ROW)
                 .property(new InventoryDimension(4, 1))
+                .property(Title.of(Text.of(new SpongeTranslation("container.brewing"))))
                 .build("minecraft:brewing_stand", "BrewingStand");
 
         HOPPER = builder.reset()
                 .with(MENU_ROW)
                 .property(new InventoryDimension(5, 1))
+                .property(Title.of(Text.of(new SpongeTranslation("container.hopper"))))
                 .build("minecraft:hopper", "Hopper");
 
         BEACON = builder.reset()
                 .with(SLOT)
                 .property(new InventoryDimension(1, 1))
+                .property(Title.of(Text.of(new SpongeTranslation("container.beacon"))))
                 .build("minecraft:beacon", "Beacon");
 
         ENCHANTING_TABLE = builder.reset()
                 .with(SLOT)
                 .with(SLOT)
                 .property(new InventoryDimension(2, 1))
+                .property(Title.of(Text.of(new SpongeTranslation("container.enchant"))))
                 .build("minecraft:enchanting_table", "EnchantingTable");
 
         ANVIL = builder.reset()
@@ -221,6 +227,7 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
                 .with(SLOT)
                 .with(SLOT)
                 .property(new InventoryDimension(3, 1))
+                .property(Title.of(Text.of(new SpongeTranslation("container.repair"))))
                 .build("minecraft:anvil", "Anvil");
 
         VILLAGER = builder.reset()
@@ -251,6 +258,7 @@ public class InventoryArchetypeRegistryModule implements AlternateCatalogRegistr
                         .from(MENU_GRID)
                         .property(new InventoryDimension(2, 2))
                         .build("minecraft:crafting_grid", "Crafting Grid"))
+                .property(Title.of(Text.of(new SpongeTranslation("container.crafting"))))
                 .build("minecraft:crafting", "Crafting");
 
         PLAYER = builder.reset()

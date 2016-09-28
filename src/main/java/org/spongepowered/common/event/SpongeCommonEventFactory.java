@@ -508,8 +508,11 @@ public class SpongeCommonEventFactory {
                 case "minecraft:crafting_table":
                 case "minecraft:anvil":
                 case "minecraft:enchanting_table":
-                default:
                     player.displayGui((IInteractionObject) inventory);
+                    container = player.openContainer;
+                    break;
+                default:
+                    player.displayGUIChest((IInventory) inventory);
                     container = player.openContainer;
                     break;
             }

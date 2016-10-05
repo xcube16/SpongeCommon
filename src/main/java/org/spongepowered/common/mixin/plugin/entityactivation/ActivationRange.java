@@ -56,6 +56,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.api.entity.EntityType;
+import org.spongepowered.api.entity.EntityTypes;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.SpongeImplHooks;
 import org.spongepowered.common.config.SpongeConfig;
@@ -71,7 +73,7 @@ import java.util.Map;
 
 public class ActivationRange {
 
-    public static final ImmutableMap<Byte, String> activationTypeMappings = new ImmutableMap.Builder<Byte, String>()
+    private static final ImmutableMap<Byte, String> activationTypeMappings = new ImmutableMap.Builder<Byte, String>()
             .put((byte) 1, "monster")
             .put((byte) 2, "creature")
             .put((byte) 3, "aquatic")
@@ -152,14 +154,16 @@ public class ActivationRange {
         }
 
         EntityActivationRangeCategory config = ((IMixinWorldServer) entity.worldObj).getActiveConfig().getConfig().getEntityActivationRange();
-        SpongeEntityType type = (SpongeEntityType) ((org.spongepowered.api.entity.Entity) entity).getType();
+        EntityType type = ((org.spongepowered.api.entity.Entity) entity).getType();
+
         IModData_Activation spongeEntity = (IModData_Activation) entity;
-        if (type == null) {
+        if (type == EntityTypes.UNKNOWN || !(type instanceof SpongeEntityType)) {
             return false;
         }
+        SpongeEntityType spongeType = (SpongeEntityType) type;
 
         byte activationType = spongeEntity.getActivationType();
-        EntityActivationModCategory entityMod = config.getModList().get(type.getModId());
+        EntityActivationModCategory entityMod = config.getModList().get(spongeType.getModId());
         int defaultActivationRange = config.getDefaultRanges().get(activationTypeMappings.get(activationType));
         if (entityMod == null) {
             // use default activation range
@@ -258,8 +262,8 @@ public class ActivationRange {
             for (Object o : chunk.getEntityLists()[i]) {
                 Entity entity = (Entity) o;
                 SpongeConfig<?> config = ((IMixinWorldServer) entity.worldObj).getActiveConfig();
-                SpongeEntityType type = (SpongeEntityType) ((org.spongepowered.api.entity.Entity) entity).getType();
-                if (config == null || type == null) {
+                EntityType type = ((org.spongepowered.api.entity.Entity) entity).getType();
+                if (config == null || type == EntityTypes.UNKNOWN) {
                     continue;
                 }
 

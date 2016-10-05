@@ -33,10 +33,11 @@ import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
+import ninja.leaping.configurate.loader.HeaderMode;
 import org.spongepowered.api.text.LiteralText;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageReceiver;
-import org.spongepowered.common.interfaces.text.IMixinChatComponent;
+import org.spongepowered.common.interfaces.text.IMixinTextComponent;
 import org.spongepowered.common.text.SpongeTexts;
 
 import java.io.IOException;
@@ -62,7 +63,8 @@ public class PaginationCalculator {
     static {
         ConfigurationLoader<CommentedConfigurationNode> loader = HoconConfigurationLoader.builder()
                 .setURL(PaginationCalculator.class.getResource("font-sizes.json"))
-                .setPreservesHeader(false).build();
+                .setHeaderMode(HeaderMode.NONE)
+                .build();
         try {
             ConfigurationNode node = loader.load();
             NON_UNICODE_CHARS = node.getNode("non-unicode").getString();
@@ -143,7 +145,7 @@ public class PaginationCalculator {
     @VisibleForTesting
     int getWidth(Text text) {
         ITextComponent component = SpongeTexts.toComponent(text);
-        Iterable<ITextComponent> children = ((IMixinChatComponent) component).withChildren();
+        Iterable<ITextComponent> children = ((IMixinTextComponent) component).withChildren();
         int total = 0;
 
         for(ITextComponent child : children) {

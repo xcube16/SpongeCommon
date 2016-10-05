@@ -235,8 +235,8 @@ public class DataRegistrar {
         dataManager.registerDualProcessor(SlimeData.class, SpongeSlimeData.class, ImmutableSlimeData.class, ImmutableSpongeSlimeData.class,
                 new SlimeDataProcessor());
 
-        dataManager.registerDualProcessor(VillagerZombieData.class, SpongeVillagerZombieData.class, ImmutableVillagerZombieData.class,
-                ImmutableSpongeVillagerZombieData.class, new VillagerZombieProcessor());
+        dataManager.registerDataProcessorAndImpl(ZombieData.class, SpongeZombieData.class, ImmutableZombieData.class,
+                ImmutableSpongeZombieData.class, new ZombieDataProcessor());
 
         dataManager.registerDualProcessor(PlayingData.class, SpongePlayingData.class, ImmutablePlayingData.class,
                 ImmutableSpongePlayingData.class, new PlayingDataProcessor());
@@ -373,6 +373,9 @@ public class DataRegistrar {
         dataManager.registerDualProcessor(PotionEffectData.class, SpongePotionEffectData.class, ImmutablePotionEffectData.class,
                 ImmutableSpongePotionEffectData.class, new PotionEntityPotionDataProcessor());
 
+        dataManager.registerDualProcessor(PotionEffectData.class, SpongePotionEffectData.class, ImmutablePotionEffectData.class,
+                ImmutableSpongePotionEffectData.class, new TippedArrowPotionDataProcessor());
+
         dataManager.registerDataProcessorAndImpl(BodyPartRotationalData.class, SpongeBodyPartRotationalData.class,
                 ImmutableBodyPartRotationalData.class, ImmutableSpongeBodyPartRotationalData.class, new ArmorStandBodyPartRotationalDataProcessor());
 
@@ -390,9 +393,18 @@ public class DataRegistrar {
 
         dataManager.registerDualProcessor(GlowingData.class, SpongeGlowingData.class, ImmutableGlowingData.class, ImmutableSpongeGlowingData.class,
                 new GlowingDataProcessor());
+        
+        dataManager.registerDualProcessor(GravityData.class, SpongeGravityData.class, ImmutableGravityData.class, ImmutableSpongeGravityData.class,
+                new GravityDataProcessor());
 
         dataManager.registerDualProcessor(PickupRuleData.class, SpongePickupRuleData.class, ImmutablePickupRuleData.class,
                 ImmutableSpongePickupRuleData.class, new PickupRuleDataProcessor());
+
+        dataManager.registerDataProcessorAndImpl(PickupDelayData.class, SpongePickupDelayData.class, ImmutablePickupDelayData.class,
+                ImmutableSpongePickupDelayData.class, new PickupDelayDataProcessor());
+
+        dataManager.registerDataProcessorAndImpl(DespawnDelayData.class, SpongeDespawnDelayData.class, ImmutableDespawnDelayData.class,
+                ImmutableSpongeDespawnDelayData.class, new DespawnDelayDataProcessor());
 
         // Item Processors
 
@@ -725,10 +737,15 @@ public class DataRegistrar {
         dataManager.registerValueProcessor(Keys.BEACON_PRIMARY_EFFECT, new BeaconPrimaryEffectValueProcessor());
         dataManager.registerValueProcessor(Keys.BEACON_SECONDARY_EFFECT, new BeaconSecondaryEffectValueProcessor());
         dataManager.registerValueProcessor(Keys.ARMOR_STAND_HAS_BASE_PLATE, new ArmorStandBasePlateValueProcessor());
-        dataManager.registerValueProcessor(Keys.ARMOR_STAND_HAS_GRAVITY, new ArmorStandGravityValueProcessor());
         dataManager.registerValueProcessor(Keys.ARMOR_STAND_MARKER, new ArmorStandMarkerValueProcessor());
         dataManager.registerValueProcessor(Keys.ARMOR_STAND_IS_SMALL, new ArmorStandSmallValueProcessor());
         dataManager.registerValueProcessor(Keys.ARMOR_STAND_HAS_ARMS, new ArmorStandArmsValueProcessor());
+        dataManager.registerValueProcessor(Keys.ZOMBIE_TYPE, new ZombieTypeValueProcessor());
+        dataManager.registerValueProcessor(Keys.VILLAGER_ZOMBIE_PROFESSION, new VillagerZombieProfessionValueProcessor());
+        dataManager.registerValueProcessor(Keys.PICKUP_DELAY, new PickupDelayValueProcessor());
+        dataManager.registerValueProcessor(Keys.INFINITE_PICKUP_DELAY, new InfinitePickupDelayValueProcessor());
+        dataManager.registerValueProcessor(Keys.DESPAWN_DELAY, new DespawnDelayValueProcessor());
+        dataManager.registerValueProcessor(Keys.INFINITE_DESPAWN_DELAY, new InfiniteDespawnDelayValueProcessor());
 
         // Properties
         final PropertyRegistry propertyRegistry = SpongePropertyRegistry.getInstance();
@@ -766,6 +783,7 @@ public class DataRegistrar {
         propertyRegistry.register(UseLimitProperty.class, new UseLimitPropertyStore());
         propertyRegistry.register(ToolTypeProperty.class, new ToolTypePropertyStore());
         propertyRegistry.register(ArmorTypeProperty.class, new ArmorTypePropertyStore());
+        propertyRegistry.register(SmeltableProperty.class, new SmeltablePropertyStore());
 
         // Entities
         propertyRegistry.register(EyeLocationProperty.class, new EyeLocationPropertyStore());

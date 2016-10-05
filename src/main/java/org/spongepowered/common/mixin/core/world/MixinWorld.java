@@ -96,7 +96,6 @@ import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.chat.ChatType;
 import org.spongepowered.api.text.title.Title;
 import org.spongepowered.api.util.AABB;
-import org.spongepowered.api.util.DiscreteTransform3;
 import org.spongepowered.api.util.Functional;
 import org.spongepowered.api.util.PositionOutOfBoundsException;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -135,7 +134,6 @@ import org.spongepowered.common.util.SpongeHooks;
 import org.spongepowered.common.util.VecHelper;
 import org.spongepowered.common.world.SpongeChunkPreGenerate;
 import org.spongepowered.common.world.extent.ExtentViewDownsize;
-import org.spongepowered.common.world.extent.ExtentViewTransform;
 import org.spongepowered.common.world.extent.worker.SpongeMutableBiomeAreaWorker;
 import org.spongepowered.common.world.extent.worker.SpongeMutableBlockVolumeWorker;
 import org.spongepowered.common.world.storage.SpongeChunkLayout;
@@ -485,7 +483,7 @@ public abstract class MixinWorld implements World, IMixinWorld {
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public Iterable<Chunk> getLoadedChunks() {
-        return (Iterable) ((ChunkProviderServer) this.getChunkProvider()).getLoadedChunks();
+        return (List<Chunk>) (List<?>) Lists.newArrayList(((ChunkProviderServer) this.getChunkProvider()).getLoadedChunks());
     }
 
     @Override
@@ -625,11 +623,6 @@ public abstract class MixinWorld implements World, IMixinWorld {
         checkBlockBounds(newMin.getX(), newMin.getY(), newMin.getZ());
         checkBlockBounds(newMax.getX(), newMax.getY(), newMax.getZ());
         return new ExtentViewDownsize(this, newMin, newMax);
-    }
-
-    @Override
-    public Extent getExtentView(DiscreteTransform3 transform) {
-        return new ExtentViewTransform(this, transform);
     }
 
     @Override

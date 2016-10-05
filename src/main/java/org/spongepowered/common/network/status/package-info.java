@@ -22,25 +22,4 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.common.data.manipulator.mutable.entity;
-
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableVillagerZombieData;
-import org.spongepowered.api.data.manipulator.mutable.entity.VillagerZombieData;
-import org.spongepowered.api.data.type.Profession;
-import org.spongepowered.api.data.type.Professions;
-import org.spongepowered.common.data.manipulator.immutable.entity.ImmutableSpongeVillagerZombieData;
-import org.spongepowered.common.data.manipulator.mutable.common.AbstractSingleCatalogData;
-import org.spongepowered.common.data.util.ImplementationRequiredForTest;
-
-@ImplementationRequiredForTest
-public class SpongeVillagerZombieData extends AbstractSingleCatalogData<Profession, VillagerZombieData, ImmutableVillagerZombieData> implements VillagerZombieData {
-
-    public SpongeVillagerZombieData() {
-        this(Professions.FARMER);
-    }
-
-    public SpongeVillagerZombieData(Profession value) {
-        super(VillagerZombieData.class, value, Keys.VILLAGER_ZOMBIE_PROFESSION, ImmutableSpongeVillagerZombieData.class);
-    }
-}
+@org.spongepowered.api.util.annotation.NonnullByDefault package org.spongepowered.common.network.status;

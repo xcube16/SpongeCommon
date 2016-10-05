@@ -22,25 +22,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.common.interfaces.text;
+package org.spongepowered.common.data.manipulator.mutable.entity;
 
-import net.minecraft.util.text.ITextComponent;
-import org.spongepowered.api.text.Text;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableGravityData;
+import org.spongepowered.api.data.manipulator.mutable.entity.GravityData;
+import org.spongepowered.api.data.value.mutable.Value;
+import org.spongepowered.common.data.manipulator.immutable.entity.ImmutableSpongeGravityData;
+import org.spongepowered.common.data.manipulator.mutable.common.AbstractBooleanData;
+import org.spongepowered.common.data.util.DataConstants;
 
-import java.util.Iterator;
+public class SpongeGravityData extends AbstractBooleanData<GravityData, ImmutableGravityData> implements GravityData {
 
-public interface IMixinChatComponent extends ITextComponent {
+    public SpongeGravityData(boolean value) {
+        super(GravityData.class, value, Keys.HAS_GRAVITY, ImmutableSpongeGravityData.class, DataConstants.DEFAULT_HAS_GRAVITY);
+    }
 
-    Iterator<ITextComponent> childrenIterator();
+    public SpongeGravityData() {
+        this(DataConstants.DEFAULT_HAS_GRAVITY);
+    }
 
-    Iterable<ITextComponent> withChildren();
-
-    String toPlain();
-
-    String getLegacyFormatting();
-
-    String toLegacy(char code);
-
-    Text toText();
-
+    @Override
+    public Value<Boolean> gravity() {
+        return getValueGetter();
+    }
 }
+

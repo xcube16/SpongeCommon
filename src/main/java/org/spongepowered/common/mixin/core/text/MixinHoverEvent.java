@@ -32,7 +32,6 @@ import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.HoverEvent;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -43,8 +42,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.interfaces.text.IMixinChatComponent;
+import org.spongepowered.common.data.util.NbtDataUtil;
+import org.spongepowered.common.interfaces.text.IMixinTextComponent;
 import org.spongepowered.common.interfaces.text.IMixinHoverEvent;
+import org.spongepowered.common.item.inventory.util.ItemStackUtil;
 
 import java.util.UUID;
 
@@ -64,20 +65,20 @@ public abstract class MixinHoverEvent implements IMixinHoverEvent {
                 // This is inefficient, but at least we only need to do it once
                 switch (this.action) {
                     case SHOW_TEXT:
-                        setHandle(TextActions.showText(((IMixinChatComponent) this.value).toText()));
+                        setHandle(TextActions.showText(((IMixinTextComponent) this.value).toText()));
                         break;
                     case SHOW_ACHIEVEMENT:
                         String stat = this.value.getUnformattedText();
                         setHandle(TextActions.showAchievement((Achievement) checkNotNull(StatList.getOneShotStat(stat), "Unknown statistic: %s", stat)));
                         break;
                     case SHOW_ITEM:
-                        setHandle(TextActions.showItem((ItemStack) net.minecraft.item.ItemStack.loadItemStackFromNBT(loadNbt())));
+                        setHandle(TextActions.showItem(ItemStackUtil.createSnapshot(net.minecraft.item.ItemStack.loadItemStackFromNBT(loadNbt()))));
                         break;
                     case SHOW_ENTITY:
                         NBTTagCompound nbt = loadNbt();
                         String name = nbt.getString("name");
                         EntityType type = null;
-                        if (nbt.hasKey("type", 8)) {
+                        if (nbt.hasKey("type", NbtDataUtil.TAG_STRING)) {
                             type = SpongeImpl.getGame().getRegistry().getType(EntityType.class, name).orElse(null);
                         }
 

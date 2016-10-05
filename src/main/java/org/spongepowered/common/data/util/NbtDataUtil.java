@@ -115,6 +115,8 @@ public final class NbtDataUtil {
 
     public static final String CHUNK_DATA_LEVEL = "Level";
     public static final String CHUNK_DATA_SECTIONS = "Sections";
+    
+    public static final String SPAWNABLE_ENTITY_TAG = "EntityTag";
 
     // These are the NBT Tag byte id's that can be used in various places while manipulating compound tags
     public static final byte TAG_END = 0;
@@ -167,6 +169,12 @@ public final class NbtDataUtil {
     public static final String ENTITY_TYPE_ID = "id";
     public static final String MINECART_TYPE = "Type";
     public static final String ENTITY_POSITION = "Pos";
+
+    // These are used by pickup/despawn delay for ItemEntity
+    public static final String INFINITE_PICKUP_DELAY = "InfinitePickupDelay";
+    public static final String INFINITE_DESPAWN_DELAY = "InfiniteDespawnDelay";
+    public static final String PREVIOUS_PICKUP_DELAY = "PreviousPickupDelay";
+    public static final String PREVIOUS_DESPAWN_DELAY = "PreviousDespawnDelay";
 
     public static final class Deprecated {
 

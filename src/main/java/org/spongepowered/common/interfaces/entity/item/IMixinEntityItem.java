@@ -22,50 +22,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.common.entity;
+package org.spongepowered.common.interfaces.entity.item;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+public interface IMixinEntityItem {
 
-public final class EntityDummy extends Entity {
+    boolean infinitePickupDelay();
 
-    protected EntityDummy(World worldIn) {
-        super(worldIn);
-    }
+    int getPickupDelay();
 
-    @Override
-    public int getEntityId() {
-        return -1337;
-    }
+    void setPickupDelay(int delay, boolean infinite);
 
-    @Override
-    protected void entityInit() {
+    boolean infiniteDespawnDelay();
 
-    }
+    int getDespawnDelay();
 
-    @Override
-    public void onUpdate() {
-    }
-
-    @Override
-    protected void playStepSound(BlockPos pos, Block blockIn) {
-    }
-
-    @Override
-    public void playSound(SoundEvent event, float volume, float pitch) {
-    }
-
-    @Override
-    protected void readEntityFromNBT(NBTTagCompound tagCompund) {
-
-    }
-
-    @Override
-    protected void writeEntityToNBT(NBTTagCompound tagCompound) {
-
-    }
+    void setDespawnDelay(int delay, boolean infinite);
 }

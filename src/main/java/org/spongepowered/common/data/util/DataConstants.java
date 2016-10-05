@@ -60,6 +60,8 @@ import org.spongepowered.api.data.type.RabbitType;
 import org.spongepowered.api.data.type.RabbitTypes;
 import org.spongepowered.api.data.type.SkeletonType;
 import org.spongepowered.api.data.type.SkeletonTypes;
+import org.spongepowered.api.data.type.ZombieType;
+import org.spongepowered.api.data.type.ZombieTypes;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.util.Axis;
@@ -99,6 +101,7 @@ public final class DataConstants {
     public static final boolean IS_WET_DEFAULT = false;
     public static final boolean DEFAULT_ATTACHED = false;
     public static final boolean DEFAULT_GLOWING = false;
+    public static final boolean DEFAULT_HAS_GRAVITY = true;
 
     public static final int DEFAULT_FIRE_TICKS = 10;
     public static final int MINIMUM_FIRE_TICKS = 1;
@@ -158,9 +161,26 @@ public final class DataConstants {
         public static final BlockState DEFAULT_BLOCK_STATE = BlockTypes.STONE.getDefaultState();
         public static final Art DEFAULT_ART = Arts.KEBAB;
         public static final PickupRule DEFAULT_PICKUP_RULE = PickupRules.ALLOWED;
+        public static final ZombieType DEFAULT_ZOMBIE_TYPE = ZombieTypes.NORMAL;
     }
 
-    public static final class Entity {}
+    public static final class Entity {
+
+        public static final class Item {
+
+            public static final int MIN_PICKUP_DELAY = Short.MIN_VALUE;
+            public static final int MAX_PICKUP_DELAY = Short.MAX_VALUE;
+            public static final int DEFAULT_PICKUP_DELAY = 0;
+            public static final int MIN_DESPAWN_DELAY = Short.MIN_VALUE;
+            public static final int MAX_DESPAWN_DELAY = Short.MAX_VALUE;
+            public static final int DEFAULT_DESPAWN_DELAY = 0;
+            public static final int MAGIC_NO_PICKUP = MAX_PICKUP_DELAY;
+            public static final int MAGIC_NO_DESPAWN = MIN_DESPAWN_DELAY;
+
+            private Item() {
+            }
+        }
+    }
 
 
     public static final class Horse {

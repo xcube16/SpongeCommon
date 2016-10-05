@@ -78,12 +78,12 @@ public class SlotLensImpl extends MinecraftLens implements SlotLens<IInventory, 
 
     @Override
     public List<Lens<IInventory, ItemStack>> getChildren() {
-        return Collections.<Lens<IInventory, ItemStack>>emptyList();
+        return Collections.emptyList();
     }
 
     @Override
     public List<Lens<IInventory, ItemStack>> getSpanningChildren() {
-        return Collections.<Lens<IInventory, ItemStack>>emptyList();
+        return Collections.emptyList();
     }
 
     @Override
@@ -130,7 +130,7 @@ public class SlotLensImpl extends MinecraftLens implements SlotLens<IInventory, 
 
     @Override
     public Collection<InventoryProperty<?, ?>> getProperties(int index) {
-        return Collections.<InventoryProperty<?, ?>>emptyList();
+        return Collections.emptyList();
     }
 
     @Override

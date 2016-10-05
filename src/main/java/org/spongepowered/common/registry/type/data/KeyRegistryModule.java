@@ -303,10 +303,10 @@ public class KeyRegistryModule implements AdditionalCatalogRegistryModule<Key<?>
     public static final TypeToken<SetValue<BlockType>> SET_BLOCK_VALUE_TOKEN = new TypeToken<SetValue<BlockType>>() {
         private static final long serialVersionUID = -1;
     };
-    public static final TypeToken<Profession> PROFESSION_TOKEN = new TypeToken<Profession>() {
+    public static final TypeToken<Optional<Profession>> OPTIONAL_PROFESSION_TOKEN = new TypeToken<Optional<Profession>>() {
         private static final long serialVersionUID = -1;
     };
-    public static final TypeToken<Value<Profession>> PROFESSION_VALUE_TOKEN = new TypeToken<Value<Profession>>() {
+    public static final TypeToken<OptionalValue<Profession>> OPTIONAL_PROFESSION_VALUE_TOKEN = new TypeToken<OptionalValue<Profession>>() {
         private static final long serialVersionUID = -1;
     };
     public static final TypeToken<CoalType> COAL_TOKEN = new TypeToken<CoalType>() {
@@ -541,6 +541,13 @@ public class KeyRegistryModule implements AdditionalCatalogRegistryModule<Key<?>
         private static final long serialVersionUID = -1;
     };
 
+    public static final TypeToken<ZombieType> ZOMBIE_TYPE_TOKEN = new TypeToken<ZombieType>() {
+        private static final long serialVersionUID = -1;
+    };
+    public static final TypeToken<Value<ZombieType>> ZOMBIE_TYPE_VALUE_TOKEN = new TypeToken<Value<ZombieType>>() {
+        private static final long serialVersionUID = -1;
+    };
+
     public static KeyRegistryModule getInstance() {
         return Holder.INSTANCE;
     }
@@ -696,7 +703,7 @@ public class KeyRegistryModule implements AdditionalCatalogRegistryModule<Key<?>
 
         this.fieldMap.put("slime_size", makeSingleKey(INTEGER_TOKEN, BOUNDED_INTEGER_VALUE_TOKEN, of("SlimeSize"), "sponge:slime_size", "Slime Size"));
 
-        this.fieldMap.put("villager_zombie_profession", makeSingleKey(PROFESSION_TOKEN, PROFESSION_VALUE_TOKEN, of("VillagerZombieProfession"), "sponge:villager_zombie_profession", "Villager Zombie Profession"));
+        this.fieldMap.put("villager_zombie_profession", makeOptionalKey(OPTIONAL_PROFESSION_TOKEN, OPTIONAL_PROFESSION_VALUE_TOKEN, of("VillagerZombieProfession"), "sponge:villager_zombie_profession", "Villager Zombie Profession"));
 
         this.fieldMap.put("is_playing", makeSingleKey(BOOLEAN_TOKEN, BOOLEAN_VALUE_TOKEN, of("IsPlaying"), "sponge:is_playing", "Is Playing"));
 
@@ -944,8 +951,6 @@ public class KeyRegistryModule implements AdditionalCatalogRegistryModule<Key<?>
 
         this.fieldMap.put("armor_stand_has_base_plate", makeSingleKey(BOOLEAN_TOKEN, BOOLEAN_VALUE_TOKEN, of("HasBasePlate"), "sponge:has_base_plate", "Has Base Plate"));
 
-        this.fieldMap.put("armor_stand_has_gravity", makeSingleKey(BOOLEAN_TOKEN, BOOLEAN_VALUE_TOKEN, of("HasGravity"), "sponge:has_gravity", "Has Gravity"));
-
         this.fieldMap.put("armor_stand_marker", makeSingleKey(BOOLEAN_TOKEN, BOOLEAN_VALUE_TOKEN, of("IsMarker"), "sponge:is_marker", "Is Marker"));
 
         this.fieldMap.put("armor_stand_is_small", makeSingleKey(BOOLEAN_TOKEN, BOOLEAN_VALUE_TOKEN, of("IsSmall"), "sponge:is_small", "Is Small"));
@@ -957,6 +962,15 @@ public class KeyRegistryModule implements AdditionalCatalogRegistryModule<Key<?>
         this.fieldMap.put("pickup_rule", makeSingleKey(PICKUP_TOKEN, PICKUP_VALUE_TOKEN, of("PickupRule"), "sponge:pickupRule", "Pickup Rule"));
 
         this.fieldMap.put("invulnerability_ticks", makeSingleKey(INTEGER_TOKEN, BOUNDED_INTEGER_VALUE_TOKEN, of("HurtTime"), "sponge:invulnerability_ticks", "Invulnerability Ticks"));
+
+        this.fieldMap.put("has_gravity", makeSingleKey(BOOLEAN_TOKEN, BOOLEAN_VALUE_TOKEN, of("HasGravity"), "sponge:has_gravity", "Has Gravity"));
+
+        this.fieldMap.put("zombie_type", makeSingleKey(ZOMBIE_TYPE_TOKEN, ZOMBIE_TYPE_VALUE_TOKEN, of("ZombieType"), "sponge:zombie_type", "Zombie Type"));
+
+        this.fieldMap.put("infinite_despawn_delay", makeSingleKey(BOOLEAN_TOKEN, BOOLEAN_VALUE_TOKEN, of("InfiniteDespawnDelay"), "sponge:infinite_despawn_delay", "Infinite Despawn Delay"));
+        this.fieldMap.put("infinite_pickup_delay", makeSingleKey(BOOLEAN_TOKEN, BOOLEAN_VALUE_TOKEN, of("InfinitePickupDelay"), "sponge:infinite_pickup_delay", "Infinite Pickup Delay"));
+        this.fieldMap.put("despawn_delay", makeSingleKey(INTEGER_TOKEN, BOUNDED_INTEGER_VALUE_TOKEN, of("DespawnDelay"), "sponge:despawn_delay", "Despawn Delay"));
+        this.fieldMap.put("pickup_delay", makeSingleKey(INTEGER_TOKEN, BOUNDED_INTEGER_VALUE_TOKEN, of("PickupDelay"), "sponge:pickup_delay", "Pickup Delay"));
 
         for (Key<?> key : this.fieldMap.values()) {
             this.keyMap.put(key.getId().toLowerCase(Locale.ENGLISH), key);

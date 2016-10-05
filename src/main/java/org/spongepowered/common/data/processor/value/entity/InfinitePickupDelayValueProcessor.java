@@ -24,47 +24,57 @@
  */
 package org.spongepowered.common.data.processor.value.entity;
 
-import net.minecraft.entity.item.EntityArmorStand;
+import net.minecraft.entity.item.EntityItem;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.value.ValueContainer;
+import org.spongepowered.api.data.value.immutable.ImmutableBoundedValue;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
+import org.spongepowered.api.data.value.mutable.MutableBoundedValue;
 import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.common.data.processor.common.AbstractSpongeValueProcessor;
-import org.spongepowered.common.data.value.immutable.ImmutableSpongeValue;
+import org.spongepowered.common.data.util.DataConstants;
+import org.spongepowered.common.data.value.SpongeValueFactory;
 import org.spongepowered.common.data.value.mutable.SpongeValue;
+import org.spongepowered.common.interfaces.entity.item.IMixinEntityItem;
 
 import java.util.Optional;
 
-public class ArmorStandGravityValueProcessor extends AbstractSpongeValueProcessor<EntityArmorStand, Boolean, Value<Boolean>> {
+public class InfinitePickupDelayValueProcessor extends AbstractSpongeValueProcessor<EntityItem, Boolean, Value<Boolean>> {
 
-    public ArmorStandGravityValueProcessor() {
-        super(EntityArmorStand.class, Keys.ARMOR_STAND_HAS_GRAVITY);
+    public InfinitePickupDelayValueProcessor() {
+        super(EntityItem.class, Keys.INFINITE_PICKUP_DELAY);
     }
 
     @Override
-    protected Value<Boolean> constructValue(Boolean actualValue) {
-        return new SpongeValue<>(this.key, true, actualValue);
+    public Value<Boolean> constructValue(Boolean defaultValue) {
+        return new SpongeValue<>(Keys.INFINITE_PICKUP_DELAY, false, defaultValue);
     }
 
     @Override
-    protected boolean set(EntityArmorStand container, Boolean value) {
-        container.setNoGravity(!value);
+    protected boolean set(EntityItem container, Boolean value) {
+        ((IMixinEntityItem) container).setPickupDelay(value ? DataConstants.Entity.Item.MAGIC_NO_PICKUP : DataConstants.Entity.Item.DEFAULT_PICKUP_DELAY, value);
         return true;
     }
 
     @Override
-    protected Optional<Boolean> getVal(EntityArmorStand container) {
-        return Optional.of(!container.hasNoGravity());
+    protected Optional<Boolean> getVal(EntityItem container) {
+        return Optional.of(((IMixinEntityItem) container).infinitePickupDelay());
     }
 
     @Override
     protected ImmutableValue<Boolean> constructImmutableValue(Boolean value) {
-        return ImmutableSpongeValue.cachedOf(this.key, true, value);
+        return constructValue(value).asImmutable();
+    }
+
+    @Override
+    protected boolean supports(EntityItem container) {
+        return true;
     }
 
     @Override
     public DataTransactionResult removeFrom(ValueContainer<?> container) {
         return DataTransactionResult.failNoData();
     }
+
 }

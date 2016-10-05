@@ -22,19 +22,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.spongepowered.common.data.manipulator.immutable.entity;
+package org.spongepowered.common.mixin.core.server.network;
 
-import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableVillagerZombieData;
-import org.spongepowered.api.data.manipulator.mutable.entity.VillagerZombieData;
-import org.spongepowered.api.data.type.Profession;
-import org.spongepowered.api.data.type.Professions;
-import org.spongepowered.common.data.manipulator.immutable.common.AbstractImmutableSingleCatalogData;
-import org.spongepowered.common.data.manipulator.mutable.entity.SpongeVillagerZombieData;
+import net.minecraft.network.NetworkManager;
+import net.minecraft.network.handshake.client.C00Handshake;
+import net.minecraft.server.network.NetHandlerHandshakeTCP;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.interfaces.IMixinNetworkManager;
+import org.spongepowered.common.util.NetworkUtil;
 
-public class ImmutableSpongeVillagerZombieData extends AbstractImmutableSingleCatalogData<Profession, ImmutableVillagerZombieData, VillagerZombieData> implements ImmutableVillagerZombieData {
+@Mixin(NetHandlerHandshakeTCP.class)
+public abstract class MixinNetHandlerHandshakeTCP {
 
-    public ImmutableSpongeVillagerZombieData(Profession value) {
-        super(ImmutableVillagerZombieData.class, value, Professions.FARMER, Keys.VILLAGER_ZOMBIE_PROFESSION, SpongeVillagerZombieData.class);
+    @Shadow @Final private NetworkManager networkManager;
+
+    @Inject(method = "processHandshake", at = @At("HEAD"))
+    public void onProcessHandshake(C00Handshake packetIn, CallbackInfo ci) {
+        IMixinNetworkManager info = (IMixinNetworkManager) this.networkManager;
+        info.setVersion(packetIn.getProtocolVersion());
+        info.setVirtualHost(NetworkUtil.cleanVirtualHost(packetIn.ip), packetIn.port);
     }
+
 }

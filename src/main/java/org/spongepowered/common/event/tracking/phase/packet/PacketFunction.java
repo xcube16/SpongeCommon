@@ -53,6 +53,7 @@ import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.entity.living.humanoid.player.PlayerChangeClientSettingsEvent;
 import org.spongepowered.api.event.entity.living.humanoid.player.ResourcePackStatusEvent;
@@ -170,7 +171,8 @@ public interface PacketFunction {
                     }
                 }
             });
-            context.getCapturedEntityItemDropSupplier().ifPresentAndNotEmpty(map -> {
+            UnwindingFunctions.spawnItemDrops(causeTracker, context.getCapturedEntityItemDropSupplier(), player, SpawnTypes.DROPPED_ITEM, SpongeEventFactory::createDropItemEventDestruct, Cause.builder().named(NamedCause.of("Attacker", player)));
+            /*context.getCapturedEntityItemDropSupplier().ifPresentAndNotEmpty(map -> {
                 for (Map.Entry<UUID, Collection<EntityItem>> entry : map.asMap().entrySet()) {
                     final UUID key = entry.getKey();
                     final Optional<Entity> attackedEntities = causeTracker.getWorld().getEntity(key);
@@ -194,7 +196,7 @@ public interface PacketFunction {
 
                     }
                 }
-            });
+            });*/
 
 
         } else if (state == PacketPhase.General.INTERACT_ENTITY) {
@@ -327,7 +329,8 @@ public interface PacketFunction {
                     }
                 }
             });
-            context.getCapturedItemStackSupplier().ifPresentAndNotEmpty(drops -> {
+            UnwindingFunctions.spawnItemStacks(player, context, InternalSpawnTypes.PLACEMENT);
+            /*context.getCapturedItemStackSupplier().ifPresentAndNotEmpty(drops -> {
                 final List<EntityItem>
                         items =
                         drops.stream().map(drop -> drop.create(causeTracker.getMinecraftWorld())).collect(Collectors.toList());
@@ -353,7 +356,7 @@ public interface PacketFunction {
                     }
                 }
 
-            });
+            });*/
         }
         UnwindingFunctions.processBlocks(causeTracker, state, context);
         /*context.getCapturedBlockSupplier()
@@ -783,7 +786,8 @@ public interface PacketFunction {
                                 PacketPhaseUtil.handlePlayerSlotRestore(player, (net.minecraft.item.ItemStack) itemStack, hand);
                             }
                         });
-        context.getCapturedItemStackSupplier().ifPresentAndNotEmpty(drops -> {
+        UnwindingFunctions.spawnItemStacks(player, context, InternalSpawnTypes.PLACEMENT);
+        /*context.getCapturedItemStackSupplier().ifPresentAndNotEmpty(drops -> {
             final List<EntityItem>
                     items =
                     drops.stream().map(drop -> drop.create(causeTracker.getMinecraftWorld())).collect(Collectors.toList());
@@ -809,7 +813,7 @@ public interface PacketFunction {
                 }
             }
 
-        });
+        });*/
     };
     PacketFunction HELD_ITEM_CHANGE = ((packet, state, player, context) -> {
         final CPacketHeldItemChange itemChange = (CPacketHeldItemChange) packet;
@@ -847,8 +851,9 @@ public interface PacketFunction {
         final Cause cause = Cause.source(player).build();
         InteractInventoryEvent.Close event = SpongeCommonEventFactory.callInteractInventoryCloseEvent(cause, container, player, lastCursor, newCursor);
         if (!event.isCancelled()) {
+            UnwindingFunctions.spawnEntityItems(player, context, InternalSpawnTypes.PLACEMENT, SpongeEventFactory::createDropItemEventCustom, Cause.builder().named(NamedCause.notifier(player)));
             // Non-merged items
-            context.getCapturedItemsSupplier().ifPresentAndNotEmpty(items -> {
+            /*context.getCapturedItemsSupplier().ifPresentAndNotEmpty(items -> {
                 final Cause spawnCause = Cause.source(
                         EntitySpawnCause.builder()
                                 .entity((Entity) player)
@@ -870,7 +875,7 @@ public interface PacketFunction {
                         }
                     }
                 }
-            });
+            });*/
             // Pre-merged items
             context.getCapturedItemStackSupplier().ifPresentAndNotEmpty(stacks -> {
                 final List<EntityItem> items = stacks.stream()
@@ -899,9 +904,11 @@ public interface PacketFunction {
                 }
 
             });
+            UnwindingFunctions.processBlocks(((IMixinWorldServer) player.worldObj).getCauseTracker(), state, context);
+            /*
             context.getCapturedBlockSupplier()
                     .ifPresentAndNotEmpty(blocks ->
-                            TrackingUtil.processBlockCaptures(blocks, ((IMixinWorldServer) player.worldObj).getCauseTracker(), state, context));
+                            TrackingUtil.processBlockCaptures(blocks, ((IMixinWorldServer) player.worldObj).getCauseTracker(), state, context));*/
         }
     });
     PacketFunction ENCHANTMENT = ((packet, state, player, context) -> {
@@ -967,8 +974,9 @@ public interface PacketFunction {
     });
     PacketFunction MOVEMENT = (packet, state, player, context) -> {
         final IMixinWorldServer mixinWorldServer = (IMixinWorldServer) player.worldObj;
-        context.getCapturedBlockSupplier().ifPresentAndNotEmpty(blocks -> TrackingUtil
-                .processBlockCaptures(blocks, mixinWorldServer.getCauseTracker(), state, context));
+        UnwindingFunctions.processBlocks(mixinWorldServer.getCauseTracker(), state, context);
+        /*context.getCapturedBlockSupplier().ifPresentAndNotEmpty(blocks -> TrackingUtil
+                .processBlockCaptures(blocks, mixinWorldServer.getCauseTracker(), state, context));*/
     };
 
     PacketFunction UNKONWN_PACKET = (packet, state, player, context) -> {
@@ -1053,6 +1061,15 @@ public interface PacketFunction {
                 }
             }
         });
+
+        context.getCapturedItemStackSupplier().ifPresentAndNotEmpty(drops -> {
+            final List<EntityItem>
+                    items =
+                    drops.stream().map(drop -> drop.create(causeTracker.getMinecraftWorld())).collect(Collectors.toList());
+            UnwindingFunctions.spawnFromList(player, items, InternalSpawnTypes.CUSTOM, SpongeEventFactory::createDropItemEventCustom, Cause.builder().named(NamedCause.notifier(player)));
+        });
+
+        /*
         context.getCapturedItemStackSupplier().ifPresentAndNotEmpty(drops -> {
             final List<EntityItem>
                     items =
@@ -1079,7 +1096,7 @@ public interface PacketFunction {
                 }
             }
 
-        });
+        });*/
 
     };
 

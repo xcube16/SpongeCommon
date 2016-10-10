@@ -25,6 +25,7 @@
 package org.spongepowered.common.event.tracking.phase.tick;
 
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
@@ -38,6 +39,7 @@ import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.TrackingUtil;
+import org.spongepowered.common.event.tracking.UnwindingFunctions;
 import org.spongepowered.common.interfaces.block.IMixinBlockEventData;
 import org.spongepowered.common.registry.type.event.InternalSpawnTypes;
 
@@ -58,7 +60,8 @@ class PlayerTickPhaseState extends TickPhaseState {
     public void processPostTick(CauseTracker causeTracker, PhaseContext phaseContext) {
         final Player player = phaseContext.getSource(Player.class)
                 .orElseThrow(TrackingUtil.throwWithContext("Not ticking on a Player!", phaseContext));
-        phaseContext.getCapturedEntitySupplier().ifPresentAndNotEmpty(entities -> {
+        UnwindingFunctions.spawnEntities((EntityPlayerMP) player, phaseContext, InternalSpawnTypes.PASSIVE);
+        /*phaseContext.getCapturedEntitySupplier().ifPresentAndNotEmpty(entities -> {
             final Cause.Builder builder = Cause.source(EntitySpawnCause.builder()
                     .entity(player)
                     .type(InternalSpawnTypes.PASSIVE)
@@ -71,8 +74,9 @@ class PlayerTickPhaseState extends TickPhaseState {
                 EntityUtil.toMixin(entity).setCreator(player.getUniqueId());
                 causeTracker.getMixinWorld().forceSpawnEntity(entity);
             }
-        });
-        phaseContext.getCapturedItemsSupplier().ifPresentAndNotEmpty(entities -> {
+        });*/
+        UnwindingFunctions.spawnEntityItems((EntityPlayerMP) player, phaseContext, InternalSpawnTypes.DROPPED_ITEM);
+        /*phaseContext.getCapturedItemsSupplier().ifPresentAndNotEmpty(entities -> {
             final Cause.Builder builder = Cause.source(EntitySpawnCause.builder()
                     .entity(player)
                     .type(InternalSpawnTypes.DROPPED_ITEM)
@@ -90,10 +94,11 @@ class PlayerTickPhaseState extends TickPhaseState {
                 EntityUtil.toMixin(entity).setCreator(player.getUniqueId());
                 causeTracker.getMixinWorld().forceSpawnEntity(entity);
             }
-        });
-        phaseContext.getCapturedBlockSupplier().ifPresentAndNotEmpty(blockSnapshots -> {
+        });*/
+        UnwindingFunctions.processBlocks(causeTracker, this, phaseContext);
+        /*phaseContext.getCapturedBlockSupplier().ifPresentAndNotEmpty(blockSnapshots -> {
             TrackingUtil.processBlockCaptures(blockSnapshots, causeTracker, this, phaseContext);
-        });
+        });*/
     }
 
     @Override

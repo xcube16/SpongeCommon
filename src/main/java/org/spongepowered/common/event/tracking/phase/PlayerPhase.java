@@ -25,6 +25,7 @@
 package org.spongepowered.common.event.tracking.phase;
 
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayerMP;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.SpongeEventFactory;
@@ -38,6 +39,7 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.TrackingUtil;
+import org.spongepowered.common.event.tracking.UnwindingFunctions;
 import org.spongepowered.common.registry.type.event.InternalSpawnTypes;
 
 import java.util.ArrayList;
@@ -79,7 +81,11 @@ public class PlayerPhase extends TrackingPhase {
         // Since currently all we have is PLAYER_LOGOUT, don't care about states.
         final Player player = phaseContext.firstNamed(NamedCause.SOURCE, Player.class)
                 .orElseThrow(TrackingUtil.throwWithContext("Expected to be processing a player leaving, but we're not!", phaseContext));
-        phaseContext.getCapturedItemsSupplier().ifPresentAndNotEmpty(items -> {
+
+        UnwindingFunctions.spawnEntityItems((EntityPlayerMP) player, phaseContext, InternalSpawnTypes.DISPENSE, SpongeEventFactory::createDropItemEventDispense);
+        // TODO - the original code doesn't set the creator - determine whether that was a mistake or not
+
+        /*phaseContext.getCapturedItemsSupplier().ifPresentAndNotEmpty(items -> {
             final Cause cause = Cause.source(
                     EntitySpawnCause.builder()
                             .entity(player)
@@ -99,7 +105,7 @@ public class PlayerPhase extends TrackingPhase {
                     causeTracker.getMixinWorld().forceSpawnEntity(entity);
                 }
             }
-        });
+        });*/
         phaseContext.getCapturedItemStackSupplier().ifPresentAndNotEmpty(items -> {
             final List<EntityItem> drops = items.stream()
                     .map(drop -> drop.create(causeTracker.getMinecraftWorld()))

@@ -79,6 +79,7 @@ import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.ItemDropData;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.TrackingUtil;
+import org.spongepowered.common.event.tracking.UnwindingFunctions;
 import org.spongepowered.common.interfaces.IMixinContainer;
 import org.spongepowered.common.interfaces.network.IMixinNetHandlerPlayServer;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
@@ -128,9 +129,10 @@ public interface PacketFunction {
                         printer.add(new Exception("Stack trace"));
                         printer.trace(System.err, SpongeImpl.getLogger(), Level.TRACE);
                     });
-            context.getCapturedBlockSupplier()
+            UnwindingFunctions.processBlocks(causeTracker, state, context);
+            /*context.getCapturedBlockSupplier()
                     .ifPresentAndNotEmpty(blocks ->
-                            TrackingUtil.processBlockCaptures(blocks, causeTracker, state, context));
+                            TrackingUtil.processBlockCaptures(blocks, causeTracker, state, context));*/
             context.getCapturedEntityDropSupplier().ifPresentAndNotEmpty(map -> {
                 for (Map.Entry<UUID, Collection<ItemDropData>> entry : map.asMap().entrySet()) {
                     final UUID key = entry.getKey();
@@ -216,7 +218,8 @@ public interface PacketFunction {
                         }
                         printer.trace(System.err);
                     });
-            context.getCapturedItemsSupplier().ifPresentAndNotEmpty(entities -> {
+            UnwindingFunctions.spawnEntityItems(player, context, InternalSpawnTypes.PLACEMENT);
+            /*context.getCapturedItemsSupplier().ifPresentAndNotEmpty(entities -> {
                 final List<Entity> items = entities.stream().map(EntityUtil::fromNative).collect(Collectors.toList());
                 final Cause cause = Cause.source(EntitySpawnCause.builder()
                         .entity((Player) player)
@@ -231,7 +234,7 @@ public interface PacketFunction {
                         mixinWorldServer.forceSpawnEntity(spawnedEntity);
                     }
                 }
-            });
+            });*/
             context.getCapturedEntityDropSupplier()
                     .ifPresentAndNotEmpty(map -> {
                         final PrettyPrinter printer = new PrettyPrinter(80);
@@ -248,7 +251,8 @@ public interface PacketFunction {
                     });
 
         } else if (state == PacketPhase.General.INTERACT_AT_ENTITY) {
-            context.getCapturedEntitySupplier().ifPresentAndNotEmpty(entities -> {
+            UnwindingFunctions.spawnEntities(player, context, InternalSpawnTypes.PLACEMENT);
+            /*context.getCapturedEntitySupplier().ifPresentAndNotEmpty(entities -> {
                 final Cause cause = Cause.source(EntitySpawnCause.builder()
                         .entity((Player) player)
                         .type(InternalSpawnTypes.PLACEMENT)
@@ -262,8 +266,9 @@ public interface PacketFunction {
                         mixinWorldServer.forceSpawnEntity(spawnedEntity);
                     }
                 }
-            });
-            context.getCapturedItemsSupplier().ifPresentAndNotEmpty(entities -> {
+            });*/
+            UnwindingFunctions.spawnEntityItems(player, context, InternalSpawnTypes.PLACEMENT);
+            /*context.getCapturedItemsSupplier().ifPresentAndNotEmpty(entities -> {
                 final List<Entity> items = entities.stream().map(EntityUtil::fromNative).collect(Collectors.toList());
                 final Cause cause = Cause.source(EntitySpawnCause.builder()
                         .entity((Player) player)
@@ -278,7 +283,7 @@ public interface PacketFunction {
                         mixinWorldServer.forceSpawnEntity(spawnedEntity);
                     }
                 }
-            });
+            });*/
             context.getCapturedEntityDropSupplier().ifPresentAndNotEmpty(map -> {
                 final PrettyPrinter printer = new PrettyPrinter(80);
                 printer.add("Processing Interact At Entity").centre().hr();
@@ -350,10 +355,11 @@ public interface PacketFunction {
 
             });
         }
-        context.getCapturedBlockSupplier()
+        UnwindingFunctions.processBlocks(causeTracker, state, context);
+        /*context.getCapturedBlockSupplier()
                 .ifPresentAndNotEmpty(snapshots ->
                         TrackingUtil.processBlockCaptures(snapshots, causeTracker, state, context)
-                );
+                );*/
     };
 
     @SuppressWarnings("unchecked") PacketFunction ACTION = (packet, state, player, context) -> {
@@ -363,11 +369,13 @@ public interface PacketFunction {
         final ItemStackSnapshot usedSnapshot = ItemStackUtil.snapshotOf(usedStack);
         final Entity spongePlayer = EntityUtil.fromNative(player);
         if (state == PacketPhase.Inventory.DROP_ITEM_WITH_HOTKEY) {
-            context.getCapturedBlockSupplier()
+            UnwindingFunctions.processBlocks(causeTracker, state, context);
+            /*context.getCapturedBlockSupplier()
                     .ifPresentAndNotEmpty(blocks ->
                             TrackingUtil.processBlockCaptures(blocks, causeTracker, state, context)
-                    );
-            context.getCapturedItemsSupplier()
+                    );*/
+            UnwindingFunctions.spawnEntityItems(player, context, InternalSpawnTypes.DROPPED_ITEM, SpongeEventFactory::createDropItemEventDispense);
+            /*context.getCapturedItemsSupplier()
                     .ifPresentAndNotEmpty(items -> {
                         final Cause cause = Cause.source(EntitySpawnCause.builder()
                                 .entity(spongePlayer)
@@ -386,7 +394,7 @@ public interface PacketFunction {
                             processSpawnedEntities(player, causeTracker, dropItemEvent);
 
                         }
-                    });
+                    });*/
             context.getCapturedEntityDropSupplier()
                     .ifPresentAndNotEmpty(itemMapping -> {
 
@@ -394,10 +402,12 @@ public interface PacketFunction {
                     });
         } else if (state == PacketPhase.Inventory.DROP_INVENTORY) {
 
-            context.getCapturedBlockSupplier()
-                    .ifPresentAndNotEmpty(blocks -> TrackingUtil.processBlockCaptures(blocks, causeTracker, state, context));
+            UnwindingFunctions.processBlocks(causeTracker, state, context);
+            /*context.getCapturedBlockSupplier()
+                    .ifPresentAndNotEmpty(blocks -> TrackingUtil.processBlockCaptures(blocks, causeTracker, state, context));*/
 
-            context.getCapturedItemsSupplier()
+            UnwindingFunctions.spawnEntityItems(player, context, InternalSpawnTypes.DROPPED_ITEM, SpongeEventFactory::createDropItemEventDispense);
+            /*context.getCapturedItemsSupplier()
                     .ifPresentAndNotEmpty(items -> {
                         final Cause cause = Cause.source(EntitySpawnCause.builder()
                                 .entity(spongePlayer)
@@ -416,15 +426,17 @@ public interface PacketFunction {
                             processSpawnedEntities(player, causeTracker, dropItemEvent);
 
                         }
-                    });
+                    });*/
 
         } else if (state == PacketPhase.General.INTERACTION) {
-            context.getCapturedBlockSupplier()
+            UnwindingFunctions.processBlocks(causeTracker, state, context);
+            /*context.getCapturedBlockSupplier()
                     .ifPresentAndNotEmpty(blocks ->
                             TrackingUtil.processBlockCaptures(blocks, causeTracker, state, context)
-                    );
+                    );*/
 
-            context.getCapturedItemsSupplier()
+            UnwindingFunctions.spawnEntityItems(player, context, InternalSpawnTypes.DROPPED_ITEM, SpongeEventFactory::createDropItemEventDispense);
+            /*context.getCapturedItemsSupplier()
                     .ifPresentAndNotEmpty(items -> {
                         if (items.isEmpty()) {
                             return;
@@ -445,7 +457,7 @@ public interface PacketFunction {
                         if (!dispense.isCancelled()) {
                             processSpawnedEntities(player, causeTracker, dispense);
                         }
-                    });
+                    });*/
             context.getCapturedEntityDropSupplier()
                     .ifPresentAndNotEmpty(map -> {
                         if (map.isEmpty()) {
@@ -713,6 +725,7 @@ public interface PacketFunction {
 
         final ItemStack itemStack = context.firstNamed(InternalNamedCauses.Packet.ITEM_USED, ItemStack.class).orElse(null);
         final ItemStackSnapshot snapshot = ItemStackUtil.snapshotOf(itemStack);
+
         context.getCapturedEntitySupplier()
                 .ifPresentAndNotEmpty(entities -> {
                     final Cause cause = Cause.source(EntitySpawnCause.builder()
@@ -727,9 +740,10 @@ public interface PacketFunction {
                         processSpawnedEntities(player, mixinWorld.getCauseTracker(), spawnEntityEvent);
                     }
                 });
-        context.getCapturedBlockSupplier()
+        UnwindingFunctions.processBlocks(mixinWorld.getCauseTracker(), state, context);
+        /*context.getCapturedBlockSupplier()
                 .ifPresentAndNotEmpty(
-                        originalBlocks -> TrackingUtil.processBlockCaptures(originalBlocks, mixinWorld.getCauseTracker(), state, context));
+                        originalBlocks -> TrackingUtil.processBlockCaptures(originalBlocks, mixinWorld.getCauseTracker(), state, context));*/
 
     });
     PacketFunction PLACE_BLOCK = (packet, state, player, context) -> {
@@ -960,8 +974,11 @@ public interface PacketFunction {
     PacketFunction UNKONWN_PACKET = (packet, state, player, context) -> {
         final IMixinWorldServer mixinWorldServer = (IMixinWorldServer) player.getServerWorld();
         final CauseTracker causeTracker = mixinWorldServer.getCauseTracker();
-        context.getCapturedBlockSupplier().ifPresentAndNotEmpty(blocks -> TrackingUtil.processBlockCaptures(blocks, causeTracker, state, context));
-        context.getCapturedEntitySupplier().ifPresentAndNotEmpty(entities -> {
+        UnwindingFunctions.processBlocks(causeTracker, state, context);
+        //context.getCapturedBlockSupplier().ifPresentAndNotEmpty(blocks -> TrackingUtil.processBlockCaptures(blocks, causeTracker, state, context));
+
+        UnwindingFunctions.spawnEntities(player, context, InternalSpawnTypes.PLACEMENT);
+        /*context.getCapturedEntitySupplier().ifPresentAndNotEmpty(entities -> {
             final Cause cause = Cause.source(EntitySpawnCause.builder()
                     .entity((Player) player)
                     .type(InternalSpawnTypes.PLACEMENT)
@@ -975,8 +992,9 @@ public interface PacketFunction {
                     mixinWorldServer.forceSpawnEntity(spawnedEntity);
                 }
             }
-        });
-        context.getCapturedItemsSupplier().ifPresentAndNotEmpty(entities -> {
+        });*/
+        UnwindingFunctions.spawnEntityItems(player, context, InternalSpawnTypes.PLACEMENT);
+        /*context.getCapturedItemsSupplier().ifPresentAndNotEmpty(entities -> {
             final List<Entity> items = entities.stream().map(EntityUtil::fromNative).collect(Collectors.toList());
             final Cause cause = Cause.source(EntitySpawnCause.builder()
                     .entity((Player) player)
@@ -991,7 +1009,7 @@ public interface PacketFunction {
                     mixinWorldServer.forceSpawnEntity(spawnedEntity);
                 }
             }
-        });
+        });*/
         context.getCapturedEntityDropSupplier().ifPresentAndNotEmpty(map -> {
             final PrettyPrinter printer = new PrettyPrinter(80);
             printer.add("Processing Interact At Entity").centre().hr();

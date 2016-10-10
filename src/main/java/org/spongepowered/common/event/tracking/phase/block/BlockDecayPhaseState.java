@@ -41,6 +41,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.TrackingUtil;
+import org.spongepowered.common.event.tracking.UnwindingFunctions;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.world.IMixinLocation;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
@@ -94,8 +95,9 @@ final class BlockDecayPhaseState extends BlockPhaseState {
                         }
                     }
                 });
-        phaseContext.getCapturedBlockSupplier()
-                .ifPresentAndNotEmpty(blocks -> TrackingUtil.processBlockCaptures(blocks, causeTracker, this, phaseContext));
+        UnwindingFunctions.processBlocks(causeTracker, this, phaseContext);
+        /*phaseContext.getCapturedBlockSupplier()
+                .ifPresentAndNotEmpty(blocks -> TrackingUtil.processBlockCaptures(blocks, causeTracker, this, phaseContext));*/
         phaseContext.getCapturedItemStackSupplier()
                 .ifPresentAndNotEmpty(drops -> {
                     final List<EntityItem> items = drops.stream()

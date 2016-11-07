@@ -7,18 +7,14 @@ import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class DataImpl {
+public class DataImplObject {
 
-    Class<? extends DataManipulator<?, ?>> dataInterface;
-    Class<? extends ImmutableDataManipulator<?, ?>> immutableDataInterface;
+    Class<? extends DataManipulator<?, ?>> superManipulatorClass;
     public String manipulatorClassName;
+    Class<? extends ImmutableDataManipulator<?, ?>> superImmutableClass;
     public String manipulatorDescriptor;
     public String immutableClassName;
     List<ValueGroupInfo> valueGroups;
-    List<KeyContainer> containers;
-    Predicate<? extends DataHolder> applyPredicate;
-    String name;
-
-    Object plugin;
+    Predicate<? extends DataHolder> applyPredicate = (holder) -> true;
     public int version;
 }

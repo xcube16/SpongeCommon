@@ -24,7 +24,7 @@ public class CustomDataClassBuilder {
 
     public static byte[] dump() throws Exception {
 
-        final DataImpl data = new DataImpl();
+        final DataImplObject data = new DataImplObject();
 
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         FieldVisitor fv;
@@ -33,7 +33,7 @@ public class CustomDataClassBuilder {
         final String name = data.manipulatorClassName;
 
         cw.visit(V1_8, ACC_PUBLIC + Opcodes.ACC_SUPER, name, null, "java/lang/Object",
-                new String[]{Type.getInternalName(data.dataInterface)});
+                new String[]{Type.getInternalName(data.superManipulatorClass)});
 
         final String thisDescriptor = "L" + name + ";";
         data.manipulatorDescriptor = thisDescriptor;
@@ -43,9 +43,8 @@ public class CustomDataClassBuilder {
                 "BoundedValueBuilder", ACC_PUBLIC + ACC_STATIC + ACC_ABSTRACT + ACC_INTERFACE);
 
         // filter through the key containers to generate the field names to be used for the rest of the generator
-        for (KeyContainer container : data.containers) {
-            final String keyFieldName = container.name.toUpperCase() + "_" + Integer.toString(container.name.hashCode() & 999) + "_" + Counter.nextInt();
-            container.staticFieldName = keyFieldName;
+        for (ValueGroupInfo container : data.valueGroups) {
+            final String keyFieldName = container.staticKeyFieldName;
             {
                 // Set up the static field for the key
                 fv = cw.visitField(ACC_PRIVATE + ACC_FINAL + ACC_STATIC, keyFieldName, Type.getInternalName(Key.class), null, null);
@@ -53,14 +52,11 @@ public class CustomDataClassBuilder {
             }
         }
 
-        for (KeyContainer container : data.containers) {
-            if (container.requiresBaseField) {
-                final String fieldName = container.name + "$" + Integer.toString(container.name.hashCode() & 999) + "$" + Counter.nextInt();
-                container.baseFieldName = fieldName;
-                {
-                    fv = cw.visitField(ACC_PRIVATE, fieldName, container.baseFieldType, null, null);
-                    fv.visitEnd();
-                }
+        for (ValueGroupInfo container : data.valueGroups) {
+            final String fieldName = container.instanceValueFieldName;
+            {
+                fv = cw.visitField(ACC_PRIVATE, fieldName, container.fieldType.getTypeName(), null, null);
+                fv.visitEnd();
             }
         }
 

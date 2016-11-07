@@ -57,6 +57,7 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.config.DataSerializableTypeSerializer;
 import org.spongepowered.common.data.builder.manipulator.SpongeDataManipulatorBuilder;
 import org.spongepowered.common.data.builder.manipulator.SpongeImmutableDataManipulatorBuilder;
+import org.spongepowered.common.data.generator.SpongeDataRegistration;
 import org.spongepowered.common.data.nbt.data.NbtDataProcessor;
 import org.spongepowered.common.data.nbt.NbtDataType;
 import org.spongepowered.common.data.nbt.SpongeNbtProcessorDelegate;
@@ -573,6 +574,10 @@ public final class SpongeDataManager implements DataManager {
         } else {
             throw new IllegalStateException(String.format("The Key %s is already registered to the DataManipulator Class: %s", key.getId(), aClass.getName()));
         }
+
+    }
+
+    public void validateDataRegistration(SpongeDataRegistration registration) {
 
     }
 }

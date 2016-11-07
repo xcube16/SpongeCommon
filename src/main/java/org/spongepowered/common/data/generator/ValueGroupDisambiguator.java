@@ -2,8 +2,6 @@ package org.spongepowered.common.data.generator;
 
 import com.google.common.reflect.TypeToken;
 import org.spongepowered.api.data.key.Key;
-import org.spongepowered.common.data.generator.strategy.KeySerializationGenerator;
-import org.spongepowered.common.data.generator.strategy.ValueStrategyFactory;
 
 import javax.annotation.Nullable;
 
@@ -21,6 +19,7 @@ public class ValueGroupDisambiguator {
     public Key key;
     public TypeToken resolvedType;
     public String generatedId;
+    public String fieldInstanceId;
 
     // Step 3a : Retrieved from the Key and TypeToken, determine whether we're a bounded value instance
     @Nullable public Object defaultValue;
@@ -28,8 +27,5 @@ public class ValueGroupDisambiguator {
     @Nullable public Object maximumValue;
 
     // Step 4 : After resolved types are defined
-    public ValueStrategyFactory.StrategyType resolvedValueStrategy;
-    public KeySerializationGenerator.DeserializationType keySerialization;
-
 
 }

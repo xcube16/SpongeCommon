@@ -37,12 +37,12 @@ final class UnknownPacketState extends BasicPacketState {
 
     @Override
     public boolean tracksBlockSpecificDrops() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean tracksEntitySpecificDrops() {
-        return true;
+        return false;
     }
 
     @Override

@@ -48,28 +48,23 @@ final class InteractionPacketState extends BasicPacketState {
         if (stack != null) {
             context.add(NamedCause.of(InternalNamedCauses.Packet.ITEM_USED, stack));
         }
-        context.addEntityDropCaptures()
-                .addEntityCaptures()
-                .addBlockCaptures();
+        context.
+                addCaptures().
+                addEntityDropCaptures();
+    }
+
+    @Override
+    public boolean doesCaptureBlockChanges() {
+        return false;
     }
 
     @Override
     public boolean doesCaptureEntityDrops() {
-        return true;
-    }
-
-    @Override
-    public boolean canSwitchTo(IPhaseState state) {
-        return state == BlockPhase.State.BLOCK_DECAY || state == BlockPhase.State.BLOCK_DROP_ITEMS;
+        return false;
     }
 
     @Override
     public boolean tracksBlockSpecificDrops() {
-        return true;
-    }
-
-    @Override
-    public boolean tracksEntitySpecificDrops() {
         return true;
     }
 }

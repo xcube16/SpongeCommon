@@ -90,6 +90,11 @@ public class BasicInventoryPacketState extends BasicPacketState {
     }
 
     @Override
+    public boolean doesCaptureBlockChanges() {
+        return false;
+    }
+
+    @Override
     public boolean matches(int packetState) {
         return this.stateMask != PacketPhase.MASK_NONE && ((packetState & this.stateMask & this.stateId) == (packetState & this.stateMask));
     }

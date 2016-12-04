@@ -421,11 +421,6 @@ public interface PacketFunction {
                     });
 
         } else if (state == PacketPhase.General.INTERACTION) {
-            context.getCapturedBlockSupplier()
-                    .ifPresentAndNotEmpty(blocks ->
-                            TrackingUtil.processBlockCaptures(blocks, causeTracker, state, context)
-                    );
-
             context.getCapturedItemsSupplier()
                     .ifPresentAndNotEmpty(items -> {
                         if (items.isEmpty()) {

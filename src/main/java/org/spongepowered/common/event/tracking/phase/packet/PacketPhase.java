@@ -288,7 +288,7 @@ public final class PacketPhase extends TrackingPhase {
 
     @Override
     public boolean alreadyCapturingItemSpawns(IPhaseState currentState) {
-        return currentState == General.INTERACTION;
+        return false;
     }
 
     @Override
@@ -325,7 +325,7 @@ public final class PacketPhase extends TrackingPhase {
 
     @Override
     public boolean requiresBlockCapturing(IPhaseState currentState) {
-        return !(currentState instanceof BasicInventoryPacketState);
+        return ((IPacketState) currentState).doesCaptureBlockChanges();
     }
 
     @Override

@@ -35,6 +35,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockRedstoneLight;
 import net.minecraft.block.BlockRedstoneRepeater;
 import net.minecraft.block.BlockRedstoneTorch;
 import net.minecraft.block.ITileEntityProvider;
@@ -1197,6 +1198,9 @@ public abstract class MixinWorld implements World, IMixinWorld {
             return true;
         }
         if (originalBlock instanceof BlockRedstoneTorch && newBlock instanceof BlockRedstoneTorch) {
+            return true;
+        }
+        if (originalBlock instanceof BlockRedstoneLight && newBlock instanceof BlockRedstoneLight) {
             return true;
         }
 

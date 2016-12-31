@@ -336,6 +336,7 @@
         "item.inventory.MixinContainer",
         "item.inventory.MixinContainerCanInteract",
         "item.inventory.MixinContainerCarrier",
+        "item.inventory.MixinContainerWorkbench",
         "item.inventory.MixinSlot",
         "item.inventory.MixinSlotCrafting",
         "item.inventory.TraitInventoryAdapter",

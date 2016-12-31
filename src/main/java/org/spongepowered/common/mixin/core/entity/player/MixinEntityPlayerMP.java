@@ -808,4 +808,18 @@ public abstract class MixinEntityPlayerMP extends MixinEntityPlayer implements P
             mixinContainer.getCapturedTransactions().clear();
         }
     }
+
+    /**
+     * @author Faithcaio
+     *
+     * Vanilla is not updating the Client when Slot is SlotCrafting - this is an issue when plugins register new recipes
+     */
+    @Overwrite
+    public void sendSlotContents(net.minecraft.inventory.Container containerToSend, int slotInd, ItemStack stack)
+    {
+        if (!this.isChangingQuantityOnly)
+        {
+            this.connection.sendPacket(new SPacketSetSlot(containerToSend.windowId, slotInd, stack));
+        }
+    }
 }

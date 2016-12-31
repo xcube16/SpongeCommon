@@ -46,6 +46,7 @@ import net.minecraft.world.WorldProvider;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import org.apache.logging.log4j.Level;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.data.Transaction;
@@ -55,8 +56,7 @@ import org.spongepowered.api.event.SpongeEventFactory;
 import org.spongepowered.api.event.block.ChangeBlockEvent;
 import org.spongepowered.api.event.block.TickBlockEvent;
 import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.event.cause.entity.spawn.BlockSpawnCause;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.world.BlockChangeFlag;
@@ -487,24 +487,27 @@ public final class TrackingUtil {
         final ChangeBlockEvent[] mainEvents = new ChangeBlockEvent[BlockChange.values().length];
         // This likely needs to delegate to the phase in the event we don't use the source object as the main object causing the block changes
         // case in point for WorldTick event listeners since the players are captured non-deterministically
-        final Cause.Builder builder = Cause.source(context.getSource(Object.class)
-                .orElseThrow(throwWithContext("There was no root source object for this phase!", context))
-        );
-        context.getNotifier().ifPresent(builder::notifier);
-        context.getOwner().ifPresent(builder::owner);
+        Sponge.getCauseStackManager().pushCauseFrame();
+        if(context.getNotifier().isPresent()) {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, context.getNotifier().get());
+        }
+        if(context.getOwner().isPresent()) {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, context.getOwner().get());
+        }
         try {
-            state.getPhase().associateAdditionalCauses(state, context, builder, causeTracker);
+            state.getPhase().associateAdditionalCauses(state, context, causeTracker);
         } catch (Exception e) {
             // TODO - this should be a thing to associate additional objects in the cause, or context, but for now it's just a simple
             // try catch to avoid bombing on performing block changes.
         }
         final org.spongepowered.api.world.World world = causeTracker.getWorld();
         // Creates the block events accordingly to the transaction arrays
-        iterateChangeBlockEvents(transactionArrays, blockEvents, mainEvents, builder, world); // Needs to throw events
+        iterateChangeBlockEvents(transactionArrays, blockEvents, mainEvents, world); // Needs to throw events
         // We create the post event and of course post it in the method, regardless whether any transactions are invalidated or not
-        final ChangeBlockEvent.Post postEvent = throwMultiEventsAndCreatePost(transactionArrays, blockEvents, mainEvents, builder, world);
+        final ChangeBlockEvent.Post postEvent = throwMultiEventsAndCreatePost(transactionArrays, blockEvents, mainEvents, world);
 
         if (postEvent == null) { // Means that we have had no actual block changes apparently?
+            Sponge.getCauseStackManager().popCauseFrame();
             return false;
         }
 
@@ -567,17 +570,18 @@ public final class TrackingUtil {
                 }
             }
         }
-        return performBlockAdditions(causeTracker, postEvent.getTransactions(), builder, state, context, noCancelledTransactions);
+        Sponge.getCauseStackManager().popCauseFrame();
+        return performBlockAdditions(causeTracker, postEvent.getTransactions(), state, context, noCancelledTransactions);
     }
 
     public static void iterateChangeBlockEvents(ImmutableList<Transaction<BlockSnapshot>>[] transactionArrays, List<ChangeBlockEvent> blockEvents,
-            ChangeBlockEvent[] mainEvents, Cause.Builder builder, org.spongepowered.api.world.World world) {
+            ChangeBlockEvent[] mainEvents, org.spongepowered.api.world.World world) {
         for (BlockChange blockChange : BlockChange.values()) {
             if (blockChange == BlockChange.DECAY) { // Decay takes place after.
                 continue;
             }
             if (!transactionArrays[blockChange.ordinal()].isEmpty()) {
-                final ChangeBlockEvent event = blockChange.createEvent(builder.build(), world, transactionArrays[blockChange.ordinal()]);
+                final ChangeBlockEvent event = blockChange.createEvent(Sponge.getCauseStackManager().getCurrentCause(), world, transactionArrays[blockChange.ordinal()]);
                 mainEvents[blockChange.ordinal()] = event;
                 if (event != null) {
                     SpongeImpl.postEvent(event);
@@ -586,7 +590,7 @@ public final class TrackingUtil {
             }
         }
         if (!transactionArrays[BlockChange.DECAY.ordinal()].isEmpty()) { // Needs to be placed into iterateChangeBlockEvents
-            final ChangeBlockEvent event = BlockChange.DECAY.createEvent(builder.build(), world, transactionArrays[BlockChange.DECAY.ordinal()]);
+            final ChangeBlockEvent event = BlockChange.DECAY.createEvent(Sponge.getCauseStackManager().getCurrentCause(), world, transactionArrays[BlockChange.DECAY.ordinal()]);
             mainEvents[BlockChange.DECAY.ordinal()] = event;
             if (event != null) {
                 SpongeImpl.postEvent(event);
@@ -595,7 +599,7 @@ public final class TrackingUtil {
         }
     }
 
-    public static boolean performBlockAdditions(CauseTracker causeTracker, List<Transaction<BlockSnapshot>> transactions, Cause.Builder builder, IPhaseState phaseState, PhaseContext phaseContext, boolean noCancelledTransactions) {
+    public static boolean performBlockAdditions(CauseTracker causeTracker, List<Transaction<BlockSnapshot>> transactions, IPhaseState phaseState, PhaseContext phaseContext, boolean noCancelledTransactions) {
         // We have to use a proxy so that our pending changes are notified such that any accessors from block
         // classes do not fail on getting the incorrect block state from the IBlockAccess
         final WorldServer minecraftWorld = causeTracker.getMinecraftWorld();
@@ -625,7 +629,7 @@ public final class TrackingUtil {
             // And this is for un-pre-merged items, these will be EntityItems, not ItemDropDatas.
             capturedBlockItemEntityDrops.ifPresentAndNotEmpty(map -> spawnItemEntitiesForBlockDrops(map.containsKey(pos) ? map.get(pos) : Collections.emptyList(), newBlockSnapshot, causeTracker, phaseContext, phaseState));
 
-            SpongeHooks.logBlockAction(builder, minecraftWorld, oldBlockSnapshot.blockChange, transaction);
+            SpongeHooks.logBlockAction(minecraftWorld, oldBlockSnapshot.blockChange, transaction);
             final BlockChangeFlag changeFlag = oldBlockSnapshot.getChangeFlag();
             final IBlockState originalState = (IBlockState) oldBlockSnapshot.getState();
             final IBlockState newState = (IBlockState) newBlockSnapshot.getState();
@@ -670,19 +674,20 @@ public final class TrackingUtil {
         final List<Entity> itemDrops = entityItems.stream()
                 .map(EntityUtil::fromNative)
                 .collect(Collectors.toList());
-        final Cause.Builder builder = Cause.source(BlockSpawnCause.builder()
-                .block(newBlockSnapshot)
-                .type(InternalSpawnTypes.DROPPED_ITEM)
-                .build());
+        Sponge.getCauseStackManager().pushCauseFrame();
+        Sponge.getCauseStackManager().pushCause(newBlockSnapshot);
+        Sponge.getCauseStackManager().addContext(EventContextKeys.SPAWN_TYPE, InternalSpawnTypes.DROPPED_ITEM);
         final Optional<User> owner = phaseContext.getOwner();
         final Optional<User> notifier = phaseContext.getNotifier();
-        notifier.ifPresent(builder::notifier);
+        if(notifier.isPresent()) {
+            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier.get());
+        }
         final User entityCreator = notifier.orElseGet(() -> owner.orElse(null));
-        final Cause spawnCauses = builder.build();
         final DropItemEvent.Destruct
                 destruct =
-                SpongeEventFactory.createDropItemEventDestruct(spawnCauses, itemDrops, causeTracker.getWorld());
+                SpongeEventFactory.createDropItemEventDestruct(Sponge.getCauseStackManager().getCurrentCause(), itemDrops, causeTracker.getWorld());
         SpongeImpl.postEvent(destruct);
+        Sponge.getCauseStackManager().popCauseFrame();
         if (!destruct.isCancelled()) {
             for (Entity entity : destruct.getEntities()) {
                 if (entityCreator != null) {
@@ -749,16 +754,18 @@ public final class TrackingUtil {
     }
 
     public static ChangeBlockEvent.Post throwMultiEventsAndCreatePost(ImmutableList<Transaction<BlockSnapshot>>[] transactionArrays, List<ChangeBlockEvent> blockEvents,
-            ChangeBlockEvent[] mainEvents, Cause.Builder builder, org.spongepowered.api.world.World world) {
+            ChangeBlockEvent[] mainEvents, org.spongepowered.api.world.World world) {
         if (!blockEvents.isEmpty()) {
+            Sponge.getCauseStackManager().pushCauseFrame();
             for (BlockChange blockChange : BlockChange.values()) {
                 final ChangeBlockEvent mainEvent = mainEvents[blockChange.ordinal()];
                 if (mainEvent != null) {
-                    blockChange.suggestNamed(builder, mainEvent);
+                    Sponge.getCauseStackManager().pushCause(mainEvent);
                 }
             }
             final ImmutableList<Transaction<BlockSnapshot>> transactions = transactionArrays[MULTI_CHANGE_INDEX];
-            final ChangeBlockEvent.Post post = SpongeEventFactory.createChangeBlockEventPost(builder.build(), world, transactions);
+            final ChangeBlockEvent.Post post = SpongeEventFactory.createChangeBlockEventPost(Sponge.getCauseStackManager().getCurrentCause(), world, transactions);
+            Sponge.getCauseStackManager().popCauseFrame();
             SpongeImpl.postEvent(post);
             return post;
         }

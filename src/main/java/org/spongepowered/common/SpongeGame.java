@@ -37,6 +37,7 @@ import org.spongepowered.api.command.CommandManager;
 import org.spongepowered.api.config.ConfigManager;
 import org.spongepowered.api.data.DataManager;
 import org.spongepowered.api.data.property.PropertyRegistry;
+import org.spongepowered.api.event.CauseStackManager;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.network.ChannelRegistrar;
 import org.spongepowered.api.plugin.PluginManager;
@@ -172,6 +173,11 @@ public abstract class SpongeGame implements Game {
 
     public void setState(GameState state) {
         this.state = checkNotNull(state);
+    }
+
+    @Override
+    public CauseStackManager getCauseStackManager() {
+        return SpongeCauseStackManager.instance;
     }
 
 }

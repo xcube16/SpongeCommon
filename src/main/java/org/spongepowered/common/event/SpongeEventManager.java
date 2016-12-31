@@ -41,9 +41,11 @@ import org.spongepowered.api.event.EventListener;
 import org.spongepowered.api.event.EventManager;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.Order;
+import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.impl.AbstractEvent;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.plugin.PluginManager;
+import org.spongepowered.common.SpongeCauseStackManager;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.event.filter.FilterFactory;
 import org.spongepowered.common.event.gen.DefineableClassLoader;
@@ -297,6 +299,12 @@ public class SpongeEventManager implements EventManager {
 
     @SuppressWarnings("unchecked")
     protected static boolean post(Event event, List<RegisteredListener<?>> handlers) {
+        Cause stack_cause = SpongeCauseStackManager.instance.getCurrentCause();
+        if(event.getCause() != stack_cause) {
+            System.out.printf("Cause in event was %s cause in stack was %s\n", event.getCause().toString(), stack_cause.toString());
+        } else {
+            System.out.printf("Cause in stack was %s\n", stack_cause.toString());
+        }
         TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         for (@SuppressWarnings("rawtypes") RegisteredListener handler : handlers) {
             try {

@@ -53,11 +53,9 @@ import java.util.function.BiFunction;
 public class SpongeBlockVolumeWorker<V extends BlockVolume> implements BlockVolumeWorker<V> {
 
     protected final V volume;
-    protected final Cause cause;
 
-    public SpongeBlockVolumeWorker(V volume, Cause cause) {
+    public SpongeBlockVolumeWorker(V volume) {
         this.volume = volume;
-        this.cause = cause;
     }
 
     @Override
@@ -101,7 +99,7 @@ public class SpongeBlockVolumeWorker<V extends BlockVolume> implements BlockVolu
                 for (int x = xMin; x <= xMax; x++) {
                     final BlockState block = mapper.map(unmodifiableVolume, x, y, z);
 
-                    destination.setBlock(x + xOffset, y + yOffset, z + zOffset, block, this.cause);
+                    destination.setBlock(x + xOffset, y + yOffset, z + zOffset, block);
                 }
             }
         }
@@ -142,7 +140,7 @@ public class SpongeBlockVolumeWorker<V extends BlockVolume> implements BlockVolu
                 for (int x = xMin; x <= xMax; x++) {
                     final BlockState block = merger.merge(firstUnmodifiableVolume, x, y, z,
                         secondUnmodifiableVolume, x + xOffsetSecond, y + yOffsetSecond, z + zOffsetSecond);
-                    destination.setBlock(x + xOffsetDestination, y + yOffsetDestination, z + zOffsetDestination, block, this.cause);
+                    destination.setBlock(x + xOffsetDestination, y + yOffsetDestination, z + zOffsetDestination, block);
                 }
             }
         }

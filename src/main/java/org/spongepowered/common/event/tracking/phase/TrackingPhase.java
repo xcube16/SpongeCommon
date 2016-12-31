@@ -31,14 +31,12 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.event.cause.entity.teleport.TeleportCause;
-import org.spongepowered.api.event.cause.entity.teleport.TeleportTypes;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.world.World;
@@ -54,7 +52,6 @@ import org.spongepowered.common.event.tracking.phase.tick.TickPhase;
 import org.spongepowered.common.interfaces.IMixinChunk;
 import org.spongepowered.common.interfaces.block.IMixinBlockEventData;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
-import org.spongepowered.common.registry.type.event.InternalSpawnTypes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +117,7 @@ public abstract class TrackingPhase {
     public void processPostItemSpawns(CauseTracker causeTracker, IPhaseState unwindingState, ArrayList<Entity> items) {
         final SpawnEntityEvent
                 event =
-                SpongeEventFactory.createSpawnEntityEvent(InternalSpawnTypes.UNKNOWN_CAUSE, items, causeTracker.getWorld());
+                SpongeEventFactory.createSpawnEntityEvent(Sponge.getCauseStackManager().getCurrentCause(), items, causeTracker.getWorld());
         SpongeImpl.postEvent(event);
         if (!event.isCancelled()) {
             for (Entity entity : event.getEntities()) {
@@ -133,7 +130,7 @@ public abstract class TrackingPhase {
             ArrayList<Entity> entities) {
         final SpawnEntityEvent
                 event =
-                SpongeEventFactory.createSpawnEntityEvent(InternalSpawnTypes.UNKNOWN_CAUSE, entities, causeTracker.getWorld());
+                SpongeEventFactory.createSpawnEntityEvent(Sponge.getCauseStackManager().getCurrentCause(), entities, causeTracker.getWorld());
         final User creator = phaseContext.getNotifier().orElseGet(() -> phaseContext.getOwner().orElse(null));
         SpongeImpl.postEvent(event);
         if (!event.isCancelled()) {
@@ -206,7 +203,7 @@ public abstract class TrackingPhase {
         return false;
     }
 
-    public void associateAdditionalCauses(IPhaseState state, PhaseContext context, Cause.Builder builder, CauseTracker causeTracker) {
+    public void associateAdditionalCauses(IPhaseState state, PhaseContext context, CauseTracker causeTracker) {
 
     }
 
@@ -276,7 +273,7 @@ public abstract class TrackingPhase {
         }
         final ArrayList<Entity> entities = new ArrayList<>(1);
         entities.add(entity);
-        final SpawnEntityEvent event = SpongeEventFactory.createSpawnEntityEvent(InternalSpawnTypes.UNKNOWN_CAUSE,
+        final SpawnEntityEvent event = SpongeEventFactory.createSpawnEntityEvent(Sponge.getCauseStackManager().getCurrentCause(),
                 entities, (World) minecraftWorld);
         SpongeImpl.postEvent(event);
         if (!event.isCancelled() && event.getEntities().size() > 0) {
@@ -307,21 +304,17 @@ public abstract class TrackingPhase {
 
     }
 
-    public boolean populateCauseForNotifyNeighborEvent(IPhaseState state, PhaseContext context, Cause.Builder builder, CauseTracker causeTracker,
+    public boolean populateCauseForNotifyNeighborEvent(IPhaseState state, PhaseContext context, CauseTracker causeTracker,
             IMixinChunk mixinChunk, BlockPos pos) {
-        final Optional<User> notifier = context.firstNamed(NamedCause.NOTIFIER, User.class);
+        final Optional<User> notifier = context.getNotifier();
         if (notifier.isPresent()) {
-            builder.named(NamedCause.notifier(notifier.get()));
+            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, notifier.get());
             return true;
         } else {
-            mixinChunk.getBlockNotifier(pos).ifPresent(user -> builder.named(NamedCause.notifier(user)));
-            mixinChunk.getBlockOwner(pos).ifPresent(owner -> builder.named(NamedCause.owner(owner)));
+            mixinChunk.getBlockNotifier(pos).ifPresent(user -> Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, user));
+            mixinChunk.getBlockOwner(pos).ifPresent(owner -> Sponge.getCauseStackManager().addContext(EventContextKeys.OWNER, owner));
         }
         return true;
-    }
-
-    public Cause generateTeleportCause(IPhaseState state, PhaseContext context) {
-        return Cause.of(NamedCause.source(TeleportCause.builder().type(TeleportTypes.UNKNOWN).build()));
     }
 
     /**
@@ -329,9 +322,9 @@ public abstract class TrackingPhase {
      *
      * @return Whether a notifier was added
      */
-    public boolean appendPreBlockProtectedCheck(Cause.Builder builder, IPhaseState phaseState, PhaseContext context, CauseTracker causeTracker) {
+    public boolean appendPreBlockProtectedCheck(IPhaseState phaseState, PhaseContext context, CauseTracker causeTracker) {
         if (context.getSource(Player.class).isPresent()) {
-            builder.named(NamedCause.notifier(context.getSource(Player.class).get()));
+            Sponge.getCauseStackManager().addContext(EventContextKeys.NOTIFIER, context.getSource(Player.class).get());
             return true;
         }
         return false;

@@ -94,6 +94,7 @@ public abstract class MixinItemStack implements ItemStack, IMixinItemStack, IMix
     @Shadow public abstract int getItemDamage();
     @Shadow public abstract int getMaxStackSize();
     @Shadow public abstract boolean hasTagCompound();
+    @Shadow public abstract boolean shadow$isEmpty();
     @Shadow public abstract NBTTagCompound getTagCompound();
     @Shadow public abstract NBTTagCompound getOrCreateSubCompound(String key);
     @Shadow public abstract net.minecraft.item.ItemStack shadow$copy();
@@ -236,6 +237,11 @@ public abstract class MixinItemStack implements ItemStack, IMixinItemStack, IMix
                 (net.minecraft.item.ItemStack) (Object) this,
                 (net.minecraft.item.ItemStack) that
         );
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.shadow$isEmpty();
     }
 
     @Override

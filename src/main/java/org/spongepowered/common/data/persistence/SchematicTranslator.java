@@ -44,7 +44,6 @@ import org.spongepowered.api.world.extent.MutableBlockVolume;
 import org.spongepowered.api.world.schematic.BlockPalette;
 import org.spongepowered.api.world.schematic.BlockPaletteTypes;
 import org.spongepowered.api.world.schematic.Schematic;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.block.SpongeTileEntityArchetypeBuilder;
 import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.registry.type.block.TileEntityTypeRegistryModule;
@@ -168,7 +167,7 @@ public class SchematicTranslator implements DataTranslator<Schematic> {
             int z = (index % (width * length)) / width;
             int x = (index % (width * length)) % width;
             BlockState state = palette.get(value).get();
-            buffer.setBlock(x - offset[0], y - offset[1], z - offset[2], state, SpongeImpl.getImplementationCause());
+            buffer.setBlock(x - offset[0], y - offset[1], z - offset[2], state);
 
             index++;
         }

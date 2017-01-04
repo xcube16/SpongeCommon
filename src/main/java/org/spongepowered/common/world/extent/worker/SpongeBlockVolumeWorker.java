@@ -27,9 +27,8 @@ package org.spongepowered.common.world.extent.worker;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.flowpowered.math.vector.Vector3i;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.world.Chunk;
 import org.spongepowered.api.world.extent.BlockVolume;
 import org.spongepowered.api.world.extent.MutableBlockVolume;
@@ -89,7 +88,7 @@ public class SpongeBlockVolumeWorker<V extends BlockVolume> implements BlockVolu
             if (mixinWorld != null) {
                 final CauseTracker causeTracker = mixinWorld.getCauseTracker();
                 causeTracker.switchToPhase(PluginPhase.State.BLOCK_WORKER, PhaseContext.start()
-                        .add(NamedCause.source(this))
+                        .source(this)
                         .addCaptures()
                         .complete());
             }
@@ -132,7 +131,7 @@ public class SpongeBlockVolumeWorker<V extends BlockVolume> implements BlockVolu
         if (CauseTracker.ENABLED && destination instanceof IMixinWorldServer) {
             final CauseTracker causeTracker = ((IMixinWorldServer) destination).getCauseTracker();
             causeTracker.switchToPhase(PluginPhase.State.BLOCK_WORKER, PhaseContext.start()
-                    .add(NamedCause.source(this))
+                    .source(this)
                     .complete());
         }
         for (int z = zMin; z <= zMax; z++) {
@@ -164,11 +163,12 @@ public class SpongeBlockVolumeWorker<V extends BlockVolume> implements BlockVolu
         } else if (this.volume instanceof Chunk) {
             mixinWorld = (IMixinWorldServer) ((Chunk) this.volume).getWorld();
         }
+        Object frame = Sponge.getCauseStackManager().pushCauseFrame();
+        Sponge.getCauseStackManager().addContext(InternalNamedCauses.General.BLOCK_CHANGE, new PhaseContext.CaptureFlag());
         if (CauseTracker.ENABLED && mixinWorld != null) {
             final CauseTracker causeTracker = mixinWorld.getCauseTracker();
             causeTracker.switchToPhase(PluginPhase.State.BLOCK_WORKER, PhaseContext.start()
-                    .add(NamedCause.source(this))
-                    .add(NamedCause.of(InternalNamedCauses.General.BLOCK_CHANGE, new PhaseContext.CaptureFlag()))
+                    .source(this)
                     .complete());
         }
         for (int z = zMin; z <= zMax; z++) {
@@ -181,6 +181,7 @@ public class SpongeBlockVolumeWorker<V extends BlockVolume> implements BlockVolu
         if (CauseTracker.ENABLED && mixinWorld != null) {
             mixinWorld.getCauseTracker().completePhase();
         }
+        Sponge.getCauseStackManager().popCauseFrame(frame);
     }
 
     @Override

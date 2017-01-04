@@ -78,13 +78,6 @@ public final class PluginPhase extends TrackingPhase {
     }
 
     @Override
-    public void associateAdditionalCauses(IPhaseState state, PhaseContext context, Cause.Builder builder, CauseTracker causeTracker) {
-        if (state instanceof ListenerPhaseState) {
-            ((ListenerPhaseState) state).associateAdditionalBlockChangeCauses(context, builder, causeTracker);
-        }
-    }
-
-    @Override
     public void addNotifierToBlockEvent(IPhaseState phaseState, PhaseContext context, CauseTracker causeTracker, BlockPos pos,
             IMixinBlockEventData blockEvent) {
         if (phaseState instanceof ListenerPhaseState) {

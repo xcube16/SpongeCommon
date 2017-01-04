@@ -61,9 +61,6 @@ abstract class ListenerPhaseState extends PluginPhaseState {
         return true;
     }
 
-
-    public abstract void associateAdditionalBlockChangeCauses(PhaseContext context, Cause.Builder builder, CauseTracker causeTracker);
-
     public void associateBlockEventNotifier(PhaseContext context, CauseTracker causeTracker, BlockPos pos, IMixinBlockEventData blockEvent) {
 
     }

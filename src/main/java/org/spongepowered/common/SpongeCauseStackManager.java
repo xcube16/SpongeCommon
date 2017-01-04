@@ -55,24 +55,34 @@ public class SpongeCauseStackManager implements CauseStackManager {
     @Override
     public Object popCause() {
         if (this.cause.size() == this.min_depth) {
-            throw new IllegalStateException("Cause stack frame corruption, tried to pop more objects off than were pushed since last frame.");
+            throw new IllegalStateException("Cause stack corruption, tried to pop more objects off than were pushed since last frame.");
         }
         this.cached_cause = null;
         return this.cause.pop();
     }
 
     @Override
-    public void pushCauseFrame() {
-        this.frames.push(new CauseStackFrame(this.min_depth, this.ctx));
+    public CauseStackFrame pushCauseFrame() {
+        CauseStackFrame frame = new CauseStackFrame(this.min_depth, this.ctx);
+        this.frames.push(frame);
         this.ctx = Maps.newHashMap(this.ctx);
         this.min_depth = this.cause.size();
+        return frame;
     }
 
     @Override
-    public void popCauseFrame() {
+    public void popCauseFrame(Object oldFrame) {
         CauseStackFrame frame = this.frames.pop();
+        if (frame != oldFrame) {
+            throw new IllegalStateException("Cause stack frame corruption! Attempted to pop a frame which was not the head of the frame stack.");
+        }
         this.ctx = frame.stored_ctx;
         this.min_depth = frame.old_min_depth;
+    }
+
+    @Override
+    public AutoCloseable createCauseFrame() {
+        return pushCauseFrame();
     }
 
     @Override
@@ -87,7 +97,7 @@ public class SpongeCauseStackManager implements CauseStackManager {
         return Optional.ofNullable(this.ctx.remove(key));
     }
 
-    private static class CauseStackFrame {
+    private static class CauseStackFrame implements AutoCloseable {
 
         public final Map<String, Object> stored_ctx;
         public int old_min_depth;
@@ -95,6 +105,11 @@ public class SpongeCauseStackManager implements CauseStackManager {
         public CauseStackFrame(int old_depth, Map<String, Object> ctx) {
             this.stored_ctx = ctx;
             this.old_min_depth = old_depth;
+        }
+
+        @Override
+        public void close() throws Exception {
+            SpongeCauseStackManager.instance.popCauseFrame(this);
         }
 
     }

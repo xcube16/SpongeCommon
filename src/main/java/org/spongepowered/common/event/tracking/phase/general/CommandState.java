@@ -24,14 +24,12 @@
  */
 package org.spongepowered.common.event.tracking.phase.general;
 
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.NamedCause;
-import org.spongepowered.api.event.cause.entity.spawn.EntitySpawnCause;
-import org.spongepowered.api.event.cause.entity.spawn.SpawnCause;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
 import org.spongepowered.common.SpongeImpl;
@@ -70,15 +68,13 @@ final class CommandState extends GeneralState {
                 .orElseThrow(TrackingUtil.throwWithContext("Expected to be capturing a Command Sender, but none found!", phaseContext));
         phaseContext.getCapturedBlockSupplier()
                 .ifPresentAndNotEmpty(list -> TrackingUtil.processBlockCaptures(list, causeTracker, this, phaseContext));
+        Object frame = Sponge.getCauseStackManager().pushCauseFrame();
+        Sponge.getCauseStackManager().pushCause(sender);
+        Sponge.getCauseStackManager().addContext(EventContextKeys.SPAWN_TYPE, InternalSpawnTypes.PLACEMENT);
         phaseContext.getCapturedEntitySupplier()
                 .ifPresentAndNotEmpty(entities -> {
                     // TODO the entity spawn causes are not likely valid, need to investigate further.
-                    final Cause cause = Cause.source(
-                            SpawnCause.builder()
-                                    .type(InternalSpawnTypes.PLACEMENT)
-                                    .build())
-                            .build();
-                    final SpawnEntityEvent spawnEntityEvent = SpongeEventFactory.createSpawnEntityEvent(cause, entities, causeTracker.getWorld());
+                    final SpawnEntityEvent spawnEntityEvent = SpongeEventFactory.createSpawnEntityEvent(Sponge.getCauseStackManager().getCurrentCause(), entities, causeTracker.getWorld());
                     SpongeImpl.postEvent(spawnEntityEvent);
                     if (!spawnEntityEvent.isCancelled()) {
                         final boolean isPlayer = sender instanceof Player;
@@ -91,6 +87,10 @@ final class CommandState extends GeneralState {
                         }
                     }
                 });
+        Sponge.getCauseStackManager().popCauseFrame(frame);
+        frame = Sponge.getCauseStackManager().pushCauseFrame();
+        Sponge.getCauseStackManager().pushCause(sender);
+        Sponge.getCauseStackManager().addContext(EventContextKeys.SPAWN_TYPE, InternalSpawnTypes.DROPPED_ITEM);
         phaseContext.getCapturedEntityDropSupplier()
                 .ifPresentAndNotEmpty(uuidItemStackMultimap -> {
                     for (Map.Entry<UUID, Collection<ItemDropData>> entry : uuidItemStackMultimap.asMap().entrySet()) {
@@ -112,17 +112,12 @@ final class CommandState extends GeneralState {
                                     .map(data -> data.create(causeTracker.getMinecraftWorld()))
                                     .map(EntityUtil::fromNative)
                                     .collect(Collectors.toList());
-                            final Cause cause = Cause.source(EntitySpawnCause.builder()
-                                    .entity(affectedEntity.get())
-                                    .type(InternalSpawnTypes.DROPPED_ITEM)
-                                    .build()
-                            )
-                                    .named(NamedCause.of("CommandSource", sender))
-                                    .build();
+                            Sponge.getCauseStackManager().pushCause(affectedEntity.get());
                             final DropItemEvent.Destruct
                                     destruct =
-                                    SpongeEventFactory.createDropItemEventDestruct(cause, itemEntities, causeTracker.getWorld());
+                                    SpongeEventFactory.createDropItemEventDestruct(Sponge.getCauseStackManager().getCurrentCause(), itemEntities, causeTracker.getWorld());
                             SpongeImpl.postEvent(destruct);
+                            Sponge.getCauseStackManager().popCause();
                             if (!destruct.isCancelled()) {
                                 final boolean isPlayer = sender instanceof Player;
                                 final Player player = isPlayer ? (Player) sender : null;
@@ -137,5 +132,6 @@ final class CommandState extends GeneralState {
                         }
                     }
                 });
+        Sponge.getCauseStackManager().popCauseFrame(frame);
     }
 }

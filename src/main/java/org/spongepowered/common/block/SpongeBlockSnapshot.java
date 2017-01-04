@@ -38,6 +38,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
@@ -53,7 +54,6 @@ import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.api.data.merge.MergeFunction;
 import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
-import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
@@ -63,10 +63,10 @@ import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.event.InternalNamedCauses;
+import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.event.tracking.IPhaseState;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.phase.block.BlockPhase;
-import org.spongepowered.common.event.tracking.CauseTracker;
 import org.spongepowered.common.interfaces.block.IMixinBlock;
 import org.spongepowered.common.interfaces.world.IMixinWorldServer;
 import org.spongepowered.common.registry.type.block.TileEntityTypeRegistryModule;
@@ -182,12 +182,11 @@ public class SpongeBlockSnapshot implements BlockSnapshot {
         WorldServer world = (WorldServer) SpongeImpl.getGame().getServer().getWorld(this.worldUniqueId).get();
         final IMixinWorldServer mixinWorldServer = (IMixinWorldServer) world;
         CauseTracker causeTracker = mixinWorldServer.getCauseTracker();
+        Object frame = Sponge.getCauseStackManager().pushCauseFrame();
         final IPhaseState currentState = causeTracker.getCurrentState();
         if (!currentState.tracksBlockRestores()) {
-            causeTracker.switchToPhase(BlockPhase.State.RESTORING_BLOCKS,
-                    PhaseContext.start()
-                            .add(NamedCause.of(InternalNamedCauses.General.RESTORING_BLOCK, this))
-                            .complete());
+            Sponge.getCauseStackManager().addContext(InternalNamedCauses.General.RESTORING_BLOCK, this);
+            causeTracker.switchToPhase(BlockPhase.State.RESTORING_BLOCKS, PhaseContext.start().complete());
         }
 
         BlockPos pos = VecHelper.toBlockPos(this.pos);
@@ -197,6 +196,7 @@ public class SpongeBlockSnapshot implements BlockSnapshot {
             if (currentState.tracksBlockRestores()) {
                 causeTracker.completePhase();
             }
+            Sponge.getCauseStackManager().popCauseFrame(frame);
             return false;
         }
 
@@ -212,6 +212,7 @@ public class SpongeBlockSnapshot implements BlockSnapshot {
         if (!currentState.tracksBlockRestores()) {
             causeTracker.completePhase();
         }
+        Sponge.getCauseStackManager().popCauseFrame(frame);
         return true;
     }
 
@@ -274,11 +275,10 @@ public class SpongeBlockSnapshot implements BlockSnapshot {
         Optional<T> optional = this.blockState.get(containerClass);
         if (optional.isPresent()) {
             return optional;
-        } else {
-            for (ImmutableDataManipulator<?, ?> dataManipulator : this.extraData) {
-                if (containerClass.isInstance(dataManipulator)) {
-                    return Optional.of(((T) dataManipulator));
-                }
+        }
+        for (ImmutableDataManipulator<?, ?> dataManipulator : this.extraData) {
+            if (containerClass.isInstance(dataManipulator)) {
+                return Optional.of(((T) dataManipulator));
             }
         }
         return Optional.empty();

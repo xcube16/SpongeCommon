@@ -40,7 +40,6 @@ import org.spongepowered.api.Platform;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.SpongeEventFactoryUtils;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.event.game.state.GameStateEvent;
 import org.spongepowered.api.event.game.state.GameStoppedEvent;
 import org.spongepowered.api.event.game.state.GameStoppingEvent;
@@ -90,7 +89,6 @@ public final class SpongeImpl {
 
     private final Injector injector;
     private final Game game;
-    private final Cause implementationCause;
 
     private final List<PluginContainer> internalPlugins = new ArrayList<>();
 
@@ -109,10 +107,8 @@ public final class SpongeImpl {
         }
 
         for (Platform.Component component : Platform.Component.values()) {
-            internalPlugins.add(platform.getContainer(component));
+            this.internalPlugins.add(platform.getContainer(component));
         }
-
-        this.implementationCause = Cause.source(platform.getContainer(IMPLEMENTATION)).build();
     }
 
     public static SpongeImpl getInstance() {
@@ -202,10 +198,6 @@ public final class SpongeImpl {
     public static void postShutdownEvents() {
         postState(GameStoppingEvent.class, GameState.GAME_STOPPING);
         postState(GameStoppedEvent.class, GameState.GAME_STOPPED);
-    }
-
-    public static Cause getImplementationCause() {
-        return getInstance().implementationCause;
     }
 
 }

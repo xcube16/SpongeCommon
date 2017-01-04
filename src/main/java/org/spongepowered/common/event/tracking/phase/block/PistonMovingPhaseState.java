@@ -25,20 +25,17 @@
 package org.spongepowered.common.event.tracking.phase.block;
 
 import net.minecraft.entity.item.EntityItem;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.living.player.User;
 import org.spongepowered.api.event.SpongeEventFactory;
-import org.spongepowered.api.event.cause.Cause;
-import org.spongepowered.api.event.cause.entity.spawn.BlockSpawnCause;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.entity.SpawnEntityEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.EntityUtil;
-import org.spongepowered.common.event.InternalNamedCauses;
 import org.spongepowered.common.event.tracking.CauseTracker;
-import org.spongepowered.common.event.tracking.MutableWrapper;
 import org.spongepowered.common.event.tracking.PhaseContext;
 import org.spongepowered.common.event.tracking.TrackingUtil;
 import org.spongepowered.common.registry.type.event.InternalSpawnTypes;
@@ -55,33 +52,27 @@ final class PistonMovingPhaseState extends BlockPhaseState {
     @Override
     void unwind(CauseTracker causeTracker, PhaseContext phaseContext) {
         final List<BlockSnapshot> capturedBlocks = phaseContext.getCapturedBlocks();
+        Object frame = Sponge.getCauseStackManager().pushCauseFrame();
         if (!TrackingUtil.processBlockCaptures(capturedBlocks, causeTracker, this, phaseContext)) {
-            phaseContext.firstNamed(InternalNamedCauses.Piston.DUMMY_CALLBACK, MutableWrapper.class)
-                    .map(wrapper -> ((MutableWrapper<CallbackInfoReturnable<Boolean>>) wrapper).getObj())
-                    .ifPresent(callback -> callback.setReturnValue(false));
+            // TODO wtf?
+//            phaseContext.firstNamed(InternalNamedCauses.Piston.DUMMY_CALLBACK, MutableWrapper.class)
+//                    .map(wrapper -> ((MutableWrapper<CallbackInfoReturnable<Boolean>>) wrapper).getObj())
+//                    .ifPresent(callback -> callback.setReturnValue(false));
         }
         final BlockSnapshot blockSnapshot = phaseContext.getSource(BlockSnapshot.class)
                 .orElseThrow(TrackingUtil.throwWithContext("Could not find a piston!", phaseContext));
+        Sponge.getCauseStackManager().pushCause(blockSnapshot);
+        phaseContext.addNotifierAndOwnerToCauseStack();
+        Sponge.getCauseStackManager().addContext(EventContextKeys.SPAWN_TYPE, InternalSpawnTypes.PLACEMENT);
         phaseContext.getCapturedItemsSupplier()
                 .ifPresentAndNotEmpty(items -> {
-                    final Cause.Builder builder = Cause.source(BlockSpawnCause.builder()
-                            .block(blockSnapshot)
-                            .type(InternalSpawnTypes.PLACEMENT)
-                            .build());
-                    phaseContext.getNotifier()
-                            .ifPresent(builder::notifier);
-                    phaseContext.getOwner()
-                            .ifPresent(builder::owner);
-
-                    final Cause cause = builder
-                            .build();
                     final ArrayList<Entity> entities = new ArrayList<>();
                     for (EntityItem item : items) {
                         entities.add(EntityUtil.fromNative(item));
                     }
                     final DropItemEvent.Destruct
                             event =
-                            SpongeEventFactory.createDropItemEventDestruct(cause, entities, causeTracker.getWorld());
+                            SpongeEventFactory.createDropItemEventDestruct(Sponge.getCauseStackManager().getCurrentCause(), entities, causeTracker.getWorld());
                     SpongeImpl.postEvent(event);
                     if (!event.isCancelled()) {
                         for (Entity entity : event.getEntities()) {
@@ -91,20 +82,9 @@ final class PistonMovingPhaseState extends BlockPhaseState {
                 });
         phaseContext.getCapturedEntitySupplier()
                 .ifPresentAndNotEmpty(entities -> {
-                    final Cause.Builder builder = Cause.source(BlockSpawnCause.builder()
-                            .block(blockSnapshot)
-                            .type(InternalSpawnTypes.PLACEMENT)
-                            .build());
-                    phaseContext.getNotifier()
-                            .ifPresent(builder::notifier);
-                    phaseContext.getOwner()
-                            .ifPresent(builder::owner);
-
-                    final Cause cause = builder
-                            .build();
                     final SpawnEntityEvent
                             event =
-                            SpongeEventFactory.createSpawnEntityEvent(cause, entities, causeTracker.getWorld());
+                            SpongeEventFactory.createSpawnEntityEvent(Sponge.getCauseStackManager().getCurrentCause(), entities, causeTracker.getWorld());
                     SpongeImpl.postEvent(event);
                     final User user = phaseContext.getNotifier().orElseGet(() -> phaseContext.getOwner().orElse(null));
                     if (!event.isCancelled()) {
@@ -116,5 +96,6 @@ final class PistonMovingPhaseState extends BlockPhaseState {
                         }
                     }
                 });
+        Sponge.getCauseStackManager().popCauseFrame(frame);
     }
 }

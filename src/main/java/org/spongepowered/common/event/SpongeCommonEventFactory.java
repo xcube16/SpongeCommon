@@ -54,6 +54,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IInteractionObject;
 import net.minecraft.world.WorldServer;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.tileentity.TileEntity;
@@ -169,11 +170,13 @@ public class SpongeCommonEventFactory {
                     new SlotTransaction(new SlotAdapter(slot), sourceSnapshot, targetSnapshot);
             ImmutableList<SlotTransaction> transactions =
                     new ImmutableList.Builder<SlotTransaction>().add(slotTransaction).build();
-            ChangeInventoryEvent.Pickup event = SpongeEventFactory.createChangeInventoryEventPickup(Cause.of(NamedCause.source(player)),
+            Sponge.getCauseStackManager().pushCause(player);
+            ChangeInventoryEvent.Pickup event = SpongeEventFactory.createChangeInventoryEventPickup(Sponge.getCauseStackManager().getCurrentCause(),
                     (Item) itemToPickup, (Inventory) player.inventoryContainer, transactions);
             if (SpongeImpl.postEvent(event)) {
                 return false;
             }
+            Sponge.getCauseStackManager().popCause();
         }
 
         return true;

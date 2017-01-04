@@ -28,7 +28,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import co.aikar.timings.TimingsManager;
-
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.plugin.PluginContainer;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.common.SpongeImpl;
@@ -178,12 +178,18 @@ abstract class SchedulerBase {
     protected void startTask(final ScheduledTask task) {
         this.executeTaskRunnable(() -> {
             task.setState(ScheduledTask.ScheduledTaskState.RUNNING);
+            if(!task.isAsynchronous()) {
+                Sponge.getCauseStackManager().pushCause(task.getOwner());
+            }
             task.getTimingsHandler().startTimingIfSync();
             try {
                 task.getConsumer().accept(task);
             } catch (Throwable t) {
                 SpongeImpl.getLogger().error("The Scheduler tried to run the task {} owned by {}, but an error occured.", task.getName(),
                                              task.getOwner(), t);
+            }
+            if(!task.isAsynchronous()) {
+                Sponge.getCauseStackManager().popCause();
             }
             task.getTimingsHandler().stopTimingIfSync();
         });

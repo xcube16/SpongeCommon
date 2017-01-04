@@ -35,6 +35,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.reflect.TypeToken;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.event.Cancellable;
 import org.spongepowered.api.event.Event;
 import org.spongepowered.api.event.EventListener;
@@ -307,6 +308,7 @@ public class SpongeEventManager implements EventManager {
         }
         TimingsManager.PLUGIN_EVENT_HANDLER.startTimingIfSync();
         for (@SuppressWarnings("rawtypes") RegisteredListener handler : handlers) {
+            Sponge.getCauseStackManager().pushCause(handler.getPlugin());
             try {
                 handler.getTimingsHandler().startTimingIfSync();
                 ((AbstractEvent) event).currentOrder = handler.getOrder();
@@ -316,6 +318,7 @@ public class SpongeEventManager implements EventManager {
                 handler.getTimingsHandler().stopTimingIfSync();
                 SpongeImpl.getLogger().error("Could not pass {} to {}", event.getClass().getSimpleName(), handler.getPlugin(), e);
             }
+            Sponge.getCauseStackManager().popCause();
         }
         TimingsManager.PLUGIN_EVENT_HANDLER.stopTimingIfSync();
         ((AbstractEvent) event).currentOrder = null;

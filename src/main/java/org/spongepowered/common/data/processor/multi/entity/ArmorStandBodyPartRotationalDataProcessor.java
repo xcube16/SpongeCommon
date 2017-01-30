@@ -30,7 +30,9 @@ import net.minecraft.entity.item.EntityArmorStand;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableBodyPartRotationalData;
@@ -64,32 +66,21 @@ public class ArmorStandBodyPartRotationalDataProcessor
 
     @Override
     public Optional<BodyPartRotationalData> fill(DataContainer container, BodyPartRotationalData data) {
-        if (!container.contains(
-                Keys.BODY_ROTATIONS.getQuery(),
-                Keys.HEAD_ROTATION.getQuery(),
-                Keys.CHEST_ROTATION.getQuery(),
-                Keys.LEFT_ARM_ROTATION.getQuery(),
-                Keys.RIGHT_ARM_ROTATION.getQuery(),
-                Keys.LEFT_LEG_ROTATION.getQuery(),
-                Keys.RIGHT_LEG_ROTATION.getQuery())) {
+        Optional<DataView> opt = container.getView(Keys.BODY_ROTATIONS.getQuery());
+        if (!opt.isPresent()) {
             return Optional.empty();
         }
-        @SuppressWarnings("unchecked")
-        Map<BodyPart, Vector3d> bodyRotations = (Map<BodyPart, Vector3d>) container.getMap(Keys.BODY_ROTATIONS.getQuery()).get();
-        Vector3d headRotation = DataUtil.getPosition3d(container, Keys.HEAD_ROTATION.getQuery());
-        Vector3d chestRotation = DataUtil.getPosition3d(container, Keys.CHEST_ROTATION.getQuery());
-        Vector3d leftArmRotation = DataUtil.getPosition3d(container, Keys.LEFT_ARM_ROTATION.getQuery());
-        Vector3d rightArmRotation = DataUtil.getPosition3d(container, Keys.RIGHT_ARM_ROTATION.getQuery());
-        Vector3d leftLegRotation = DataUtil.getPosition3d(container, Keys.LEFT_LEG_ROTATION.getQuery());
-        Vector3d rightLegRotation = DataUtil.getPosition3d(container, Keys.RIGHT_LEG_ROTATION.getQuery());
+
+        // Deserialize BODY_ROTATIONS from <DataQuery, DataView> to Map<BodyPart, Vector3d>
+        DataView bodyRotationsData = opt.get();
+        Map<BodyPart, Vector3d> bodyRotations = Maps.newHashMap();
+        for (DataQuery key : bodyRotationsData.getKeys(false)) {
+            bodyRotations.put(
+                    Sponge.getRegistry().getType(BodyPart.class, key.toString()).get(),
+                    DataUtil.getPosition3d(bodyRotationsData.getView(key).get()));
+        }
 
         data.set(Keys.BODY_ROTATIONS, bodyRotations);
-        data.set(Keys.HEAD_ROTATION, headRotation);
-        data.set(Keys.CHEST_ROTATION, chestRotation);
-        data.set(Keys.LEFT_ARM_ROTATION, leftArmRotation);
-        data.set(Keys.RIGHT_ARM_ROTATION, rightArmRotation);
-        data.set(Keys.LEFT_LEG_ROTATION, leftLegRotation);
-        data.set(Keys.RIGHT_LEG_ROTATION, rightLegRotation);
         return Optional.of(data);
     }
 

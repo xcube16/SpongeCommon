@@ -25,8 +25,11 @@
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import com.google.common.collect.Maps;
+import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableStatisticData;
 import org.spongepowered.api.data.manipulator.mutable.entity.StatisticData;
@@ -92,14 +95,23 @@ public class SpongeStatisticData extends AbstractMappedData<Statistic, Long, Sta
         return Optional.of(overlap.merge(this, replacement));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Optional<StatisticData> from(DataContainer container) {
-        Optional<? extends Map<?, ?>> value = container.getMap(Keys.STATISTICS.getQuery());
-        if (!value.isPresent()) {
+        Optional<DataView> opt = container.getView(Keys.STATISTICS.getQuery());
+        if (!opt.isPresent()) {
             return Optional.empty();
         }
-        return Optional.of(new SpongeStatisticData((Map<Statistic, Long>) value.get()));
+
+        // Deserialize STATISTICS from <DataQuery, DataView> to Map<Statistic, Long>
+        DataView mapData = opt.get();
+        Map<Statistic, Long> map = Maps.newHashMap();
+        for (DataQuery key : mapData.getKeys(false)) {
+            map.put(
+                    Sponge.getRegistry().getType(Statistic.class, key.toString()).get(),
+                    mapData.getLong(key).get());
+        }
+
+        return Optional.of(new SpongeStatisticData(map));
     }
 
     @Override
@@ -114,7 +126,7 @@ public class SpongeStatisticData extends AbstractMappedData<Statistic, Long, Sta
 
     @Override
     public DataContainer toContainer() {
-        return super.toContainer().set(Keys.STATISTICS, getValue());
+        return  super.toContainer().set(Keys.STATISTICS, getValue());
     }
 
 }

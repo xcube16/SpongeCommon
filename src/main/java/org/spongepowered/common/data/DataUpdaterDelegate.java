@@ -25,7 +25,7 @@
 package org.spongepowered.common.data;
 
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.persistence.DataContentUpdater;
 
 public class DataUpdaterDelegate implements DataContentUpdater {
@@ -51,9 +51,9 @@ public class DataUpdaterDelegate implements DataContentUpdater {
     }
 
     @Override
-    public DataView update(DataView content) {
-        final DataView copied = content.copy(); // backup
-        DataView updated = copied;
+    public DataMap update(DataMap content) {
+        final DataMap copied = content.copy(); // backup
+        DataMap updated = copied;
         for (DataContentUpdater updater : this.updaters) {
             try {
                 updated = updater.update(updated);

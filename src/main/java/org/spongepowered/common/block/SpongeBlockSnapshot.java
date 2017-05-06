@@ -44,7 +44,7 @@ import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.tileentity.TileEntityArchetype;
 import org.spongepowered.api.block.tileentity.TileEntityType;
 import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
@@ -157,6 +157,7 @@ public class SpongeBlockSnapshot implements BlockSnapshot {
 
     @Override
     public BlockSnapshot withContainer(DataContainer container) {
+        // TODO: WTF? What happened to "The builder should be a singleton..." - DataBuilder
         return new SpongeBlockSnapshotBuilder().build(container).get();
     }
 
@@ -243,16 +244,16 @@ public class SpongeBlockSnapshot implements BlockSnapshot {
     }
 
     @Override
-    public DataContainer toContainer() {
-        final DataContainer container = DataContainer.createNew()
-            .set(Queries.CONTENT_VERSION, getContentVersion())
-            .set(Queries.WORLD_ID, this.worldUniqueId.toString())
-            .createView(DataQueries.SNAPSHOT_WORLD_POSITION)
-                .set(Queries.POSITION_X, this.pos.getX())
-                .set(Queries.POSITION_Y, this.pos.getY())
-                .set(Queries.POSITION_Z, this.pos.getZ())
-            .getContainer()
-            .set(DataQueries.BLOCK_STATE, this.blockState);
+    public void toContainer(DataMap container) {
+        container.set(Queries.CONTENT_VERSION, getContentVersion())
+                .set(Queries.WORLD_ID, this.worldUniqueId.toString())
+                .createMap(DataQueries.SNAPSHOT_WORLD_POSITION)
+                    // TODO: Use vector's serializer/deserializer
+                    .set(Queries.POSITION_X, this.pos.getX())
+                    .set(Queries.POSITION_Y, this.pos.getY())
+                    .set(Queries.POSITION_Z, this.pos.getZ());
+
+        container.set(DataQueries.BLOCK_STATE, this.blockState);
 
         if (this.blockState != this.extendedState) {
             container.set(DataQueries.BLOCK_EXTENDED_STATE, this.extendedState);
@@ -260,11 +261,12 @@ public class SpongeBlockSnapshot implements BlockSnapshot {
         if (this.compound != null) {
             container.set(DataQueries.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(this.compound));
         }
-        final List<DataView> dataList = DataUtil.getSerializedImmutableManipulatorList(this.extraData);
-        if (!dataList.isEmpty()) {
-            container.set(DataQueries.SNAPSHOT_TILE_DATA, dataList);
+
+        if (!this.extraData.isEmpty()) {
+        DataUtil.serializeImmutableManipulatorList(
+                container.createList(DataQueries.SNAPSHOT_TILE_DATA),
+                this.extraData);
         }
-        return container;
     }
 
     @Override

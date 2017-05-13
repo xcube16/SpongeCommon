@@ -43,7 +43,6 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.tileentity.TileEntityArchetype;
 import org.spongepowered.api.block.tileentity.TileEntityType;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.Queries;
@@ -156,7 +155,7 @@ public class SpongeBlockSnapshot implements BlockSnapshot {
     }
 
     @Override
-    public BlockSnapshot withContainer(DataContainer container) {
+    public BlockSnapshot withContainer(DataMap container) {
         // TODO: WTF? What happened to "The builder should be a singleton..." - DataBuilder
         return new SpongeBlockSnapshotBuilder().build(container).get();
     }

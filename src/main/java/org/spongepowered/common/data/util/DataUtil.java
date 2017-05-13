@@ -33,7 +33,8 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.util.datafix.DataFixer;
 import net.minecraft.util.datafix.FixTypes;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataList;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.DataView;
@@ -66,7 +67,6 @@ import org.spongepowered.common.data.processor.common.AbstractSingleDataSingleTa
 
 import java.lang.reflect.Modifier;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -89,6 +89,7 @@ public final class DataUtil {
         spongeDataFixer.registerFix(FixTypes.PLAYER, new PlayerRespawnData());
     }
 
+    //TODO: remove?
     public static DataView checkDataExists(final DataView dataView, final DataQuery query) throws InvalidDataException {
         if (!checkNotNull(dataView).contains(checkNotNull(query))) {
             throw new InvalidDataException("Missing data for query: " + query.asString('.'));
@@ -97,66 +98,39 @@ public final class DataUtil {
         }
     }
 
-    public static <T> T getData(final DataView dataView, final Key<? extends BaseValue<T>> key) throws InvalidDataException {
-        checkDataExists(dataView, checkNotNull(key).getQuery());
-        final Object object = dataView.get(key.getQuery()).get();
-        return (T) object;
-    }
-
-    public static <T> T getData(final DataView dataView, final Key<?> key, Class<T> clazz) throws InvalidDataException {
-        checkDataExists(dataView, checkNotNull(key).getQuery());
-        final Object object = dataView.get(key.getQuery()).get();
-        if (clazz.isInstance(object)) {
-            return (T) object;
-        } else {
-            throw new InvalidDataException("Could not cast to the correct class type!");
-        }
-    }
-
-    public static <T> T getData(final DataView dataView, final DataQuery query, Class<T> data) throws InvalidDataException {
-        checkDataExists(dataView, query);
-        final Object object = dataView.get(query).get();
-        if (data.isInstance(object)) {
-            return (T) object;
-        } else {
-            throw new InvalidDataException("Data does not match!");
-        }
-    }
-
-    public static List<DataView> getSerializedManipulatorList(Iterable<DataManipulator<?, ?>> manipulators) {
+    public static void serializeManipulatorList(DataList containers, Iterable<DataManipulator<?, ?>> manipulators) {
+        checkNotNull(containers);
         checkNotNull(manipulators);
-        final ImmutableList.Builder<DataView> builder = ImmutableList.builder();
+
         for (DataManipulator<?, ?> manipulator : manipulators) {
-            final DataContainer container = DataContainer.createNew();
-            container.set(Queries.CONTENT_VERSION, DataVersions.Data.CURRENT_CUSTOM_DATA);
-            container.set(DataQueries.DATA_ID, getRegistrationFor(manipulator).getId())
-                .set(DataQueries.INTERNAL_DATA, manipulator.toContainer());
-            builder.add(container);
+            manipulator.toContainer(containers.addMap()
+                    .set(Queries.CONTENT_VERSION, DataVersions.Data.CURRENT_CUSTOM_DATA)
+                    .set(DataQueries.DATA_ID, getRegistrationFor(manipulator).getId())
+                    .createMap(DataQueries.INTERNAL_DATA));
         }
-        return builder.build();
     }
 
-    public static List<DataView> getSerializedImmutableManipulatorList(Iterable<ImmutableDataManipulator<?, ?>> manipulators) {
+    public static void serializeImmutableManipulatorList(DataList containers, Iterable<ImmutableDataManipulator<?, ?>> manipulators) {
+        checkNotNull(containers);
         checkNotNull(manipulators);
-        final ImmutableList.Builder<DataView> builder = ImmutableList.builder();
+
         for (ImmutableDataManipulator<?, ?> manipulator : manipulators) {
-            final DataContainer container = DataContainer.createNew();
-            container.set(Queries.CONTENT_VERSION, DataVersions.Data.CURRENT_CUSTOM_DATA);
-            container.set(DataQueries.DATA_ID, getRegistrationFor(manipulator).getId())
-                .set(DataQueries.INTERNAL_DATA, manipulator.toContainer());
-            builder.add(container);
+            manipulator.toContainer(containers.addMap()
+                    .set(Queries.CONTENT_VERSION, DataVersions.Data.CURRENT_CUSTOM_DATA)
+                    .set(DataQueries.DATA_ID, getRegistrationFor(manipulator).getId())
+                    .createMap(DataQueries.INTERNAL_DATA));
         }
-        return builder.build();
     }
 
     @SuppressWarnings("rawtypes")
-    public static SerializedDataTransaction deserializeManipulatorList(List<DataView> containers) {
+    public static SerializedDataTransaction deserializeManipulatorList(DataList containers) {
         checkNotNull(containers);
         final SerializedDataTransaction.Builder builder = SerializedDataTransaction.builder();
-        for (DataView view : containers) {
-            updateDataViewForDataManipulator(view);
+        containers.forEachKey(index -> {
+            DataMap view = containers.getMap(index).get();
+            view = updateDataViewForDataManipulator(view);
             final String dataId = view.getString(DataQueries.DATA_ID).get();
-            final DataView manipulatorView = view.getView(DataQueries.INTERNAL_DATA).get();
+            final DataMap manipulatorView = view.getMap(DataQueries.INTERNAL_DATA).get();
             try {
                 final Optional<DataRegistration<?, ?>> registration = getRegistrationFor(dataId);
                 final Optional<DataManipulatorBuilder<?, ?>> optional = registration.map(DataRegistration::getDataManipulatorBuilder);
@@ -189,28 +163,30 @@ public final class DataUtil {
                 }
                 builder.failedData(view);
             }
-        }
+        });
         return builder.build();
     }
 
-    private static void updateDataViewForDataManipulator(DataView dataView) {
-        final int version = dataView.getInt(Queries.CONTENT_VERSION).orElse(1);
+    private static DataMap updateDataViewForDataManipulator(DataMap data) {
+        final int version = data.getInt(Queries.CONTENT_VERSION).orElse(1);
         if (version != DataVersions.Data.CURRENT_CUSTOM_DATA) {
             final DataContentUpdater contentUpdater = SpongeDataManager.getInstance()
                 .getWrappedContentUpdater(DataManipulator.class, version, DataVersions.Data.CURRENT_CUSTOM_DATA)
                 .orElseThrow(() -> new IllegalArgumentException("Could not find a content updater for DataManipulator information with version: " +version));
-            contentUpdater.update(dataView);
+            return contentUpdater.update(data);
         }
+        return data;
     }
 
     @SuppressWarnings("rawtypes")
-    public static ImmutableList<ImmutableDataManipulator<?, ?>> deserializeImmutableManipulatorList(List<DataView> containers) {
+    public static ImmutableList<ImmutableDataManipulator<?, ?>> deserializeImmutableManipulatorList(DataList containers) {
         checkNotNull(containers);
         final ImmutableList.Builder<ImmutableDataManipulator<?, ?>> builder = ImmutableList.builder();
-        for (DataView view : containers) {
-            updateDataViewForDataManipulator(view);
+        containers.forEachKey(index -> {
+            DataMap view = containers.getMap(index).get();
+            view = updateDataViewForDataManipulator(view);
             final String dataId = view.getString(DataQueries.DATA_ID).get();
-            final DataView manipulatorView = view.getView(DataQueries.INTERNAL_DATA).get();
+            final DataMap manipulatorView = view.getMap(DataQueries.INTERNAL_DATA).get();
             try {
                 final Optional<DataRegistration<?, ?>> registration = getRegistrationFor(dataId);
                 final Optional<DataManipulatorBuilder<?, ?>> optional = registration.map(DataRegistration::getDataManipulatorBuilder);
@@ -222,21 +198,28 @@ public final class DataUtil {
             } catch (Exception e) {
                 new InvalidDataException("Could not translate " + dataId + "!", e).printStackTrace();
             }
-        }
+        });
         return builder.build();
     }
 
-    public static Location<World> getLocation(DataView view, boolean castToInt) {
-        final UUID worldUuid = UUID.fromString(view.getString(Queries.WORLD_ID).get());
+    public static Optional<Location<World>> getLocation(DataMap view, boolean castToInt) {
+        final Optional<World> world = view.getString(Queries.WORLD_ID)
+                .map(UUID::fromString)
+                .flatMap(uuid -> SpongeImpl.getGame().getServer().getWorld(uuid));
+        if (!world.isPresent()) {
+            return Optional.empty();
+        }
+
+        // TODO: Use vector's serializer/deserializer
         final double x = view.getDouble(Queries.POSITION_X).get();
         final double y = view.getDouble(Queries.POSITION_Y).get();
         final double z = view.getDouble(Queries.POSITION_Z).get();
-        if (castToInt) {
-            return new Location<>(SpongeImpl.getGame().getServer().getWorld(worldUuid).get(), (int) x, (int) y, (int) z);
-        } else {
-            return new Location<>(SpongeImpl.getGame().getServer().getWorld(worldUuid).get(), x, y, z);
-        }
 
+        if (castToInt) {
+            return Optional.of(new Location(world.get(), (int) x, (int) y, (int) z));
+        } else {
+            return Optional.of(new Location(world.get(), x, y, z));
+        }
     }
 
     public static Vector3i getPosition3i(DataView view) {

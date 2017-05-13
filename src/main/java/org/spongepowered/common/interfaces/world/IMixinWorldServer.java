@@ -34,7 +34,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.explosion.Explosion;
@@ -82,7 +82,7 @@ public interface IMixinWorldServer extends IMixinWorld {
 
     SpongeBlockSnapshot createSpongeBlockSnapshot(IBlockState state, IBlockState extended, BlockPos pos, int updateFlag);
 
-    SpongeWorldGenerator createWorldGenerator(DataContainer settings);
+    SpongeWorldGenerator createWorldGenerator(DataMap settings);
 
     SpongeWorldGenerator createWorldGenerator(String settings);
 

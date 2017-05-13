@@ -44,6 +44,7 @@ import net.minecraft.nbt.NBTTagLong;
 import net.minecraft.nbt.NBTTagShort;
 import net.minecraft.nbt.NBTTagString;
 import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.DataView;
@@ -66,14 +67,14 @@ public final class NbtTranslator implements DataTranslator<NBTTagCompound> {
 
     private NbtTranslator() { } // #NOPE
 
-    private static NBTTagCompound containerToCompound(final DataView container) {
+    private static NBTTagCompound containerToCompound(final DataMap container) {
         checkNotNull(container);
         NBTTagCompound compound = new NBTTagCompound();
         containerToCompound(container, compound);
         return compound;
     }
 
-    private static void containerToCompound(final DataView container, final NBTTagCompound compound) {
+    private static void containerToCompound(final DataMap container, final NBTTagCompound compound) {
         // We don't need to get deep values since all nested DataViews will be found
         // from the instance of checks.
         checkNotNull(container);
@@ -164,7 +165,7 @@ public final class NbtTranslator implements DataTranslator<NBTTagCompound> {
         throw new IllegalArgumentException("Unable to translate object to NBTBase: " + value);
     }
 
-    private static DataContainer getViewFromCompound(NBTTagCompound compound) {
+    private static DataMap getViewFromCompound(NBTTagCompound compound) {
         checkNotNull(compound);
         DataContainer container = DataContainer.createNew(DataView.SafetyMode.NO_DATA_CLONED);
         NbtTranslator.getInstance().addTo(compound, container);
@@ -283,7 +284,7 @@ public final class NbtTranslator implements DataTranslator<NBTTagCompound> {
         NbtTranslator.containerToCompound(container, node);
     }
 
-    public DataContainer translateFrom(NBTTagCompound node) {
+    public DataMap translateFrom(NBTTagCompound node) {
         return NbtTranslator.getViewFromCompound(node);
     }
 
@@ -298,7 +299,7 @@ public final class NbtTranslator implements DataTranslator<NBTTagCompound> {
     }
 
     @Override
-    public DataContainer translate(NBTTagCompound obj) throws InvalidDataException {
+    public DataMap translate(NBTTagCompound obj) throws InvalidDataException {
         return getViewFromCompound(obj);
     }
 

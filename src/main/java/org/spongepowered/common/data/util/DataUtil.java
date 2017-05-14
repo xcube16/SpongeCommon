@@ -210,42 +210,39 @@ public final class DataUtil {
             return Optional.empty();
         }
 
-        // TODO: Use vector's serializer/deserializer
-        final double x = view.getDouble(Queries.POSITION_X).get();
-        final double y = view.getDouble(Queries.POSITION_Y).get();
-        final double z = view.getDouble(Queries.POSITION_Z).get();
-
         if (castToInt) {
-            return Optional.of(new Location(world.get(), (int) x, (int) y, (int) z));
+            return Optional.of(new Location(world.get(), getVector3i(view)));
         } else {
-            return Optional.of(new Location(world.get(), x, y, z));
+            return Optional.of(new Location(world.get(), getVector3d(view)));
         }
     }
 
-    public static Vector3i getPosition3i(DataView view) {
-        return getPosition3i(view, DataQueries.SNAPSHOT_WORLD_POSITION);
+    public static Vector3i getVector3i(DataMap view) {
+        return new Vector3i(
+                view.getInt(Queries.POSITION_X).orElse(0),
+                view.getInt(Queries.POSITION_Y).orElse(0),
+                view.getInt(Queries.POSITION_Z).orElse(0)
+        );
     }
 
-    public static Vector3i getPosition3i(DataView view, DataQuery query) {
-        checkDataExists(view, DataQueries.SNAPSHOT_WORLD_POSITION);
-        final DataView internal = view.getView(DataQueries.SNAPSHOT_WORLD_POSITION).get();
-        final int x = internal.getInt(Queries.POSITION_X).get();
-        final int y = internal.getInt(Queries.POSITION_Y).get();
-        final int z = internal.getInt(Queries.POSITION_Z).get();
-        return new Vector3i(x, y, z);
+    public static void setVector3i(DataMap view, Vector3i vec) {
+        view.set(Queries.POSITION_X, vec.getX());
+        view.set(Queries.POSITION_Y, vec.getY());
+        view.set(Queries.POSITION_Z, vec.getZ());
     }
 
-    public static Vector3d getPosition3d(DataView view) {
-        return getPosition3d(view, DataQueries.SNAPSHOT_WORLD_POSITION);
+    public static Vector3d getVector3d(DataMap view) {
+        return new Vector3d(
+                view.getDouble(Queries.POSITION_X).orElse(0.0),
+                view.getDouble(Queries.POSITION_Y).orElse(0.0),
+                view.getDouble(Queries.POSITION_Z).orElse(0.0)
+        );
     }
 
-    public static Vector3d getPosition3d(DataView view, DataQuery query) {
-        checkDataExists(view, query);
-        final DataView internal = view.getView(query).get();
-        final double x = internal.getDouble(Queries.POSITION_X).get();
-        final double y = internal.getDouble(Queries.POSITION_Y).get();
-        final double z = internal.getDouble(Queries.POSITION_Z).get();
-        return new Vector3d(x, y, z);
+    public static void setVector3d(DataMap view, Vector3d vec) {
+        view.set(Queries.POSITION_X, vec.getX());
+        view.set(Queries.POSITION_Y, vec.getY());
+        view.set(Queries.POSITION_Z, vec.getZ());
     }
 
     public static Supplier<InvalidDataException> dataNotFound() {

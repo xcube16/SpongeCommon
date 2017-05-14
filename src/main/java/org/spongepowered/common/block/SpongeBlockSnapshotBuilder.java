@@ -36,17 +36,17 @@ import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.storage.WorldProperties;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.data.util.DataUtil;
@@ -215,7 +215,7 @@ public class SpongeBlockSnapshotBuilder extends AbstractDataBuilder<BlockSnapsho
     }
 
     @Override
-    protected Optional<BlockSnapshot> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<BlockSnapshot> buildContent(DataMap container) throws InvalidDataException {
         if (!container.contains(DataQueries.BLOCK_STATE, Queries.WORLD_ID, DataQueries.SNAPSHOT_WORLD_POSITION)) {
             return Optional.empty();
         }
@@ -223,15 +223,15 @@ public class SpongeBlockSnapshotBuilder extends AbstractDataBuilder<BlockSnapsho
         checkDataExists(container, Queries.WORLD_ID);
         final SpongeBlockSnapshotBuilder builder = new SpongeBlockSnapshotBuilder();
         final UUID worldUuid = UUID.fromString(container.getString(Queries.WORLD_ID).get());
-        final Vector3i coordinate = DataUtil.getPosition3i(container);
+        final Vector3i coordinate = DataUtil.getVector3i(container.getMap(DataQueries.SNAPSHOT_WORLD_POSITION).get());
         Optional<String> creatorUuid = container.getString(Queries.CREATOR_ID);
         Optional<String> notifierUuid = container.getString(Queries.NOTIFIER_ID);
 
         // We now reconstruct the custom data and all extra data.
-        final BlockState blockState = container.getSerializable(DataQueries.BLOCK_STATE, BlockState.class).get();
+        final BlockState blockState = container.getSpongeObject(DataQueries.BLOCK_STATE, BlockState.class).get();
         BlockState extendedState = null;
         if (container.contains(DataQueries.BLOCK_EXTENDED_STATE)) {
-            extendedState = container.getSerializable(DataQueries.BLOCK_EXTENDED_STATE, BlockState.class).get();
+            extendedState = container.getSpongeObject(DataQueries.BLOCK_EXTENDED_STATE, BlockState.class).get();
         } else {
             extendedState = blockState;
         }
@@ -240,21 +240,16 @@ public class SpongeBlockSnapshotBuilder extends AbstractDataBuilder<BlockSnapsho
                 .extendedState(extendedState)
                 .position(coordinate)
                 .worldId(worldUuid);
-        if (creatorUuid.isPresent()) {
-            builder.creator(UUID.fromString(creatorUuid.get()));
-        }
-        if (notifierUuid.isPresent()) {
-            builder.notifier(UUID.fromString(notifierUuid.get()));
-        }
-        Optional<DataView> unsafeCompound = container.getView(DataQueries.UNSAFE_NBT);
-        final NBTTagCompound compound = unsafeCompound.isPresent() ? NbtTranslator.getInstance().translateData(unsafeCompound.get()) : null;
-        if (compound != null) {
-            builder.unsafeNbt(compound);
-        }
-        if (container.contains(DataQueries.SNAPSHOT_TILE_DATA)) {
-            final List<DataView> dataViews = container.getViewList(DataQueries.SNAPSHOT_TILE_DATA).get();
-            DataUtil.deserializeImmutableManipulatorList(dataViews).stream().forEach(builder::add);
-        }
+        creatorUuid.ifPresent(s -> builder.creator(UUID.fromString(s)));
+        notifierUuid.ifPresent(s -> builder.notifier(UUID.fromString(s)));
+
+        container.getMap(DataQueries.UNSAFE_NBT)
+                .map(dataMap -> NbtTranslator.getInstance().translateData(dataMap))
+                .ifPresent(builder::unsafeNbt);
+
+        container.getList(DataQueries.SNAPSHOT_TILE_DATA)
+                .ifPresent(list -> DataUtil.deserializeImmutableManipulatorList(list).forEach(builder::add));
+
         return Optional.of(new SpongeBlockSnapshot(builder));
     }
 }

@@ -245,12 +245,9 @@ public class SpongeBlockSnapshot implements BlockSnapshot {
     @Override
     public void toContainer(DataMap container) {
         container.set(Queries.CONTENT_VERSION, getContentVersion())
-                .set(Queries.WORLD_ID, this.worldUniqueId.toString())
-                .createMap(DataQueries.SNAPSHOT_WORLD_POSITION)
-                    // TODO: Use vector's serializer/deserializer
-                    .set(Queries.POSITION_X, this.pos.getX())
-                    .set(Queries.POSITION_Y, this.pos.getY())
-                    .set(Queries.POSITION_Z, this.pos.getZ());
+                .set(Queries.WORLD_ID, this.worldUniqueId.toString());
+
+        DataUtil.setVector3i(container.createMap(DataQueries.SNAPSHOT_WORLD_POSITION), this.pos);
 
         container.set(DataQueries.BLOCK_STATE, this.blockState);
 

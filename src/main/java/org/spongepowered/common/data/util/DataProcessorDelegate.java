@@ -27,8 +27,8 @@ package org.spongepowered.common.data.util;
 import co.aikar.timings.SpongeTimingsFactory;
 import co.aikar.timings.Timing;
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
@@ -137,7 +137,7 @@ public final class DataProcessorDelegate<M extends DataManipulator<M, I>, I exte
     }
 
     @Override
-    public Optional<M> fill(DataContainer container, M m) {
+    public Optional<M> fill(DataMap container, M m) {
         final boolean callingFromMinecraftThread = ServerUtils.isCallingFromMainThread();
 
         for (Tuple<DataProcessor<M, I>, Timing> tuple : this.processors) {

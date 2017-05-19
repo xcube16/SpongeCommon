@@ -24,8 +24,8 @@
  */
 package org.spongepowered.common.data;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
@@ -75,7 +75,7 @@ public interface DataProcessor<M extends DataManipulator<M, I>, I extends Immuta
 
     Optional<M> fill(DataHolder dataHolder, M manipulator, MergeFunction overlap);
 
-    Optional<M> fill(DataContainer container, M m);
+    Optional<M> fill(DataMap container, M m);
 
     /**
      * Sets the data from the {@link DataManipulator}. Usually, if a

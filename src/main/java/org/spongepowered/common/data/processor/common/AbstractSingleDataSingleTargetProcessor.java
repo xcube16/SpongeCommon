@@ -26,8 +26,8 @@ package org.spongepowered.common.data.processor.common;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
@@ -106,7 +106,7 @@ public abstract class AbstractSingleDataSingleTargetProcessor<Holder, T, V exten
     }
 
     @Override
-    public Optional<M> fill(DataContainer container, M m) {
+    public Optional<M> fill(DataMap container, M m) {
         m.set(this.key, DataUtil.getData(container, this.key));
         return Optional.of(m);
     }

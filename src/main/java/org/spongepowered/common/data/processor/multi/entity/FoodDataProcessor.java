@@ -24,12 +24,10 @@
  */
 package org.spongepowered.common.data.processor.multi.entity;
 
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.player.EntityPlayer;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -76,10 +74,13 @@ public class FoodDataProcessor extends AbstractEntityDataProcessor<EntityPlayer,
     }
 
     @Override
-    public Optional<FoodData> fill(DataContainer container, FoodData foodData) {
-        foodData.set(Keys.FOOD_LEVEL, getData(container, Keys.FOOD_LEVEL));
-        foodData.set(Keys.SATURATION, getData(container, Keys.SATURATION));
-        foodData.set(Keys.EXHAUSTION, getData(container, Keys.EXHAUSTION));
+    public Optional<FoodData> fill(DataMap container, FoodData foodData) {
+        container.getInt(Keys.FOOD_LEVEL.getQuery()).ifPresent(l ->
+                foodData.set(Keys.FOOD_LEVEL, l));
+        container.getDouble(Keys.SATURATION.getQuery()).ifPresent(s ->
+                foodData.set(Keys.SATURATION, s));
+        container.getDouble(Keys.EXHAUSTION.getQuery()).ifPresent(e ->
+                foodData.set(Keys.EXHAUSTION, e));
         return Optional.of(foodData);
     }
 

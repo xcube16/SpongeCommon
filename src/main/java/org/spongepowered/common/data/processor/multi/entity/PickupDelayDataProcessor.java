@@ -24,12 +24,10 @@
  */
 package org.spongepowered.common.data.processor.multi.entity;
 
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.item.EntityItem;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -76,9 +74,11 @@ public final class PickupDelayDataProcessor extends AbstractEntityDataProcessor<
     }
 
     @Override
-    public Optional<PickupDelayData> fill(DataContainer container, PickupDelayData data) {
-        data.set(Keys.PICKUP_DELAY, getData(container, Keys.PICKUP_DELAY));
-        data.set(Keys.INFINITE_PICKUP_DELAY, getData(container, Keys.INFINITE_PICKUP_DELAY));
+    public Optional<PickupDelayData> fill(DataMap container, PickupDelayData data) {
+        container.getInt(Keys.PICKUP_DELAY.getQuery()).ifPresent(d ->
+                data.set(Keys.PICKUP_DELAY, d));
+        container.getBoolean(Keys.INFINITE_PICKUP_DELAY.getQuery()).ifPresent(i ->
+                data.set(Keys.INFINITE_PICKUP_DELAY, i));
         return Optional.of(data);
     }
 

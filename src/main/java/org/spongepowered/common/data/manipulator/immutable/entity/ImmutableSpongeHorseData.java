@@ -24,7 +24,7 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableHorseData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HorseData;
@@ -78,9 +78,9 @@ public class ImmutableSpongeHorseData extends AbstractImmutableData<ImmutableHor
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-                .set(Keys.HORSE_COLOR.getQuery(), this.horseColor.getId())
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.HORSE_COLOR.getQuery(), this.horseColor.getId())
                 .set(Keys.HORSE_STYLE.getQuery(), this.horseStyle.getId());
     }
 

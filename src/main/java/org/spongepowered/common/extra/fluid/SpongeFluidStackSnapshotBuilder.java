@@ -27,18 +27,16 @@ package org.spongepowered.common.extra.fluid;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
-import org.spongepowered.api.data.persistence.InvalidDataException;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.extra.fluid.FluidStack;
 import org.spongepowered.api.extra.fluid.FluidStackSnapshot;
 import org.spongepowered.api.extra.fluid.FluidType;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.common.data.util.DataQueries;
 
 import java.util.Optional;
@@ -49,7 +47,7 @@ public class SpongeFluidStackSnapshotBuilder extends AbstractDataBuilder<FluidSt
 
     FluidType fluidType;
     int volume;
-    @Nullable DataView container;
+    @Nullable DataMap container;
 
     public SpongeFluidStackSnapshotBuilder() {
         super(FluidStackSnapshot.class, 1);
@@ -71,11 +69,14 @@ public class SpongeFluidStackSnapshotBuilder extends AbstractDataBuilder<FluidSt
     public FluidStackSnapshot.Builder from(FluidStack fluidStack) {
         this.fluidType = fluidStack.getFluid();
         this.volume = fluidStack.getVolume();
-        DataContainer datacontainer = fluidStack.toContainer();
         this.container = null;
-        if (datacontainer.contains(DataQueries.UNSAFE_NBT)) {
-            this.container = datacontainer.getView(DataQueries.UNSAFE_NBT).get();
-        }
+
+        //TODO: using toContainer() to get extraData (stored in UNSAFE_NBT) feels like a reflection hack. (bad design?)
+        DataMap datacontainer = new MemoryDataMap();
+        fluidStack.toContainer(datacontainer);
+        datacontainer.getMap(DataQueries.UNSAFE_NBT).ifPresent(m ->
+                this.container = m);
+
         return this;
     }
 
@@ -109,26 +110,18 @@ public class SpongeFluidStackSnapshotBuilder extends AbstractDataBuilder<FluidSt
     }
 
     @Override
-    protected Optional<FluidStackSnapshot> buildContent(DataView container) throws InvalidDataException {
-        try {
-            if (container.contains(DataQueries.FLUID_TYPE, DataQueries.FLUID_VOLUME)) {
-                final String fluidId = container.getString(DataQueries.FLUID_TYPE).get();
-                final Optional<FluidType> type = Sponge.getRegistry().getType(FluidType.class, fluidId);
-                if (!type.isPresent()) {
-                    throw new InvalidDataException("Unknown fluid id found: " + fluidId);
-                }
-                final FluidType fluidType = type.get();
-                final int volume = container.getInt(DataQueries.FLUID_VOLUME).get();
-                SpongeFluidStackSnapshotBuilder builder = new SpongeFluidStackSnapshotBuilder();
-                builder.fluid(fluidType)
-                        .volume(volume);
-                if (container.contains(DataQueries.UNSAFE_NBT)) {
-                    builder.container = container.getView(DataQueries.UNSAFE_NBT).get().copy();
-                }
-                return Optional.of(builder.build());
-            }
-        } catch (Exception e) {
-            throw new InvalidDataException("Something went wrong deserializing.", e);
+    protected Optional<FluidStackSnapshot> buildContent(DataMap container) {
+        Optional<FluidType> type = container.getSpongeObject(DataQueries.FLUID_TYPE, FluidType.class);
+        Optional<Integer> volume = container.getInt(DataQueries.FLUID_VOLUME);
+        if (type.isPresent() && volume.isPresent()) {
+            SpongeFluidStackSnapshotBuilder builder = new SpongeFluidStackSnapshotBuilder();
+            builder.fluid(type.get());
+            builder.volume(volume.get());
+
+            container.getMap(DataQueries.UNSAFE_NBT).ifPresent(m ->
+                    builder.container = m);
+
+            return Optional.of(builder.build());
         }
         return Optional.empty();
     }

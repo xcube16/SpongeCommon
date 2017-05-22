@@ -26,7 +26,7 @@ package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableJoinData;
 import org.spongepowered.api.data.manipulator.mutable.entity.JoinData;
@@ -65,9 +65,9 @@ public class SpongeJoinData extends AbstractData<JoinData, ImmutableJoinData> im
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-                .set(Keys.FIRST_DATE_PLAYED.getQuery(), this.firstJoined.toEpochMilli())
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.FIRST_DATE_PLAYED.getQuery(), this.firstJoined.toEpochMilli())
                 .set(Keys.LAST_DATE_PLAYED.getQuery(), this.lastJoined.toEpochMilli());
     }
 

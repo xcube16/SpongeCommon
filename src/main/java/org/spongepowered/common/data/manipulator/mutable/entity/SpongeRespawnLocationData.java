@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import com.google.common.collect.Maps;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableRespawnLocation;
 import org.spongepowered.api.data.manipulator.mutable.entity.RespawnLocationData;
@@ -48,8 +48,8 @@ public class SpongeRespawnLocationData extends AbstractMappedData<UUID, RespawnL
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(Keys.RESPAWN_LOCATIONS, getValue());
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.RESPAWN_LOCATIONS, getValue());
     }
 }

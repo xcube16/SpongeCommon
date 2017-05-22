@@ -26,10 +26,8 @@ package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import com.google.common.collect.Maps;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableStatisticData;
 import org.spongepowered.api.data.manipulator.mutable.entity.StatisticData;
@@ -96,20 +94,19 @@ public class SpongeStatisticData extends AbstractMappedData<Statistic, Long, Sta
     }
 
     @Override
-    public Optional<StatisticData> from(DataContainer container) {
-        Optional<DataView> opt = container.getView(Keys.STATISTICS.getQuery());
+    public Optional<StatisticData> from(DataMap container) {
+        Optional<DataMap> opt = container.getMap(Keys.STATISTICS.getQuery());
         if (!opt.isPresent()) {
             return Optional.empty();
         }
 
-        // Deserialize STATISTICS from <DataQuery, DataView> to Map<Statistic, Long>
-        DataView mapData = opt.get();
+        // Deserialize STATISTICS from <DataQuery, DataMap> to Map<Statistic, Long>
+        DataMap mapData = opt.get();
         Map<Statistic, Long> map = Maps.newHashMap();
-        for (DataQuery key : mapData.getKeys(false)) {
-            map.put(
-                    Sponge.getRegistry().getType(Statistic.class, key.toString()).get(),
-                    mapData.getLong(key).get());
-        }
+        mapData.forEachKey(key ->
+                Sponge.getRegistry().getType(Statistic.class, key.toString()).ifPresent(s ->
+                        mapData.getLong(key).ifPresent(l ->
+                                map.put(s, l))));
 
         return Optional.of(new SpongeStatisticData(map));
     }
@@ -125,8 +122,9 @@ public class SpongeStatisticData extends AbstractMappedData<Statistic, Long, Sta
     }
 
     @Override
-    public DataContainer toContainer() {
-        return  super.toContainer().set(Keys.STATISTICS, getValue());
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.STATISTICS, getValue());
     }
 
 }

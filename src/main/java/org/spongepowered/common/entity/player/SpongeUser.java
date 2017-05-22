@@ -33,7 +33,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.storage.SaveHandler;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.type.HandType;
@@ -164,10 +164,9 @@ public class SpongeUser implements ArmorEquipable, Tamer, DataSerializable, Carr
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         // TODO More data
-        return DataContainer.createNew()
-                .set(Queries.CONTENT_VERSION, getContentVersion())
+        container.set(Queries.CONTENT_VERSION, getContentVersion())
                 .set(DataQueries.USER_UUID, this.profile.getId())
                 .set(DataQueries.USER_NAME, this.profile.getName())
                 .set(DataQueries.USER_SPAWNS, this.spawnLocations);

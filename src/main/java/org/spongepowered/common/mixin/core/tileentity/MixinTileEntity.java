@@ -26,7 +26,6 @@ package org.spongepowered.common.mixin.core.tileentity;
 
 import co.aikar.timings.SpongeTimings;
 import co.aikar.timings.Timing;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
@@ -36,8 +35,10 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.block.tileentity.TileEntityArchetype;
 import org.spongepowered.api.block.tileentity.TileEntityType;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataList;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.MemoryDataList;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.persistence.InvalidDataException;
@@ -128,8 +129,8 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
     }
 
     @Override
-    public DataContainer toContainer() {
-        final DataContainer container = DataContainer.createNew()
+    public void toContainer(DataMap container) {
+        container
             .set(Queries.CONTENT_VERSION, getContentVersion())
             .set(Queries.WORLD_ID, ((World) this.world).getUniqueId().toString())
             .set(Queries.POSITION_X, this.getPos().getX())
@@ -142,13 +143,14 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
         container.set(DataQueries.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(compound));
         final Collection<DataManipulator<?, ?>> manipulators = getContainers();
         if (!manipulators.isEmpty()) {
-            container.set(DataQueries.DATA_MANIPULATORS, DataUtil.getSerializedManipulatorList(manipulators));
+            DataUtil.serializeManipulatorList(container.createList(DataQueries.DATA_MANIPULATORS), manipulators);
         }
-        return container;
     }
 
     @Override
-    public boolean validateRawData(DataView container) {
+    public boolean validateRawData(DataMap container) {
+        // TODO: This checks to see if the right keys are exist, but not the right types!
+        // TODO: I should really depricate DataView#contains()
         return container.contains(Queries.WORLD_ID)
             && container.contains(Queries.POSITION_X)
             && container.contains(Queries.POSITION_Y)
@@ -158,8 +160,8 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
     }
 
     @Override
-    public void setRawData(DataView container) throws InvalidDataException {
-
+    public void setRawData(DataMap container) throws InvalidDataException {
+        //TODO: wat? empty?
     }
 
     @Override
@@ -218,15 +220,15 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
         if (this instanceof IMixinCustomDataHolder) {
             if (compound.hasKey(NbtDataUtil.CUSTOM_MANIPULATOR_TAG_LIST, NbtDataUtil.TAG_LIST)) {
                 final NBTTagList list = compound.getTagList(NbtDataUtil.CUSTOM_MANIPULATOR_TAG_LIST, NbtDataUtil.TAG_COMPOUND);
-                final ImmutableList.Builder<DataView> builder = ImmutableList.builder();
+                final DataList dataList = new MemoryDataList();
                 if (list != null && list.tagCount() != 0) {
                     for (int i = 0; i < list.tagCount(); i++) {
                         final NBTTagCompound internal = list.getCompoundTagAt(i);
-                        builder.add(NbtTranslator.getInstance().translateFrom(internal));
+                        dataList.add(NbtTranslator.getInstance().translateFrom(internal));
                     }
                 }
                 try {
-                    final SerializedDataTransaction transaction = DataUtil.deserializeManipulatorList(builder.build());
+                    final SerializedDataTransaction transaction = DataUtil.deserializeManipulatorList(dataList);
                     final List<DataManipulator<?, ?>> manipulators = transaction.deserializedManipulators;
                     for (DataManipulator<?, ?> manipulator : manipulators) {
                         offer(manipulator);
@@ -240,15 +242,15 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
             }
             if (compound.hasKey(NbtDataUtil.FAILED_CUSTOM_DATA, NbtDataUtil.TAG_LIST)) {
                 final NBTTagList list = compound.getTagList(NbtDataUtil.FAILED_CUSTOM_DATA, NbtDataUtil.TAG_COMPOUND);
-                final ImmutableList.Builder<DataView> builder = ImmutableList.builder();
+                final DataList dataList = new MemoryDataList();
                 if (list != null && list.tagCount() != 0) {
                     for (int i = 0; i < list.tagCount(); i++) {
                         final NBTTagCompound internal = list.getCompoundTagAt(i);
-                        builder.add(NbtTranslator.getInstance().translateFrom(internal));
+                        dataList.add(NbtTranslator.getInstance().translateFrom(internal));
                     }
                 }
                 // Re-attempt to deserialize custom data
-                final SerializedDataTransaction transaction = DataUtil.deserializeManipulatorList(builder.build());
+                final SerializedDataTransaction transaction = DataUtil.deserializeManipulatorList(dataList);
                 final List<DataManipulator<?, ?>> manipulators = transaction.deserializedManipulators;
                 for (DataManipulator<?, ?> manipulator : manipulators) {
                     offer(manipulator);
@@ -270,11 +272,12 @@ public abstract class MixinTileEntity implements TileEntity, IMixinTileEntity {
         if (this instanceof IMixinCustomDataHolder) {
             final List<DataManipulator<?, ?>> customManipulators = ((IMixinCustomDataHolder) this).getCustomManipulators();
             if (!customManipulators.isEmpty()) {
-                final List<DataView> manipulatorViews = DataUtil.getSerializedManipulatorList(customManipulators);
+                final DataList manipulatorViews = new MemoryDataList();
+                DataUtil.serializeManipulatorList(manipulatorViews, customManipulators);
                 final NBTTagList manipulatorTagList = new NBTTagList();
-                for (DataView dataView : manipulatorViews) {
-                    manipulatorTagList.appendTag(NbtTranslator.getInstance().translateData(dataView));
-                }
+                manipulatorViews.forEachKey(i ->
+                        manipulatorViews.getMap(i).ifPresent(m ->
+                                manipulatorTagList.appendTag(NbtTranslator.getInstance().translateData(m))));
                 compound.setTag(NbtDataUtil.CUSTOM_MANIPULATOR_TAG_LIST, manipulatorTagList);
             }
             final List<DataView> failedData = ((IMixinCustomDataHolder) this).getFailedData();

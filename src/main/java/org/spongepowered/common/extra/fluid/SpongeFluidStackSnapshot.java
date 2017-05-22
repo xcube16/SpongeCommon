@@ -24,7 +24,7 @@
  */
 package org.spongepowered.common.extra.fluid;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
@@ -54,7 +54,7 @@ public class SpongeFluidStackSnapshot implements FluidStackSnapshot {
 
     private final FluidType fluidType;
     private final int volume;
-    @Nullable private final DataContainer extraData;
+    @Nullable private final DataMap extraData;
 
     SpongeFluidStackSnapshot(SpongeFluidStackSnapshotBuilder builder) {
         this.fluidType = builder.fluidType;
@@ -88,15 +88,14 @@ public class SpongeFluidStackSnapshot implements FluidStackSnapshot {
     }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = DataContainer.createNew()
+    public void toContainer(DataMap container) {
+        container
             .set(Queries.CONTENT_VERSION, this.getContentVersion())
             .set(DataQueries.FLUID_TYPE, this.fluidType.getId())
             .set(DataQueries.FLUID_VOLUME, this.volume);
         if (this.extraData != null) {
             container.set(DataQueries.UNSAFE_NBT, this.extraData);
         }
-        return container;
     }
 
     @Override

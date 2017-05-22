@@ -24,10 +24,8 @@
  */
 package org.spongepowered.common.entity;
 
-import static org.spongepowered.api.data.DataQuery.of;
-
 import com.google.common.base.Objects.ToStringHelper;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.common.SpongeCatalogType;
 
 public class SpongeEntityMeta extends SpongeCatalogType {
@@ -39,8 +37,8 @@ public class SpongeEntityMeta extends SpongeCatalogType {
         this.type = type;
     }
 
-    public DataContainer toContainer() {
-        return DataContainer.createNew().set(of("id"), this.type).set(of("name"), getId());
+    public void toContainer(DataMap container) {
+        container.set("id", this.type).set("name", getId());
     }
 
     @Override

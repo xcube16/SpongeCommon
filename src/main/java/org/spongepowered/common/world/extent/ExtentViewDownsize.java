@@ -34,10 +34,9 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.ScheduledBlockUpdate;
 import org.spongepowered.api.block.tileentity.TileEntity;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
@@ -363,13 +362,13 @@ public class ExtentViewDownsize implements DefaultedExtent {
     }
 
     @Override
-    public boolean validateRawData(int x, int y, int z, DataView container) {
+    public boolean validateRawData(int x, int y, int z, DataMap container) {
         checkBlockRange(x, y, z);
         return this.extent.validateRawData(x, y, z, container);
     }
 
     @Override
-    public void setRawData(int x, int y, int z, DataView container) throws InvalidDataException {
+    public void setRawData(int x, int y, int z, DataMap container) throws InvalidDataException {
         checkBlockRange(x, y, z);
         this.extent.setRawData(x, y, z, container);
     }
@@ -470,14 +469,14 @@ public class ExtentViewDownsize implements DefaultedExtent {
     }
 
     @Override
-    public Optional<Entity> createEntity(DataContainer entityContainer) {
+    public Optional<Entity> createEntity(DataMap entityContainer) {
         // TODO once entity containers are implemented
         //checkRange(position.getX(), position.getY(), position.getZ());
         return Optional.empty();
     }
 
     @Override
-    public Optional<Entity> createEntity(DataContainer entityContainer, Vector3d position) {
+    public Optional<Entity> createEntity(DataMap entityContainer, Vector3d position) {
         checkNotNull(position, "The position cannot be null!");
         return this.extent.createEntity(entityContainer, position);
     }

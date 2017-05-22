@@ -28,6 +28,7 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.player.EntityPlayer;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -76,7 +77,7 @@ public class JoinDataProcessor extends AbstractEntityDataProcessor<EntityPlayer,
     }
 
     @Override
-    public Optional<JoinData> fill(DataContainer container, JoinData joinData) {
+    public Optional<JoinData> fill(DataMap container, JoinData joinData) {
         if (!container.contains(Keys.FIRST_DATE_PLAYED, Keys.LAST_DATE_PLAYED)) {
             return Optional.empty();
         }

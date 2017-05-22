@@ -24,15 +24,13 @@
  */
 package org.spongepowered.common.mixin.core.tileentity;
 
-import static org.spongepowered.api.data.DataQuery.of;
-
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityHopper;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.block.tileentity.carrier.Hopper;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.CooldownData;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -77,9 +75,9 @@ public abstract class MixinTileEntityHopper extends MixinTileEntityLockableLoot 
     }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        return container.set(of("TransferCooldown"), this.transferCooldown);
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set("TransferCooldown", this.transferCooldown);
     }
 
     @Override

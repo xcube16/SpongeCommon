@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.immutable.tileentity;
 
 import com.flowpowered.math.vector.Vector3i;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableStructureData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.StructureData;
@@ -206,9 +206,9 @@ public final class ImmutableSpongeStructureData extends AbstractImmutableData<Im
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(Keys.STRUCTURE_AUTHOR.getQuery(), this.author)
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.STRUCTURE_AUTHOR.getQuery(), this.author)
             .set(Keys.STRUCTURE_IGNORE_ENTITIES.getQuery(), this.ignoreEntities)
             .set(Keys.STRUCTURE_INTEGRITY.getQuery(), this.integrity)
             .set(Keys.STRUCTURE_MODE.getQuery(), this.mode)

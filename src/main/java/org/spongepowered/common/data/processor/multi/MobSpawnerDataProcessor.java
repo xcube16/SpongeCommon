@@ -26,17 +26,20 @@ package org.spongepowered.common.data.processor.multi;
 
 import com.google.common.collect.Maps;
 import net.minecraft.tileentity.MobSpawnerBaseLogic;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
+import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableMobSpawnerData;
 import org.spongepowered.api.data.manipulator.mutable.MobSpawnerData;
+import org.spongepowered.api.entity.EntityArchetype;
+import org.spongepowered.api.util.weighted.WeightedSerializableObject;
+import org.spongepowered.api.util.weighted.WeightedTable;
 import org.spongepowered.common.data.manipulator.mutable.SpongeMobSpawnerData;
 import org.spongepowered.common.data.processor.common.AbstractMultiDataSingleTargetProcessor;
 import org.spongepowered.common.data.processor.common.SpawnerUtils;
-import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.interfaces.IMixinMobSpawner;
 
 import java.util.Map;
@@ -85,32 +88,43 @@ public class MobSpawnerDataProcessor extends AbstractMultiDataSingleTargetProces
     }
 
     @Override
-    public Optional<MobSpawnerData> fill(DataContainer container, MobSpawnerData data) {
-        if (!container.contains(
-                Keys.SPAWNER_REMAINING_DELAY.getQuery(),
-                Keys.SPAWNER_MINIMUM_DELAY.getQuery(),
-                Keys.SPAWNER_MAXIMUM_DELAY.getQuery(),
-                Keys.SPAWNER_SPAWN_COUNT.getQuery(),
-                Keys.SPAWNER_MAXIMUM_NEARBY_ENTITIES.getQuery(),
-                Keys.SPAWNER_REQUIRED_PLAYER_RANGE.getQuery(),
-                Keys.SPAWNER_SPAWN_RANGE.getQuery(),
-                Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN.getQuery(),
-                Keys.SPAWNER_ENTITIES.getQuery()
-        )) {
-            return Optional.empty();
-        }
+    public Optional<MobSpawnerData> fill(DataMap container, MobSpawnerData data) {
+        container.getShort(Keys.SPAWNER_REMAINING_DELAY.getQuery()).ifPresent(v ->
+                data.set(Keys.SPAWNER_REMAINING_DELAY, v));
+        container.getShort(Keys.SPAWNER_MINIMUM_DELAY.getQuery()).ifPresent(v ->
+                data.set(Keys.SPAWNER_MINIMUM_DELAY, v));
+        container.getShort(Keys.SPAWNER_MAXIMUM_DELAY.getQuery()).ifPresent(v ->
+                data.set(Keys.SPAWNER_MAXIMUM_DELAY, v));
+        container.getShort(Keys.SPAWNER_SPAWN_COUNT.getQuery()).ifPresent(v ->
+                data.set(Keys.SPAWNER_SPAWN_COUNT, v));
+        container.getShort(Keys.SPAWNER_MAXIMUM_NEARBY_ENTITIES.getQuery()).ifPresent(v ->
+                data.set(Keys.SPAWNER_MAXIMUM_NEARBY_ENTITIES, v));
+        container.getShort(Keys.SPAWNER_REQUIRED_PLAYER_RANGE.getQuery()).ifPresent(v ->
+                data.set(Keys.SPAWNER_REQUIRED_PLAYER_RANGE, v));
+        container.getShort(Keys.SPAWNER_SPAWN_RANGE.getQuery()).ifPresent(v ->
+                data.set(Keys.SPAWNER_SPAWN_RANGE, v));
 
-        data.set(Keys.SPAWNER_REMAINING_DELAY, DataUtil.getData(container, Keys.SPAWNER_REMAINING_DELAY));
-        data.set(Keys.SPAWNER_MINIMUM_DELAY, DataUtil.getData(container, Keys.SPAWNER_MINIMUM_DELAY));
-        data.set(Keys.SPAWNER_MAXIMUM_DELAY, DataUtil.getData(container, Keys.SPAWNER_MAXIMUM_DELAY));
-        data.set(Keys.SPAWNER_SPAWN_COUNT, DataUtil.getData(container, Keys.SPAWNER_SPAWN_COUNT));
-        data.set(Keys.SPAWNER_MAXIMUM_NEARBY_ENTITIES, DataUtil.getData(container, Keys.SPAWNER_MAXIMUM_NEARBY_ENTITIES));
-        data.set(Keys.SPAWNER_REQUIRED_PLAYER_RANGE, DataUtil.getData(container, Keys.SPAWNER_REQUIRED_PLAYER_RANGE));
-        data.set(Keys.SPAWNER_SPAWN_RANGE, DataUtil.getData(container, Keys.SPAWNER_SPAWN_RANGE));
-        data.set(Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN, DataUtil.getData(container, Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN));
-        data.set(Keys.SPAWNER_ENTITIES, DataUtil.getData(container, Keys.SPAWNER_ENTITIES));
+        container.getMap(Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN.getQuery()).ifPresent(m ->
+                getWeightedEntity(m).ifPresent(e ->
+                        data.set(Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN, e)));
+
+        WeightedTable<EntityArchetype> spawns = new WeightedTable<>();
+        container.getList(Keys.SPAWNER_ENTITIES.getQuery()).ifPresent(dl ->
+                dl.forEachKey(i ->
+                        dl.getMap(Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN.getQuery()).ifPresent(m ->
+                                getWeightedEntity(m).ifPresent(spawns::add))));
+        data.set(Keys.SPAWNER_ENTITIES, spawns);
 
         return Optional.of(data);
+    }
+
+    private Optional<WeightedSerializableObject<EntityArchetype>> getWeightedEntity(DataMap data) {
+        Optional<EntityArchetype> entity = data.getSpongeObject(Queries.WEIGHTED_SERIALIZABLE, EntityArchetype.class);
+        Optional<Double> weight = data.getDouble(Queries.WEIGHTED_SERIALIZABLE_WEIGHT);
+        if (entity.isPresent() && weight.isPresent()) {
+            return Optional.of(new WeightedSerializableObject<>(entity.get(), weight.get().intValue()));
+        }
+        return Optional.empty();
     }
 
     @Override

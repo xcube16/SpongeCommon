@@ -27,7 +27,7 @@ package org.spongepowered.common.data.manipulator.mutable;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.base.Preconditions;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableMobSpawnerData;
 import org.spongepowered.api.data.manipulator.mutable.MobSpawnerData;
@@ -181,9 +181,9 @@ public class SpongeMobSpawnerData extends AbstractData<MobSpawnerData, Immutable
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(Keys.SPAWNER_REMAINING_DELAY.getQuery(), this.remainingDelay)
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.SPAWNER_REMAINING_DELAY.getQuery(), this.remainingDelay)
             .set(Keys.SPAWNER_MINIMUM_DELAY.getQuery(), this.minimumDelay)
             .set(Keys.SPAWNER_MAXIMUM_DELAY.getQuery(), this.maximumDelay)
             .set(Keys.SPAWNER_SPAWN_COUNT.getQuery(), this.count)
@@ -192,7 +192,6 @@ public class SpongeMobSpawnerData extends AbstractData<MobSpawnerData, Immutable
             .set(Keys.SPAWNER_SPAWN_RANGE.getQuery(), this.spawnRange)
             .set(Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN.getQuery(), this.nextEntityToSpawn)
             .set(Keys.SPAWNER_ENTITIES.getQuery(), this.entities);
-
     }
 
     private void setEntities(WeightedTable<EntityArchetype> entities) {

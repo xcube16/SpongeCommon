@@ -24,7 +24,7 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.tileentity;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableLockableData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.LockableData;
@@ -58,9 +58,9 @@ public class ImmutableSpongeLockableData extends AbstractImmutableSingleData<Str
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(Keys.LOCK_TOKEN, this.value);
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.LOCK_TOKEN, this.value);
     }
 
 }

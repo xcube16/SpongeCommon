@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.mutable;
 
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableFireworkEffectData;
 import org.spongepowered.api.data.manipulator.mutable.FireworkEffectData;
@@ -47,9 +47,9 @@ public class SpongeFireworkEffectData extends AbstractListData<FireworkEffect, F
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(Keys.FIREWORK_EFFECTS.getQuery(), this.getValue());
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.FIREWORK_EFFECTS.getQuery(), this.getValue());
     }
 
 }

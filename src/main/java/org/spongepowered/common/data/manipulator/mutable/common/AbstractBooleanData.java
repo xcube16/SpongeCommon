@@ -27,7 +27,7 @@ package org.spongepowered.common.data.manipulator.mutable.common;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
@@ -70,8 +70,8 @@ public abstract class AbstractBooleanData<M extends DataManipulator<M, I>, I ext
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(this.usedKey.getQuery(), getValue());
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(this.usedKey.getQuery(), getValue());
     }
 }

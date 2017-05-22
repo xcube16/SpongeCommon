@@ -24,7 +24,7 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableInvisibilityData;
 import org.spongepowered.api.data.manipulator.mutable.entity.InvisibilityData;
@@ -97,9 +97,9 @@ public class SpongeInvisibilityData extends AbstractData<InvisibilityData, Immut
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-                .set(Keys.INVISIBLE, this.invisible)
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.INVISIBLE, this.invisible)
                 .set(Keys.VANISH, this.vanish)
                 .set(Keys.VANISH_IGNORES_COLLISION, this.collision)
                 .set(Keys.VANISH_PREVENTS_TARGETING, this.untargetable);

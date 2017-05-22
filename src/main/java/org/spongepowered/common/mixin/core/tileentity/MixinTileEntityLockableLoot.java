@@ -24,12 +24,11 @@
  */
 package org.spongepowered.common.mixin.core.tileentity;
 
-import static org.spongepowered.api.data.DataQuery.of;
-
 import net.minecraft.tileentity.TileEntityLockableLoot;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.interfaces.data.IMixinCustomNameable;
 
 @Mixin(TileEntityLockableLoot.class)
@@ -45,12 +44,11 @@ public abstract class MixinTileEntityLockableLoot extends MixinTileEntityLockabl
     }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
         if (this.customName != null) {
-            container.set(of("CustomName"), this.customName);
+            container.set(DataQueries.CUSTOM_NAME, this.customName);
         }
-        return container;
     }
 
 }

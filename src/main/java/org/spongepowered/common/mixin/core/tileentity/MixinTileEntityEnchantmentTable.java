@@ -24,16 +24,15 @@
  */
 package org.spongepowered.common.mixin.core.tileentity;
 
-import static org.spongepowered.api.data.DataQuery.of;
-
 import net.minecraft.tileentity.TileEntityEnchantmentTable;
 import org.spongepowered.api.block.tileentity.EnchantmentTable;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.interfaces.data.IMixinCustomNameable;
 
 import java.util.List;
@@ -45,10 +44,9 @@ public abstract class MixinTileEntityEnchantmentTable extends MixinTileEntity im
     @Shadow private String customName;
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        container.set(of("CustomName"), this.customName);
-        return container;
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(DataQueries.CUSTOM_NAME, this.customName);
     }
 
     @Override

@@ -32,7 +32,7 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.IChunkGenerator;
 import net.minecraft.world.chunk.storage.IChunkLoader;
 import net.minecraft.world.gen.ChunkProviderServer;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.event.cause.NamedCause;
 import org.spongepowered.api.world.SerializationBehaviors;
 import org.spongepowered.api.world.storage.ChunkDataStream;
@@ -44,9 +44,9 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.common.SpongeImpl;
@@ -125,7 +125,7 @@ public abstract class MixinChunkProviderServer implements WorldStorage, IMixinCh
     }
 
     @Override
-    public CompletableFuture<Optional<DataContainer>> getChunkData(Vector3i chunkCoords) {
+    public CompletableFuture<Optional<DataMap>> getChunkData(Vector3i chunkCoords) {
         return WorldStorageUtil.getChunkData(this.world, this.chunkLoader, chunkCoords);
     }
 

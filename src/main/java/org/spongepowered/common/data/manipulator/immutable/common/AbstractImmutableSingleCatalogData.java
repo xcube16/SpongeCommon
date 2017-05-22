@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.spongepowered.api.CatalogType;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableVariantData;
 import org.spongepowered.api.data.manipulator.mutable.VariantData;
@@ -66,8 +66,9 @@ public abstract class AbstractImmutableSingleCatalogData<E extends CatalogType, 
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer().set(this.usedKey.getQuery(), this.value.getId());
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(this.usedKey.getQuery(), this.value.getId());
     }
 
     @Override

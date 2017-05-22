@@ -28,8 +28,8 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -78,18 +78,11 @@ public class MinecartBlockDataProcessor extends AbstractEntityDataProcessor<Enti
     }
 
     @Override
-    public Optional<MinecartBlockData> fill(DataContainer container, MinecartBlockData data) {
-        if(!container.contains(Keys.REPRESENTED_BLOCK.getQuery())
-            || !container.contains(Keys.OFFSET.getQuery())) {
-            return Optional.empty();
-        }
-
-        BlockState block = container.getSerializable(Keys.REPRESENTED_BLOCK.getQuery(), BlockState.class).get();
-        int offset = container.getInt(Keys.OFFSET.getQuery()).get();
-
-        data.set(Keys.REPRESENTED_BLOCK, block);
-        data.set(Keys.OFFSET, offset);
-
+    public Optional<MinecartBlockData> fill(DataMap container, MinecartBlockData data) {
+        container.getSpongeObject(Keys.REPRESENTED_BLOCK.getQuery(), BlockState.class).ifPresent(b ->
+                data.set(Keys.REPRESENTED_BLOCK, b));
+        container.getInt(Keys.OFFSET.getQuery()).ifPresent(o ->
+                data.set(Keys.OFFSET, o));
         return Optional.of(data);
     }
 

@@ -31,7 +31,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
@@ -217,8 +217,7 @@ public abstract class AbstractImmutableData<I extends ImmutableDataManipulator<I
     }
 
     @Override
-    public DataContainer toContainer() {
-        return DataContainer.createNew()
-            .set(Queries.CONTENT_VERSION, getContentVersion());
+    public void toContainer(DataMap container) {
+        container.set(Queries.CONTENT_VERSION, getContentVersion());
     }
 }

@@ -24,7 +24,7 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.common;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
@@ -41,8 +41,8 @@ public abstract class AbstractImmutableIntData<I extends ImmutableDataManipulato
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(this.usedKey, this.value);
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(this.usedKey, this.value);
     }
 }

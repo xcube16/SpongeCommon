@@ -26,7 +26,7 @@ package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableHealthData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
@@ -83,10 +83,11 @@ public class SpongeHealthData extends AbstractData<HealthData, ImmutableHealthDa
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(Keys.HEALTH, this.health)
-            .set(Keys.MAX_HEALTH, this.maxHealth);
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.HEALTH, this.health)
+                .set(Keys.MAX_HEALTH, this.maxHealth);
+
     }
 
     public double getHealth() {

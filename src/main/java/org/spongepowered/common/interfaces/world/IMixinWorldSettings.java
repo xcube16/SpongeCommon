@@ -25,11 +25,11 @@
 package org.spongepowered.common.interfaces.world;
 
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.world.DimensionType;
+import org.spongepowered.api.world.PortalAgentType;
 import org.spongepowered.api.world.SerializationBehavior;
 import org.spongepowered.api.world.difficulty.Difficulty;
-import org.spongepowered.api.world.PortalAgentType;
 import org.spongepowered.api.world.gen.WorldGeneratorModifier;
 
 public interface IMixinWorldSettings {
@@ -46,7 +46,7 @@ public interface IMixinWorldSettings {
 
     void setSerializationBehavior(SerializationBehavior behavior);
 
-    void setGeneratorSettings(DataContainer generatorSettings);
+    void setGeneratorSettings(DataMap generatorSettings);
 
     void setGeneratorModifiers(ImmutableList<WorldGeneratorModifier> generatorModifiers);
 

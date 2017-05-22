@@ -24,7 +24,7 @@
  */
 package org.spongepowered.common.data.util;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.DataManipulatorBuilder;
 import org.spongepowered.common.data.DataProcessor;
@@ -34,7 +34,7 @@ import java.util.function.Function;
 /**
  * Much like {@link Function} except where two arguments are required for the
  * function to work. This is primarily used for {@link DataManipulatorBuilder}s
- * and {@link DataProcessor#fill(DataContainer, DataManipulator)}.
+ * and {@link DataProcessor#fill(DataMap, DataManipulator)}.
  *
  * @param <K> The type of first value of the argument passed in
  * @param <V> The type of the second value of the argument passed in

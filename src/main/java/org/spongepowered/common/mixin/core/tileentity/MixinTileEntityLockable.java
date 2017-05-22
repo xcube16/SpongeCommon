@@ -24,14 +24,13 @@
  */
 package org.spongepowered.common.mixin.core.tileentity;
 
-import com.google.common.collect.Lists;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityLockable;
 import net.minecraft.world.LockCode;
 import org.spongepowered.api.block.tileentity.carrier.TileEntityCarrier;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataList;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
@@ -78,25 +77,22 @@ public abstract class MixinTileEntityLockable extends MixinTileEntity implements
     }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
         if (this.code != null) {
             container.set(DataQueries.BLOCK_ENTITY_LOCK_CODE, this.code.getLock());
         }
-        List<DataView> items = Lists.newArrayList();
+        DataList items = container.createList(DataQueries.BLOCK_ENTITY_ITEM_CONTENTS);
         for (int i = 0; i < getSizeInventory(); i++) {
             ItemStack stack = getStackInSlot(i);
             if (!stack.isEmpty()) {
                 // todo make a helper object for this
-                DataContainer stackView = DataContainer.createNew()
+                items.addMap()
                     .set(Queries.CONTENT_VERSION, 1)
                     .set(DataQueries.BLOCK_ENTITY_SLOT, i)
-                    .set(DataQueries.BLOCK_ENTITY_SLOT_ITEM, ((org.spongepowered.api.item.inventory.ItemStack) stack).toContainer());
-                items.add(stackView);
+                    .set(DataQueries.BLOCK_ENTITY_SLOT_ITEM, stack);
             }
         }
-        container.set(DataQueries.BLOCK_ENTITY_ITEM_CONTENTS, items);
-        return container;
     }
 
     @Override

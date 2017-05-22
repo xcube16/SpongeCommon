@@ -27,7 +27,7 @@ package org.spongepowered.common.data.manipulator.mutable.entity;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableVehicleData;
 import org.spongepowered.api.data.manipulator.mutable.entity.VehicleData;
@@ -91,11 +91,11 @@ public class SpongeVehicleData extends AbstractData<VehicleData, ImmutableVehicl
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         checkState(this.vehicle != null, "Vehicle cannot be null!");
         checkState(this.baseVehicle != null, "Base Vehicle cannot be null!");
-        return super.toContainer()
-            .set(Keys.VEHICLE, this.vehicle)
+        super.toContainer(container);
+        container.set(Keys.VEHICLE, this.vehicle)
             .set(Keys.BASE_VEHICLE, this.baseVehicle);
     }
 

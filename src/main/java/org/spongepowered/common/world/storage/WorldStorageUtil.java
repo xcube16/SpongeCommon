@@ -32,7 +32,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.storage.IChunkLoader;
 import net.minecraft.world.chunk.storage.RegionFile;
 import net.minecraft.world.chunk.storage.RegionFileCache;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.data.util.NbtDataUtil;
@@ -59,7 +59,7 @@ public class WorldStorageUtil {
         return SpongeImpl.getScheduler().submitAsyncTask(() -> ((IMixinAnvilChunkLoader) chunkLoader).chunkExists(world, x, z));
     }
 
-    public static CompletableFuture<Optional<DataContainer>> getChunkData(WorldServer world, IChunkLoader chunkLoader, Vector3i chunkCoords) {
+    public static CompletableFuture<Optional<DataMap>> getChunkData(WorldServer world, IChunkLoader chunkLoader, Vector3i chunkCoords) {
         int x = chunkCoords.getX();
         int y = chunkCoords.getY();
         int z = chunkCoords.getZ();
@@ -73,7 +73,7 @@ public class WorldStorageUtil {
         });
     }
 
-    public static DataContainer readDataFromRegion(DataInputStream stream) throws IOException {
+    public static DataMap readDataFromRegion(DataInputStream stream) throws IOException {
         if (stream == null) {
             return null;
         }

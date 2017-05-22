@@ -24,11 +24,9 @@
  */
 package org.spongepowered.common.data.processor.data.item;
 
-import static org.spongepowered.common.data.util.DataUtil.checkDataExists;
-
 import com.google.common.collect.ImmutableList;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableEnchantmentData;
@@ -43,6 +41,7 @@ import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeListValue;
 import org.spongepowered.common.data.value.mutable.SpongeListValue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,12 +83,11 @@ public class ItemEnchantmentDataProcessor
     }
 
     @Override
-    public Optional<EnchantmentData> fill(DataContainer container, EnchantmentData enchantmentData) {
-        checkDataExists(container, Keys.ITEM_ENCHANTMENTS.getQuery());
-        final List<ItemEnchantment> enchantments = container.getSerializableList(Keys.ITEM_ENCHANTMENTS.getQuery(), ItemEnchantment.class).get();
-        final ListValue<ItemEnchantment> existing = enchantmentData.enchantments();
-        existing.addAll(enchantments);
-        enchantmentData.set(existing);
+    public Optional<EnchantmentData> fill(DataMap container, EnchantmentData enchantmentData) {
+        final List<ItemEnchantment> enchantments = new ArrayList<>();
+        container.getList(Keys.ITEM_ENCHANTMENTS.getQuery()).ifPresent(l ->
+                l.forEachKey(i -> l.getSpongeObject(i, ItemEnchantment.class).ifPresent(enchantments::add)));
+        enchantmentData.setElements(enchantments);
         return Optional.of(enchantmentData);
     }
 

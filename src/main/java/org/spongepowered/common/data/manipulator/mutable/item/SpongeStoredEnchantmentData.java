@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.mutable.item;
 
 import com.google.common.collect.Lists;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableStoredEnchantmentData;
 import org.spongepowered.api.data.manipulator.mutable.item.StoredEnchantmentData;
@@ -47,8 +47,8 @@ public class SpongeStoredEnchantmentData extends AbstractListData<ItemEnchantmen
     }
 
     @Override
-    public DataContainer toContainer() {
-        return DataContainer.createNew()
-                .set(Keys.STORED_ENCHANTMENTS, getValue());
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.STORED_ENCHANTMENTS, getValue());
     }
 }

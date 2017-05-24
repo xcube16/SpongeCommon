@@ -24,7 +24,7 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableFallDistanceData;
 import org.spongepowered.api.data.manipulator.mutable.entity.FallDistanceData;
@@ -59,8 +59,8 @@ public class ImmutableSpongeFallDistanceData extends AbstractImmutableBoundedCom
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(Keys.FALL_DISTANCE, this.value);
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.FALL_DISTANCE, this.value);
     }
 }

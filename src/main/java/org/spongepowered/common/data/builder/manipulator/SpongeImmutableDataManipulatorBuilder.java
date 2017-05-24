@@ -27,12 +27,10 @@ package org.spongepowered.common.data.builder.manipulator;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.ImmutableDataHolder;
 import org.spongepowered.api.data.manipulator.DataManipulator;
-import org.spongepowered.api.data.manipulator.DataManipulatorBuilder;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulatorBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
@@ -50,9 +48,10 @@ public final class SpongeImmutableDataManipulatorBuilder<T extends DataManipulat
     private final DataProcessorDelegate<T, I> delegate;
     private final Class<T> manipulatorClass;
     private final Constructor<T> constructor;
-    private final DataFunction<DataContainer, T, Optional<T>> buildFunction;
+    private final DataFunction<DataMap, T, Optional<T>> buildFunction;
 
-    public SpongeImmutableDataManipulatorBuilder(DataProcessorDelegate<T, I> delegate, Class<T> manipulatorClass, DataFunction<DataContainer, T, Optional<T>> buildFunction) {
+    public SpongeImmutableDataManipulatorBuilder(DataProcessorDelegate<T, I> delegate, Class<T> manipulatorClass,
+            DataFunction<DataMap, T, Optional<T>> buildFunction) {
         this.delegate = checkNotNull(delegate);
         checkNotNull(manipulatorClass);
         checkArgument(!Modifier.isAbstract(manipulatorClass.getModifiers()));
@@ -103,14 +102,8 @@ public final class SpongeImmutableDataManipulatorBuilder<T extends DataManipulat
     }
 
     @Override
-    public Optional<I> build(DataView container) throws InvalidDataException {
-        final DataContainer usedContainer;
-        if (container instanceof DataContainer) {
-            usedContainer = (DataContainer) container;
-        } else {
-            usedContainer = container.copy();
-        }
-        Optional<T> optional = this.buildFunction.apply(usedContainer, create());
-        return optional.isPresent() ? Optional.of(optional.get().asImmutable()) : Optional.empty();
+    public Optional<I> build(DataMap container) throws InvalidDataException {
+        return this.buildFunction.apply(container.copy(), create())
+                .map(DataManipulator::asImmutable);
     }
 }

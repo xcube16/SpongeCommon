@@ -25,7 +25,7 @@
 package org.spongepowered.common.mixin.core.item.merchant;
 
 import net.minecraft.village.MerchantRecipe;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
@@ -102,8 +102,8 @@ public abstract class MixinMerchantRecipe implements TradeOffer {
     }
 
     @Override
-    public DataContainer toContainer() {
-        return DataContainer.createNew()
+    public void toContainer(DataMap container) {
+        container
                 .set(Queries.CONTENT_VERSION, getContentVersion())
                 .set(DataQueries.TRADE_OFFER_FIRST_ITEM, this.getFirstBuyingItem())
                 .set(DataQueries.TRADE_OFFER_SECOND_ITEM, this.hasSecondItem() ? this.getSecondBuyingItem().get() : "none")

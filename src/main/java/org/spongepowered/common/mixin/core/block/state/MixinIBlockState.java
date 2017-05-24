@@ -31,7 +31,7 @@ import net.minecraft.block.state.IBlockState;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.trait.BlockTrait;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
@@ -178,9 +178,8 @@ public interface MixinIBlockState extends IBlockState, BlockState {
     }
 
     @Override
-    default DataContainer toContainer() {
-        return DataContainer.createNew()
-                .set(Queries.CONTENT_VERSION, getContentVersion())
+    default void toContainer(DataMap container) {
+        container.set(Queries.CONTENT_VERSION, getContentVersion())
                 .set(DataQueries.BLOCK_STATE, getId());
     }
 

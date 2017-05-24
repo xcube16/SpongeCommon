@@ -26,9 +26,8 @@ package org.spongepowered.common.data.processor.multi.tileentity;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.tileentity.TileEntityBanner;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -40,6 +39,7 @@ import org.spongepowered.common.data.manipulator.mutable.tileentity.SpongeBanner
 import org.spongepowered.common.data.processor.common.AbstractTileEntityDataProcessor;
 import org.spongepowered.common.interfaces.block.tile.IMixinBanner;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -81,16 +81,16 @@ public class TileEntityBannerDataProcessor extends AbstractTileEntityDataProcess
     }
 
     @Override
-    public Optional<BannerData> fill(DataContainer container, BannerData bannerData) {
-        if (container.contains(Keys.BANNER_PATTERNS.getQuery()) || container.contains(Keys.BANNER_BASE_COLOR.getQuery())) {
-            List<PatternLayer> layers = container.getSerializableList(Keys.BANNER_PATTERNS.getQuery(), PatternLayer.class).get();
-            String colorId = container.getString(Keys.BANNER_BASE_COLOR.getQuery()).get();
-            DyeColor color = Sponge.getRegistry().getType(DyeColor.class, colorId).get();
-            bannerData.set(Keys.BANNER_BASE_COLOR, color);
+    public Optional<BannerData> fill(DataMap container, BannerData bannerData) {
+        container.getList(Keys.BANNER_PATTERNS.getQuery()).ifPresent(l -> {
+            List<PatternLayer> layers = new ArrayList<>();
+            l.forEachKey(i ->
+                    l.getSpongeObject(i, PatternLayer.class).ifPresent(layers::add));
             bannerData.set(Keys.BANNER_PATTERNS, layers);
-            return Optional.of(bannerData);
-        }
-        return Optional.empty();
+        });
+        container.getSpongeObject(Keys.BANNER_BASE_COLOR.getQuery(), DyeColor.class).ifPresent(c ->
+            bannerData.set(Keys.BANNER_BASE_COLOR, c));
+        return Optional.of(bannerData);
     }
 
     @Override

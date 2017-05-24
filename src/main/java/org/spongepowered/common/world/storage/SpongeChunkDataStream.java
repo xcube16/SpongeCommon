@@ -27,7 +27,7 @@ package org.spongepowered.common.world.storage;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Sets;
 import net.minecraft.world.chunk.storage.RegionFile;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.world.storage.ChunkDataStream;
 
 import java.io.DataInputStream;
@@ -103,7 +103,7 @@ public class SpongeChunkDataStream implements ChunkDataStream {
     }
 
     @Override
-    public DataContainer next() {
+    public DataMap next() {
         int next = getNextIndex();
         if (next == -1) {
             throw new NoSuchElementException();

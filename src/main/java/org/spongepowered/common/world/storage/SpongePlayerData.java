@@ -24,9 +24,8 @@
  */
 package org.spongepowered.common.world.storage;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataSerializable;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.DataBuilder;
@@ -80,8 +79,8 @@ public class SpongePlayerData implements DataSerializable {
     }
 
     @Override
-    public DataContainer toContainer() {
-        return DataContainer.createNew()
+    public void toContainer(DataMap container) {
+        container
                 .set(Queries.CONTENT_VERSION, getContentVersion())
                 .set(DataQueries.USER_UUID, this.uuid.toString())
                 .set(DataQueries.PLAYER_DATA_JOIN, this.firstJoined)
@@ -95,19 +94,16 @@ public class SpongePlayerData implements DataSerializable {
         }
 
         @Override
-        protected Optional<SpongePlayerData> buildContent(DataView container) throws InvalidDataException {
-            if (container.contains(DataQueries.USER_UUID, DataQueries.PLAYER_DATA_JOIN, DataQueries.PLAYER_DATA_LAST)) {
-                final String idString = container.getString(DataQueries.USER_UUID).get();
-                final UUID uuid = UUID.fromString(idString);
-                final long firstJoin = container.getLong(DataQueries.PLAYER_DATA_JOIN).get();
-                final long lastJoin = container.getLong(DataQueries.PLAYER_DATA_LAST).get();
+        protected Optional<SpongePlayerData> buildContent(DataMap container) throws InvalidDataException {
+            return container.getString(DataQueries.USER_UUID).map(UUID::fromString).map(uuid -> {
                 final SpongePlayerData data = new SpongePlayerData();
                 data.uuid = uuid;
-                data.firstJoined = firstJoin;
-                data.lastJoined = lastJoin;
-                return Optional.of(data);
-            }
-            return Optional.empty();
+                container.getLong(DataQueries.PLAYER_DATA_JOIN).ifPresent(f ->
+                        data.firstJoined = f);
+                container.getLong(DataQueries.PLAYER_DATA_LAST).ifPresent(l ->
+                        data.lastJoined = l);
+                return data;
+            });
         }
     }
 }

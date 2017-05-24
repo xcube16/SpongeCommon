@@ -40,7 +40,7 @@ public interface MixinDataContainer {
      * @return The new data container
      */
     @Overwrite
-    static DataContainer createNew() {
+    static void createNew() {
         return new MemoryDataContainer();
     }
 

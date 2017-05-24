@@ -30,9 +30,9 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.Maps;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.block.tileentity.TileEntityArchetype;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.world.extent.ArchetypeVolume;
 import org.spongepowered.api.world.extent.Extent;
 import org.spongepowered.api.world.extent.MutableBlockVolume;
@@ -53,7 +53,7 @@ public class SpongeSchematicBuilder implements Schematic.Builder {
     private Extent view;
     private BlockPalette palette;
     private BlockPaletteType type = BlockPaletteTypes.LOCAL;
-    private DataView metadata;
+    private DataMap metadata;
     private Map<String, Object> metaValues = Maps.newHashMap();
 
     @Override
@@ -83,7 +83,7 @@ public class SpongeSchematicBuilder implements Schematic.Builder {
     }
 
     @Override
-    public Builder metadata(DataView metadata) {
+    public Builder metadata(DataMap metadata) {
         this.metadata = metadata;
         return this;
     }
@@ -132,7 +132,7 @@ public class SpongeSchematicBuilder implements Schematic.Builder {
             size = this.view.getBlockSize();
         }
         if (this.metadata == null) {
-            this.metadata = DataContainer.createNew();
+            this.metadata = new MemoryDataMap();
         }
         for (Map.Entry<String, Object> entry : this.metaValues.entrySet()) {
             this.metadata.set(DataQuery.of(".", entry.getKey()), entry.getValue());
@@ -143,9 +143,8 @@ public class SpongeSchematicBuilder implements Schematic.Builder {
             this.view.getBlockWorker(SpongeImpl.getImplementationCause()).iterate((v, x, y, z) -> {
                 volume.setBlock(x, y, z, v.getBlock(x, y, z), SpongeImpl.getImplementationCause());
                 Optional<TileEntity> tile = v.getTileEntity(x, y, z);
-                if (tile.isPresent()) {
-                    tiles.put(new Vector3i(x, y, z), tile.get().createArchetype());
-                }
+                tile.ifPresent(tileEntity ->
+                        tiles.put(new Vector3i(x, y, z), tileEntity.createArchetype()));
             });
             return new SpongeSchematic(volume, tiles, this.metadata);
         }

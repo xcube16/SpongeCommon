@@ -24,12 +24,10 @@
  */
 package org.spongepowered.common.data.processor.multi.entity;
 
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.player.EntityPlayer;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -74,9 +72,11 @@ public class MovementSpeedDataProcessor extends AbstractEntityDataProcessor<Enti
     }
 
     @Override
-    public Optional<MovementSpeedData> fill(DataContainer container, MovementSpeedData movementSpeedData) {
-        movementSpeedData.set(Keys.WALKING_SPEED, getData(container, Keys.WALKING_SPEED));
-        movementSpeedData.set(Keys.FLYING_SPEED, getData(container, Keys.FLYING_SPEED));
+    public Optional<MovementSpeedData> fill(DataMap container, MovementSpeedData movementSpeedData) {
+        container.getDouble(Keys.WALKING_SPEED.getQuery()).ifPresent(w ->
+                movementSpeedData.set(Keys.WALKING_SPEED, w));
+        container.getDouble(Keys.FLYING_SPEED.getQuery()).ifPresent(f ->
+                movementSpeedData.set(Keys.FLYING_SPEED, f));
         return Optional.of(movementSpeedData);
     }
 

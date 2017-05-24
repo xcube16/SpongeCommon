@@ -32,10 +32,9 @@ import co.aikar.timings.TimingsManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
@@ -379,12 +378,12 @@ public abstract class MixinDataHolder implements DataHolder {
     // The rest of these are default implemented in the event some implementation fails.
 
     @Override
-    public boolean validateRawData(DataView container) {
+    public boolean validateRawData(DataMap container) {
         return false;
     }
 
     @Override
-    public void setRawData(DataView container) throws InvalidDataException {
+    public void setRawData(DataMap container) throws InvalidDataException {
 
     }
 
@@ -399,8 +398,8 @@ public abstract class MixinDataHolder implements DataHolder {
     }
 
     @Override
-    public DataContainer toContainer() {
-        return DataContainer.createNew();
+    public void toContainer(DataMap container) {
+
     }
 
     @Override

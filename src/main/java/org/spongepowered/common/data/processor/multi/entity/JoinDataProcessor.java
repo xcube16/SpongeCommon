@@ -26,7 +26,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.player.EntityPlayer;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
@@ -78,13 +77,10 @@ public class JoinDataProcessor extends AbstractEntityDataProcessor<EntityPlayer,
 
     @Override
     public Optional<JoinData> fill(DataMap container, JoinData joinData) {
-        if (!container.contains(Keys.FIRST_DATE_PLAYED, Keys.LAST_DATE_PLAYED)) {
-            return Optional.empty();
-        }
-        final long joined = container.getLong(Keys.FIRST_DATE_PLAYED.getQuery()).get();
-        final long played = container.getLong(Keys.LAST_DATE_PLAYED.getQuery()).get();
-        joinData.set(Keys.FIRST_DATE_PLAYED, Instant.ofEpochMilli(joined));
-        joinData.set(Keys.LAST_DATE_PLAYED, Instant.ofEpochMilli(played));
+        container.getLong(Keys.FIRST_DATE_PLAYED.getQuery()).ifPresent(f ->
+                joinData.set(Keys.FIRST_DATE_PLAYED, Instant.ofEpochMilli(f)));
+        container.getLong(Keys.LAST_DATE_PLAYED.getQuery()).ifPresent(l ->
+                joinData.set(Keys.LAST_DATE_PLAYED, Instant.ofEpochMilli(l)));
         return Optional.of(joinData);
     }
 

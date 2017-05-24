@@ -26,7 +26,8 @@ package org.spongepowered.common.data.manipulator.immutable.item;
 
 import com.google.common.collect.ImmutableSet;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataList;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutablePlaceableData;
 import org.spongepowered.api.data.manipulator.mutable.item.PlaceableData;
@@ -35,7 +36,6 @@ import org.spongepowered.common.data.manipulator.immutable.common.AbstractImmuta
 import org.spongepowered.common.data.manipulator.mutable.item.SpongePlaceableData;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ImmutableSpongePlaceableData extends AbstractImmutableSingleSetData<BlockType, ImmutablePlaceableData, PlaceableData> implements ImmutablePlaceableData {
 
@@ -48,12 +48,10 @@ public class ImmutableSpongePlaceableData extends AbstractImmutableSingleSetData
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-            .set(Keys.PLACEABLE_BLOCKS.getQuery(), getValue()
-                .stream()
-                .map(BlockType::getId)
-                .collect(Collectors.toList()));
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        DataList blocks = container.createList(Keys.PLACEABLE_BLOCKS.getQuery());
+        getValue().forEach(b -> blocks.add(b.getId()));
     }
 
     @SuppressWarnings("unchecked")

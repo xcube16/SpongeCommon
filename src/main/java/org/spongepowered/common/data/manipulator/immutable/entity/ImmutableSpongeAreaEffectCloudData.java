@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableAreaEffectCloudData;
 import org.spongepowered.api.data.manipulator.mutable.entity.AreaEffectCloudData;
@@ -223,9 +223,9 @@ public class ImmutableSpongeAreaEffectCloudData extends AbstractImmutableData<Im
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-                .set(Keys.AREA_EFFECT_CLOUD_AGE, this.age)
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.AREA_EFFECT_CLOUD_AGE, this.age)
                 .set(Keys.AREA_EFFECT_CLOUD_REAPPLICATION_DELAY, this.reapplicationDelay)
                 .set(Keys.AREA_EFFECT_CLOUD_COLOR, this.color)
                 .set(Keys.AREA_EFFECT_CLOUD_DURATION, this.duration)
@@ -233,8 +233,7 @@ public class ImmutableSpongeAreaEffectCloudData extends AbstractImmutableData<Im
                 .set(Keys.AREA_EFFECT_CLOUD_PARTICLE_TYPE, this.particleType)
                 .set(Keys.AREA_EFFECT_CLOUD_RADIUS, this.radius)
                 .set(Keys.AREA_EFFECT_CLOUD_RADIUS_ON_USE, this.radiusOnUse)
-                .set(Keys.AREA_EFFECT_CLOUD_WAIT_TIME, this.waitTime)
-                ;
+                .set(Keys.AREA_EFFECT_CLOUD_WAIT_TIME, this.waitTime);
     }
 
     @Override

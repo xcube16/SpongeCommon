@@ -24,14 +24,11 @@
  */
 package org.spongepowered.common.data.processor.multi.entity;
 
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.util.DamageSource;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -80,12 +77,11 @@ public class HealthDataProcessor extends AbstractEntityDataProcessor<EntityLivin
     }
 
     @Override
-    public Optional<HealthData> fill(DataContainer container, HealthData healthData) {
-        if (!container.contains(Keys.MAX_HEALTH.getQuery()) || !container.contains(Keys.HEALTH.getQuery())) {
-            return Optional.empty();
-        }
-        healthData.set(Keys.MAX_HEALTH, getData(container, Keys.MAX_HEALTH));
-        healthData.set(Keys.HEALTH, getData(container, Keys.HEALTH));
+    public Optional<HealthData> fill(DataMap container, HealthData healthData) {
+        container.getDouble(Keys.MAX_HEALTH.getQuery()).ifPresent(m ->
+                healthData.set(Keys.MAX_HEALTH, m));
+        container.getDouble(Keys.HEALTH.getQuery()).ifPresent(m ->
+                healthData.set(Keys.HEALTH, m));
         return Optional.of(healthData);
     }
 

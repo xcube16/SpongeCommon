@@ -24,7 +24,7 @@
  */
 package org.spongepowered.common.data.manipulator.immutable;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableCommandData;
 import org.spongepowered.api.data.manipulator.mutable.CommandData;
@@ -105,9 +105,9 @@ public class ImmutableSpongeCommandData extends AbstractImmutableData<ImmutableC
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-                .set(Keys.COMMAND, this.storedCommand)
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.COMMAND, this.storedCommand)
                 .set(Keys.SUCCESS_COUNT, this.success)
                 .set(Keys.TRACKS_OUTPUT, this.tracks)
                 .set(Keys.LAST_COMMAND_OUTPUT.getQuery(), this.lastOutput == null ? "" : this.lastOutput.toString());

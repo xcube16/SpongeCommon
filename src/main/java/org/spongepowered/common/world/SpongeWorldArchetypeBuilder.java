@@ -31,7 +31,8 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.entity.living.player.gamemode.GameModes;
 import org.spongepowered.api.registry.CatalogTypeAlreadyRegisteredException;
@@ -70,7 +71,7 @@ public class SpongeWorldArchetypeBuilder implements WorldArchetype.Builder {
     private boolean pvpEnabled;
     private boolean commandsAllowed;
     private boolean generateBonusChest;
-    private DataContainer generatorSettings;
+    private DataMap generatorSettings;
     private ImmutableList<WorldGeneratorModifier> generatorModifiers;
     private PortalAgentType portalAgentType;
     private boolean seedRandomized;
@@ -154,7 +155,7 @@ public class SpongeWorldArchetypeBuilder implements WorldArchetype.Builder {
     }
 
     @Override
-    public SpongeWorldArchetypeBuilder generatorSettings(DataContainer settings) {
+    public SpongeWorldArchetypeBuilder generatorSettings(DataMap settings) {
         this.generatorSettings = settings;
         return this;
     }
@@ -292,7 +293,7 @@ public class SpongeWorldArchetypeBuilder implements WorldArchetype.Builder {
         this.loadOnStartup = true;
         this.keepSpawnLoaded = true;
         this.generateSpawnOnLoad = true;
-        this.generatorSettings = DataContainer.createNew();
+        this.generatorSettings = new MemoryDataMap();
         this.generatorModifiers = ImmutableList.of();
         this.pvpEnabled = true;
         this.commandsAllowed = true;

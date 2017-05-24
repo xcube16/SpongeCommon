@@ -89,7 +89,7 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.ScheduledBlockUpdate;
 import org.spongepowered.api.block.tileentity.TileEntity;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.persistence.DataFormats;
 import org.spongepowered.api.effect.particle.ParticleEffect;
@@ -413,7 +413,7 @@ public abstract class MixinWorldServer extends MixinWorld implements IMixinWorld
     public void updateWorldGenerator() {
 
         // Get the default generator for the world type
-        DataContainer generatorSettings = this.getProperties().getGeneratorSettings();
+        DataMap generatorSettings = this.getProperties().getGeneratorSettings();
 
         SpongeWorldGenerator newGenerator = createWorldGenerator(generatorSettings);
         // If the base generator is an IChunkProvider which implements
@@ -450,7 +450,7 @@ public abstract class MixinWorldServer extends MixinWorld implements IMixinWorld
     }
 
     @Override
-    public SpongeWorldGenerator createWorldGenerator(DataContainer settings) {
+    public SpongeWorldGenerator createWorldGenerator(DataMap settings) {
         // Minecraft uses a string for world generator settings
         // This string can be a JSON string, or be a string of a custom format
 

@@ -27,8 +27,8 @@ package org.spongepowered.common.data.processor.multi.block;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -49,7 +49,7 @@ public class ConnectedDirectionDataProcessor extends
     }
 
     @Override
-    public Optional<ConnectedDirectionData> fill(DataContainer container, ConnectedDirectionData m) {
+    public Optional<ConnectedDirectionData> fill(DataMap container, ConnectedDirectionData m) {
         return Optional.of(m);
     }
 

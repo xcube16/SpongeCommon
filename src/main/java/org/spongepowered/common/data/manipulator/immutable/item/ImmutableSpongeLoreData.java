@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.immutable.item;
 
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableLoreData;
 import org.spongepowered.api.data.manipulator.mutable.item.LoreData;
@@ -47,7 +47,9 @@ public class ImmutableSpongeLoreData extends AbstractImmutableListData<Text, Imm
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer().set(Keys.ITEM_LORE.getQuery(), SpongeTexts.asJson(this.getValue()));
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        //TODO: store text directly in DataView
+        container.set(Keys.ITEM_LORE.getQuery(), SpongeTexts.asJson(this.getValue()));
     }
 }

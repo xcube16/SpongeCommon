@@ -24,12 +24,10 @@
  */
 package org.spongepowered.common.data.processor.multi.entity;
 
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.EntityLivingBase;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -72,9 +70,11 @@ public class BreathingDataProcessor extends AbstractEntityDataProcessor<EntityLi
     }
 
     @Override
-    public Optional<BreathingData> fill(DataContainer container, BreathingData breathingData) {
-        breathingData.set(Keys.MAX_AIR, getData(container, Keys.MAX_AIR));
-        breathingData.set(Keys.REMAINING_AIR, getData(container, Keys.REMAINING_AIR));
+    public Optional<BreathingData> fill(DataMap container, BreathingData breathingData) {
+        container.getInt(Keys.MAX_AIR.getQuery()).ifPresent(i ->
+                breathingData.set(Keys.MAX_AIR, i));
+        container.getInt(Keys.REMAINING_AIR.getQuery()).ifPresent(i ->
+                breathingData.set(Keys.REMAINING_AIR, i));
         return Optional.of(breathingData);
     }
 

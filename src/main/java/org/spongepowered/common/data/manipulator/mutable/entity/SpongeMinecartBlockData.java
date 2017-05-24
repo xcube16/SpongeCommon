@@ -27,7 +27,7 @@ package org.spongepowered.common.data.manipulator.mutable.entity;
 import com.google.common.base.Preconditions;
 import net.minecraft.init.Blocks;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableMinecartBlockData;
 import org.spongepowered.api.data.manipulator.mutable.entity.MinecartBlockData;
@@ -75,9 +75,9 @@ public class SpongeMinecartBlockData extends AbstractData<MinecartBlockData, Imm
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-                .set(Keys.REPRESENTED_BLOCK, this.block)
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.REPRESENTED_BLOCK, this.block)
                 .set(Keys.OFFSET, this.offset);
     }
 

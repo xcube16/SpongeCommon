@@ -26,8 +26,8 @@ package org.spongepowered.common.data.processor.multi.entity;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.item.EntityArmorStand;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -79,19 +79,15 @@ public class ArmorStandDataProcessor extends AbstractEntityDataProcessor<EntityA
     }
 
     @Override
-    public Optional<ArmorStandData> fill(DataContainer container, ArmorStandData armorStandData) {
-        if (container.contains(Keys.ARMOR_STAND_HAS_ARMS)) {
-            armorStandData.set(Keys.ARMOR_STAND_HAS_ARMS, container.getBoolean(Keys.ARMOR_STAND_HAS_ARMS.getQuery()).get());
-        }
-        if (container.contains(Keys.ARMOR_STAND_MARKER)) {
-            armorStandData.set(Keys.ARMOR_STAND_MARKER, container.getBoolean(Keys.ARMOR_STAND_MARKER.getQuery()).get());
-        }
-        if (container.contains(Keys.ARMOR_STAND_HAS_BASE_PLATE)) {
-            armorStandData.set(Keys.ARMOR_STAND_HAS_BASE_PLATE, container.getBoolean(Keys.ARMOR_STAND_HAS_BASE_PLATE.getQuery()).get());
-        }
-        if (container.contains(Keys.ARMOR_STAND_IS_SMALL)) {
-            armorStandData.set(Keys.ARMOR_STAND_IS_SMALL, container.getBoolean(Keys.ARMOR_STAND_IS_SMALL.getQuery()).get());
-        }
+    public Optional<ArmorStandData> fill(DataMap container, ArmorStandData armorStandData) {
+        container.getBoolean(Keys.ARMOR_STAND_HAS_ARMS.getQuery()).ifPresent(a ->
+                armorStandData.set(Keys.ARMOR_STAND_HAS_ARMS, a));
+        container.getBoolean(Keys.ARMOR_STAND_MARKER.getQuery()).ifPresent(m ->
+                armorStandData.set(Keys.ARMOR_STAND_MARKER, m));
+        container.getBoolean(Keys.ARMOR_STAND_HAS_BASE_PLATE.getQuery()).ifPresent(b ->
+                armorStandData.set(Keys.ARMOR_STAND_HAS_BASE_PLATE, b));
+        container.getBoolean(Keys.ARMOR_STAND_IS_SMALL.getQuery()).ifPresent(s ->
+                armorStandData.set(Keys.ARMOR_STAND_IS_SMALL, s));
         return Optional.of(armorStandData);
     }
 

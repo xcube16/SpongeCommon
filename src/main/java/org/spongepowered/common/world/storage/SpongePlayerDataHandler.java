@@ -30,8 +30,9 @@ import static com.google.common.base.Preconditions.checkState;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.world.WorldManager;
@@ -97,8 +98,8 @@ public final class SpongePlayerDataHandler {
                         throw new RuntimeException("Failed to decompress player data within [" + playerFile + "]!");
                     }
 
-                    DataContainer container = NbtTranslator.getInstance().translateFrom(compound);
-                    SpongePlayerData data = container.getSerializable(DataQuery.of(), SpongePlayerData.class).get();
+                    DataMap container = NbtTranslator.getInstance().translateFrom(compound);
+                    SpongePlayerData data = container.getSpongeObject(DataQuery.of(), SpongePlayerData.class).get();
                     handlerInstance.playerDataMap.put(data.uuid, data);
                 }
             }
@@ -125,7 +126,9 @@ public final class SpongePlayerDataHandler {
     }
 
     private static NBTTagCompound createCompoundFor(SpongePlayerData data) {
-        return NbtTranslator.getInstance().translateData(data.toContainer());
+        DataMap map = new MemoryDataMap();
+        data.toContainer(map);
+        return NbtTranslator.getInstance().translateData(map);
     }
 
     private static void saveFile(String id, NBTTagCompound compound) {

@@ -26,7 +26,7 @@ package org.spongepowered.common.data.manipulator.immutable.item;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableDurabilityData;
 import org.spongepowered.api.data.manipulator.mutable.item.DurabilityData;
@@ -89,9 +89,9 @@ public class ImmutableSpongeDurabilityData extends AbstractImmutableData<Immutab
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
-                .set(Keys.ITEM_DURABILITY, this.durability)
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.ITEM_DURABILITY, this.durability)
                 .set(Keys.UNBREAKABLE, this.unbreakable);
     }
 }

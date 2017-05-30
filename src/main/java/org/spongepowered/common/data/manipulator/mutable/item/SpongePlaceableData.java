@@ -48,7 +48,7 @@ public class SpongePlaceableData extends AbstractSingleSetData<BlockType, Placea
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
             .set(Keys.PLACEABLE_BLOCKS.getQuery(), getValue().stream()
                 .map(BlockType::getId)

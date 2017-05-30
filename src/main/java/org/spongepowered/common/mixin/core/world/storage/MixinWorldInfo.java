@@ -31,7 +31,6 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonParseException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.scoreboard.ServerScoreboard;
@@ -41,10 +40,11 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.storage.WorldInfo;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.data.persistence.DataFormats;
+import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.DimensionType;
@@ -561,8 +561,8 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     }
 
     @Override
-    public DataContainer toContainer() {
-        return NbtTranslator.getInstance().translateFrom(cloneNBTCompound(null));
+    public void toContainer(DataMap container) {
+        NbtTranslator.getInstance().translate(cloneNBTCompound(null), container);
     }
 
     @Override
@@ -710,14 +710,15 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     }
 
     @Override
-    public DataContainer getGeneratorSettings() {
-        // Minecraft uses a String, we want to return a fancy DataContainer
+    public DataMap getGeneratorSettings() {
+        // Minecraft uses a String, we want to return a fancy DataMap
         // Parse the world generator settings as JSON
         try {
-            return DataFormats.JSON.read(this.generatorOptions);
-        } catch (JsonParseException | IOException ignored) {
+            return DataFormats.JSON.read(new MemoryDataMap(), this.generatorOptions);
+        } catch (InvalidDataException | IOException ignored) {
         }
-        return DataContainer.createNew().set(DataQueries.WORLD_CUSTOM_SETTINGS, this.generatorOptions);
+        //TODO: this seems like a bed way to handle not being able to parse the json
+        return new MemoryDataMap().set(DataQueries.WORLD_CUSTOM_SETTINGS, this.generatorOptions);
     }
 
     @Override
@@ -731,18 +732,19 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     }
 
     @Override
-    public Optional<DataView> getPropertySection(DataQuery path) {
+    public Optional<DataMap> getPropertySection(DataQuery path) {
         if (this.spongeRootLevelNbt.hasKey(path.toString())) {
-            return Optional
-                    .<DataView>of(NbtTranslator.getInstance().translateFrom(this.spongeRootLevelNbt.getCompoundTag(path.toString())));
+            return Optional.of(NbtTranslator.getInstance().translate(
+                    this.spongeRootLevelNbt.getCompoundTag(path.toString()),
+                    new MemoryDataMap()));
         } else {
             return Optional.empty();
         }
     }
 
     @Override
-    public void setPropertySection(DataQuery path, DataView data) {
-        NBTTagCompound nbt = NbtTranslator.getInstance().translateData(data);
+    public void setPropertySection(DataQuery path, DataMap data) {
+        NBTTagCompound nbt = NbtTranslator.getInstance().translate(data);
         this.spongeRootLevelNbt.setTag(path.toString(), nbt);
     }
 
@@ -851,9 +853,9 @@ public abstract class MixinWorldInfo implements WorldProperties, IMixinWorldInfo
     }
 
     @Override
-    public DataContainer getAdditionalProperties() {
+    public DataMap getAdditionalProperties() {
         NBTTagCompound additionalProperties = this.spongeRootLevelNbt.copy();
         additionalProperties.removeTag(SpongeImpl.ECOSYSTEM_NAME);
-        return NbtTranslator.getInstance().translateFrom(additionalProperties);
+        return NbtTranslator.getInstance().translate(additionalProperties, new MemoryDataMap());
     }
 }

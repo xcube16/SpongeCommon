@@ -31,7 +31,8 @@ import com.google.common.collect.Lists;
 import net.minecraft.tileentity.TileEntitySign;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.WorldServer;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataList;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableSignData;
@@ -84,16 +85,17 @@ public class TileEntitySignDataProcessor
     }
 
     @Override
-    public Optional<SignData> fill(DataContainer container, SignData signData) {
-        if (!container.contains(Keys.SIGN_LINES.getQuery())) {
+    public Optional<SignData> fill(DataMap container, SignData signData) {
+        checkNotNull(signData);
+        Optional<DataList> lines = container.getList(Keys.SIGN_LINES.getQuery());
+        if (!lines.isPresent()) {
             return Optional.empty();
         }
-        checkNotNull(signData);
-        final List<String> lines = container.getStringList(Keys.SIGN_LINES.getQuery()).get();
+        //TODO: store Text directly in DataView
         final List<Text> textLines = Lists.newArrayListWithCapacity(4);
         try {
             for (int i = 0; i < 4; i++) {
-                textLines.set(i, TextSerializers.JSON.deserialize(lines.get(i)));
+                textLines.set(i, TextSerializers.JSON.deserialize(lines.get().getString(i).get()));
             }
         } catch (Exception e) {
             throw new InvalidDataException("Could not translate text json lines", e);

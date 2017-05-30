@@ -111,7 +111,7 @@ public class SpongeBeaconData extends AbstractData<BeaconData, ImmutableBeaconDa
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         DataContainer dataContainer = super.toContainer();
         if (this.primaryEffect != null) {
             dataContainer = dataContainer.set(Keys.BEACON_PRIMARY_EFFECT.getQuery(), this.primaryEffect.getId());

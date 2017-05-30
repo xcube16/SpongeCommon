@@ -54,7 +54,7 @@ public class ImmutableSpongeVelocityData extends AbstractImmutableSingleData<Vec
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
             .createView(Keys.VELOCITY.getQuery())
                 .set(Queries.POSITION_X, this.value.getX())

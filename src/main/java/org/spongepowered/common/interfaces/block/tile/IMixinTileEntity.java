@@ -27,6 +27,7 @@ package org.spongepowered.common.interfaces.block.tile;
 import co.aikar.timings.Timing;
 import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.block.tileentity.TileEntity;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.manipulator.DataManipulator;
@@ -75,14 +76,14 @@ public interface IMixinTileEntity {
 
     /**
      * Due to the nature of how {@link TileEntity} instances translate their
-     * data with {@link TileEntity#toContainer()}, all {@link DataManipulator}s
+     * data with {@link TileEntity#toContainer(DataMap)}, all {@link DataManipulator}s
      * are serialized under a {@link DataQuery} specified query from
      * {@link NbtDataUtil}. This is to help separate the real
      * required data such as position, tile type, etc. from data api manipulators.
      *
-     * @param dataView The data view to set all data api related data
+     * @param dataMap The data map to set all data api related data
      */
-    void sendDataToContainer(DataView dataView);
+    void sendDataToContainer(DataMap dataMap);
 
     void markDirty();
 

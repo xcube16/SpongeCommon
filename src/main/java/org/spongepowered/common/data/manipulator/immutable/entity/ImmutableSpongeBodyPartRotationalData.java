@@ -87,7 +87,7 @@ public class ImmutableSpongeBodyPartRotationalData extends AbstractImmutableData
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         Vector3d headRotation = this.rotations.get(BodyParts.HEAD);
         Vector3d chestRotation = this.rotations.get(BodyParts.CHEST);
         Vector3d leftArmRotation = this.rotations.get(BodyParts.LEFT_ARM);

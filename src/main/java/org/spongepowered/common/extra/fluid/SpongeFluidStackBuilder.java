@@ -29,13 +29,13 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
+import org.spongepowered.api.data.MemoryDataMap;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.extra.fluid.FluidStack;
 import org.spongepowered.api.extra.fluid.FluidStackSnapshot;
 import org.spongepowered.api.extra.fluid.FluidType;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.common.data.util.DataQueries;
 
 import java.util.Optional;
@@ -46,7 +46,7 @@ public class SpongeFluidStackBuilder extends AbstractDataBuilder<FluidStack> imp
 
     FluidType fluidType;
     int volume = 1;
-    @Nullable DataContainer extra; // we have to retain this information
+    @Nullable DataMap extra; // we have to retain this information
 
     public SpongeFluidStackBuilder() {
         super(FluidStack.class, 1);
@@ -70,10 +70,12 @@ public class SpongeFluidStackBuilder extends AbstractDataBuilder<FluidStack> imp
         checkArgument(fluidStackSnapshot instanceof SpongeFluidStackSnapshot, "Invalid implementation found of FluidStackSnapshot!");
         this.fluidType = fluidStackSnapshot.getFluid();
         this.volume = fluidStackSnapshot.getVolume();
-        final DataContainer container = fluidStackSnapshot.toContainer();
-        if (container.contains(DataQueries.UNSAFE_NBT)) {
-            this.extra = container.getView(DataQueries.UNSAFE_NBT).get().copy();
-        }
+
+        //TODO: I dont think using toContainer() to get extra is a good idea
+        DataMap datacontainer = new MemoryDataMap();
+        fluidStackSnapshot.toContainer(datacontainer);
+        datacontainer.getMap(DataQueries.UNSAFE_NBT).ifPresent(m ->
+                this.extra = m);
         return this;
     }
 
@@ -88,15 +90,17 @@ public class SpongeFluidStackBuilder extends AbstractDataBuilder<FluidStack> imp
     public FluidStack.Builder from(FluidStack value) {
         this.fluidType = value.getFluid();
         this.volume = value.getVolume();
-        final DataContainer container = value.toContainer();
-        if (container.contains(DataQueries.UNSAFE_NBT)) {
-            this.extra = container.getView(DataQueries.UNSAFE_NBT).get().copy();
-        }
+
+        //TODO: using toContainer() here feels wrong
+        DataMap datacontainer = new MemoryDataMap();
+        value.toContainer(datacontainer);
+        datacontainer.getMap(DataQueries.UNSAFE_NBT).ifPresent(m ->
+                this.extra = m);
         return this;
     }
 
     @Override
-    protected Optional<FluidStack> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<FluidStack> buildContent(DataMap container) {
         if (!container.contains(DataQueries.FLUID_TYPE, DataQueries.FLUID_VOLUME)) {
             return Optional.empty();
         }
@@ -108,11 +112,8 @@ public class SpongeFluidStackBuilder extends AbstractDataBuilder<FluidStack> imp
         }
         this.fluidType = fluidType.get();
         this.volume = container.getInt(DataQueries.FLUID_VOLUME).get();
-        if (container.contains(DataQueries.UNSAFE_NBT)) {
-            this.extra = container.getView(DataQueries.UNSAFE_NBT).get().copy();
-        } else {
-            this.extra = null;
-        }
+        container.getMap(DataQueries.UNSAFE_NBT).ifPresent(m ->
+                this.extra = m.copy());
         return Optional.of(build());
     }
 

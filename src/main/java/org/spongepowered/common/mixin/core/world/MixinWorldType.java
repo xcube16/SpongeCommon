@@ -32,7 +32,8 @@ import com.google.gson.JsonParseException;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.gen.ChunkProviderSettings;
 import net.minecraft.world.gen.FlatGeneratorInfo;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.api.world.GeneratorType;
 import org.spongepowered.api.world.World;
@@ -76,13 +77,13 @@ public abstract class MixinWorldType implements GeneratorType {
     }
 
     @Override
-    public DataContainer getGeneratorSettings() {
+    public DataMap getGeneratorSettings() {
         // Minecraft stores the generator settings as a string. For the flat
         // world, they use a custom format, for WorldType.CUSTOMIZED they use
         // a serialized JSON string
         if ((Object) this == WorldType.FLAT) {
             String defaultSettings = FlatGeneratorInfo.getDefaultFlatGenerator().toString();
-            return DataContainer.createNew().set(DataQueries.WORLD_CUSTOM_SETTINGS, defaultSettings);
+            return new MemoryDataMap().set(DataQueries.WORLD_CUSTOM_SETTINGS, defaultSettings);
         }
         if ((Object) this == WorldType.CUSTOMIZED) {
             // They easiest way to go from ChunkProviderSettings to DataContainer is via json and NBT
@@ -93,7 +94,7 @@ public abstract class MixinWorldType implements GeneratorType {
             }
         }
 
-        return DataContainer.createNew();
+        return new MemoryDataMap();
     }
 
     @Override

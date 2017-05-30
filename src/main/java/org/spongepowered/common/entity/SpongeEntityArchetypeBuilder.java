@@ -30,9 +30,9 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.spongepowered.api.entity.EntityTypes.UNKNOWN;
 
 import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
@@ -54,7 +54,7 @@ import java.util.Optional;
 public class SpongeEntityArchetypeBuilder extends AbstractDataBuilder<EntityArchetype> implements EntityArchetype.Builder {
 
     EntityType entityType = UNKNOWN;
-    DataContainer entityData;
+    DataMap entityData = new MemoryDataMap();
 
     public SpongeEntityArchetypeBuilder() {
         super(EntityArchetype.class, DataVersions.EntityArchetype.BASE_VERSION);
@@ -63,7 +63,7 @@ public class SpongeEntityArchetypeBuilder extends AbstractDataBuilder<EntityArch
     @Override
     public EntityArchetype.Builder reset() {
         this.entityType = UNKNOWN;
-        this.entityData = null;
+        this.entityData = new MemoryDataMap();
         return this;
     }
 
@@ -75,21 +75,12 @@ public class SpongeEntityArchetypeBuilder extends AbstractDataBuilder<EntityArch
     }
 
     @Override
-    protected Optional<EntityArchetype> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<EntityArchetype> buildContent(DataMap container) throws InvalidDataException {
         final SpongeEntityArchetypeBuilder builder = new SpongeEntityArchetypeBuilder();
-        if (container.contains(DataQueries.EntityArchetype.ENTITY_TYPE)) {
-            builder.type(container.getCatalogType(DataQueries.EntityArchetype.ENTITY_TYPE, EntityType.class)
-                    .orElseThrow(() -> new InvalidDataException("Could not deserialize a TileEntityType!"))
-            );
-        } else {
-            throw new InvalidDataException("Missing the TileEntityType and BlockState! Cannot re-construct a TileEntityArchetype!");
-        }
-
-        if (container.contains(DataQueries.EntityArchetype.ENTITY_DATA)) {
-            builder.entityData(container.getView(DataQueries.EntityArchetype.ENTITY_DATA)
-                    .orElseThrow(() -> new InvalidDataException("No DataView found for the TileEntity data tag!"))
-            );
-        }
+        builder.type(container.getSpongeObject(DataQueries.EntityArchetype.ENTITY_TYPE, EntityType.class)
+                .orElseThrow(() -> new InvalidDataException("Could not deserialize a TileEntityType!")));
+        builder.entityData(container.getMap(DataQueries.EntityArchetype.ENTITY_DATA)
+                .orElseThrow(() -> new InvalidDataException("No DataView found for the TileEntity data tag!")));
         return Optional.of(builder.build());
     }
 
@@ -98,7 +89,7 @@ public class SpongeEntityArchetypeBuilder extends AbstractDataBuilder<EntityArch
         checkNotNull(type, "EntityType cannot be null!");
         checkArgument(type != UNKNOWN, "EntityType cannot be set to UNKNOWN!");
         if (this.entityType != type) {
-            this.entityData = null;
+            this.entityData = new MemoryDataMap();
         }
         this.entityType = type;
         return this;
@@ -117,9 +108,9 @@ public class SpongeEntityArchetypeBuilder extends AbstractDataBuilder<EntityArch
     }
 
     @Override
-    public EntityArchetype.Builder entityData(DataView view) {
-        checkNotNull(view, "Provided DataView cannot be null!");
-        final DataContainer copy = view.copy();
+    public EntityArchetype.Builder entityData(DataMap view) {
+        checkNotNull(view, "Provided DataMap cannot be null!");
+        final DataMap copy = view.copy();
         DataUtil.getValidators(Validations.ENTITY).validate(copy);
         this.entityData = copy;
         return this;
@@ -128,9 +119,6 @@ public class SpongeEntityArchetypeBuilder extends AbstractDataBuilder<EntityArch
     @SuppressWarnings("unchecked")
     @Override
     public EntityArchetype.Builder setData(DataManipulator<?, ?> manipulator) {
-        if (this.entityData == null) {
-            this.entityData = DataContainer.createNew();
-        }
         DataUtil.getRawNbtProcessor(NbtDataTypes.ENTITY, manipulator.getClass())
                 .ifPresent(processor -> processor.storeToView(this.entityData, manipulator));
         return this;
@@ -139,9 +127,6 @@ public class SpongeEntityArchetypeBuilder extends AbstractDataBuilder<EntityArch
     @SuppressWarnings("unchecked")
     @Override
     public <E, V extends BaseValue<E>> EntityArchetype.Builder set(V value) {
-        if (this.entityData == null) {
-            this.entityData = DataContainer.createNew();
-        }
         DataUtil.getRawNbtProcessor(NbtDataTypes.TILE_ENTITY, value.getKey())
                 .ifPresent(processor -> processor.offer(this.entityData, value));
         return this;
@@ -150,9 +135,6 @@ public class SpongeEntityArchetypeBuilder extends AbstractDataBuilder<EntityArch
     @SuppressWarnings("unchecked")
     @Override
     public <E, V extends BaseValue<E>> EntityArchetype.Builder set(Key<V> key, E value) {
-        if (this.entityData == null) {
-            this.entityData = DataContainer.createNew();
-        }
         DataUtil.getRawNbtProcessor(NbtDataTypes.TILE_ENTITY, key)
                 .ifPresent(processor -> processor.offer(this.entityData, value));
         return this;
@@ -160,14 +142,9 @@ public class SpongeEntityArchetypeBuilder extends AbstractDataBuilder<EntityArch
 
     @Override
     public EntityArchetype build() {
-        checkNotNull(this.entityType);
         checkState(this.entityType != UNKNOWN);
-        if(this.entityData == null) {
-            this.entityData = DataContainer.createNew();
-        } else {
-            this.entityData.remove(DataQuery.of("Pos"));
-            this.entityData.remove(DataQuery.of("UUID"));
-        }
+        this.entityData.remove(DataQuery.of("Pos"));
+        this.entityData.remove(DataQuery.of("UUID"));
         return new SpongeEntityArchetype(this);
     }
 }

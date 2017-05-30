@@ -33,7 +33,8 @@ import org.spongepowered.api.block.BlockSnapshot;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.tileentity.TileEntityArchetype;
 import org.spongepowered.api.block.tileentity.TileEntityType;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.BlockChangeFlag;
 import org.spongepowered.api.world.Location;
@@ -70,8 +71,8 @@ public class SpongeTileEntityArchetype extends AbstractArchetype<TileEntityType,
     }
 
     @Override
-    public DataContainer getTileData() {
-        return NbtTranslator.getInstance().translateFrom(this.data);
+    public void getTileData(DataMap container) {
+        NbtTranslator.getInstance().translate(this.data, container);
     }
 
     @Override
@@ -115,12 +116,10 @@ public class SpongeTileEntityArchetype extends AbstractArchetype<TileEntityType,
     }
 
     @Override
-    public DataContainer toContainer() {
-        return DataContainer.createNew()
-                .set(DataQueries.TileEntityArchetype.TILE_TYPE, this.type)
-                .set(DataQueries.TileEntityArchetype.BLOCK_STATE, this.blockState)
-                .set(DataQueries.TileEntityArchetype.TILE_DATA, getTileData())
-                ;
+    public void toContainer(DataMap container) {
+        container.set(DataQueries.TileEntityArchetype.TILE_TYPE, this.type)
+                .set(DataQueries.TileEntityArchetype.BLOCK_STATE, this.blockState);
+        getTileData(container.createMap(DataQueries.TileEntityArchetype.TILE_DATA));
     }
 
     @Override
@@ -137,7 +136,7 @@ public class SpongeTileEntityArchetype extends AbstractArchetype<TileEntityType,
     public TileEntityArchetype copy() {
         final SpongeTileEntityArchetypeBuilder builder = new SpongeTileEntityArchetypeBuilder();
         builder.tileEntityType = this.type;
-        builder.tileData = NbtTranslator.getInstance().translate(this.data);
+        builder.tileData = NbtTranslator.getInstance().translate(this.data, new MemoryDataMap());
         builder.blockState = this.blockState;
         return builder.build();
     }

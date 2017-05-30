@@ -48,7 +48,7 @@ public class SpongeSignData extends AbstractListData<Text, SignData, ImmutableSi
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
             .set(Keys.SIGN_LINES.getQuery(), this.asList().stream()
                 .map(TextSerializers.JSON::serialize)

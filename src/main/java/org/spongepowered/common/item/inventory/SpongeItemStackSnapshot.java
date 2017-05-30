@@ -32,7 +32,7 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.GameDictionary;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.Queries;
@@ -165,19 +165,18 @@ public class SpongeItemStackSnapshot implements ItemStackSnapshot {
     }
 
     @Override
-    public DataContainer toContainer() {
-        final DataContainer container = DataContainer.createNew()
+    public void toContainer(DataMap container) {
+        container
             .set(Queries.CONTENT_VERSION, getContentVersion())
             .set(DataQueries.ITEM_TYPE, this.itemType.getId())
             .set(DataQueries.ITEM_COUNT, this.count)
             .set(DataQueries.ITEM_DAMAGE_VALUE, this.damageValue);
         if (!this.manipulators.isEmpty()) {
-            container.set(DataQueries.DATA_MANIPULATORS, DataUtil.getSerializedImmutableManipulatorList(this.manipulators));
+            DataUtil.serializeImmutableManipulatorList(container.createList(DataQueries.DATA_MANIPULATORS), this.manipulators);
         }
         if (this.compound != null) {
-            container.set(DataQueries.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(this.compound));
+            NbtTranslator.getInstance().translate(this.compound, container.createMap(DataQueries.UNSAFE_NBT));
         }
-        return container;
     }
 
     @Override

@@ -32,6 +32,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.data.Archetype;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.LocatableSnapshot;
@@ -72,14 +73,14 @@ public abstract class AbstractArchetype<C extends CatalogType, S extends Locatab
     protected abstract ValidationType getValidationType();
 
     @Override
-    public boolean validateRawData(DataView container) {
+    public boolean validateRawData(DataMap container) {
         return DataUtil.getValidators(this.getValidationType()).validate(container);
     }
 
     @Override
-    public void setRawData(DataView container) throws InvalidDataException {
+    public void setRawData(DataMap container) throws InvalidDataException {
         checkNotNull(container, "Raw data cannot be null!");
-        final NBTTagCompound copy = NbtTranslator.getInstance().translateData(container);
+        final NBTTagCompound copy = NbtTranslator.getInstance().translate(container);
         DataUtil.getValidators(this.getValidationType()).validate(copy);
         this.data = copy;
     }

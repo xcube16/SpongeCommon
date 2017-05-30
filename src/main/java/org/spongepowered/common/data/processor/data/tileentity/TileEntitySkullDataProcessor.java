@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.processor.data.tileentity;
 
 import net.minecraft.tileentity.TileEntitySkull;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableSkullData;
@@ -35,12 +35,10 @@ import org.spongepowered.api.data.type.SkullTypes;
 import org.spongepowered.api.data.value.ValueContainer;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.data.value.mutable.Value;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.manipulator.mutable.SpongeSkullData;
 import org.spongepowered.common.data.processor.common.AbstractTileEntitySingleDataProcessor;
 import org.spongepowered.common.data.processor.common.SkullUtils;
 import org.spongepowered.common.data.type.SpongeSkullType;
-import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeValue;
 import org.spongepowered.common.data.value.mutable.SpongeValue;
 
@@ -64,9 +62,10 @@ public class TileEntitySkullDataProcessor
     }
 
     @Override
-    public Optional<SkullData> fill(DataContainer container, SkullData skullData) {
-        return Optional.of(skullData.set(Keys.SKULL_TYPE, SpongeImpl.getGame().getRegistry()
-                .getType(SkullType.class, DataUtil.getData(container, Keys.SKULL_TYPE, String.class)).get()));
+    public Optional<SkullData> fill(DataMap container, SkullData skullData) {
+        container.getSpongeObject(Keys.SKULL_TYPE.getQuery(), SkullType.class).ifPresent(t ->
+                skullData.set(Keys.SKULL_TYPE, t));
+        return Optional.of(skullData);
     }
 
     @Override

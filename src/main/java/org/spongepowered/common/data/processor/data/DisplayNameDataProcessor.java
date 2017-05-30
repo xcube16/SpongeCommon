@@ -31,8 +31,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.IWorldNameable;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -50,7 +50,6 @@ import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.manipulator.immutable.ImmutableSpongeDisplayNameData;
 import org.spongepowered.common.data.manipulator.mutable.SpongeDisplayNameData;
 import org.spongepowered.common.data.processor.common.AbstractSingleDataProcessor;
-import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 import org.spongepowered.common.text.SpongeTexts;
@@ -120,9 +119,11 @@ public class DisplayNameDataProcessor extends AbstractSingleDataProcessor<Text, 
     }
 
     @Override
-    public Optional<DisplayNameData> fill(DataContainer container, DisplayNameData displayNameData) {
-        final String json = DataUtil.getData(container, Keys.DISPLAY_NAME, String.class);
-        return Optional.of(displayNameData.set(Keys.DISPLAY_NAME, TextSerializers.JSON.deserialize(json)));
+    public Optional<DisplayNameData> fill(DataMap container, DisplayNameData displayNameData) {
+        //TODO: store Text in DataView directly
+        container.getString(Keys.DISPLAY_NAME.getQuery()).ifPresent(n ->
+                displayNameData.set(Keys.DISPLAY_NAME, TextSerializers.JSON.deserialize(n)));
+        return Optional.of(displayNameData);
     }
 
     @Override

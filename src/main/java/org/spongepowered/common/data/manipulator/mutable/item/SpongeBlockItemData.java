@@ -51,7 +51,7 @@ public class SpongeBlockItemData extends AbstractSingleData<BlockState, BlockIte
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
             .set(Keys.ITEM_BLOCKSTATE, this.getValue());
     }

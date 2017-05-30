@@ -37,7 +37,7 @@ import com.google.common.collect.ImmutableTable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Multimap;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.DataRegistrationNotFoundException;
 import org.spongepowered.api.data.key.Key;
@@ -314,14 +314,14 @@ public class SpongeManipulatorRegistry {
         // DataManipulatorBuilders part 2 (Have to register them back for serialization stuff
         this.dataProcessorDelegates.forEach((key, value) -> {
             if (!Modifier.isInterface(key.getModifiers()) && !Modifier.isAbstract(key.getModifiers())) {
-                DataFunction<DataContainer, DataManipulator, Optional<? extends DataManipulator<?, ?>>> function =
+                DataFunction<DataMap, DataManipulator, Optional<? extends DataManipulator<?, ?>>> function =
                     ((DataProcessor) value)::fill;
                 SpongeDataManipulatorBuilder builder = new SpongeDataManipulatorBuilder(value, key, function);
                 manager.builderMap.put(key, checkNotNull(builder));
                 manager.registerBuilder(key, builder);
             } else {
                 final Class<? extends DataManipulator<?, ?>> clazz = this.interfaceToImplDataManipulatorClasses.get(key);
-                DataFunction<DataContainer, DataManipulator, Optional<? extends DataManipulator<?, ?>>> function =
+                DataFunction<DataMap, DataManipulator, Optional<? extends DataManipulator<?, ?>>> function =
                     ((DataProcessor) value)::fill;
                 SpongeDataManipulatorBuilder builder = new SpongeDataManipulatorBuilder(value, clazz, function);
                 manager.builderMap.put(key, checkNotNull(builder));

@@ -24,12 +24,10 @@
  */
 package org.spongepowered.common.data.processor.multi.entity;
 
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.item.EntityItem;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -37,7 +35,6 @@ import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableDespawnD
 import org.spongepowered.api.data.manipulator.mutable.entity.DespawnDelayData;
 import org.spongepowered.common.data.manipulator.mutable.entity.SpongeDespawnDelayData;
 import org.spongepowered.common.data.processor.common.AbstractEntityDataProcessor;
-import org.spongepowered.common.data.processor.common.AbstractMultiDataSingleTargetProcessor;
 import org.spongepowered.common.interfaces.entity.item.IMixinEntityItem;
 
 import java.util.Map;
@@ -77,9 +74,11 @@ public final class DespawnDelayDataProcessor extends AbstractEntityDataProcessor
     }
 
     @Override
-    public Optional<DespawnDelayData> fill(DataContainer container, DespawnDelayData data) {
-        data.set(Keys.DESPAWN_DELAY, getData(container, Keys.DESPAWN_DELAY));
-        data.set(Keys.INFINITE_DESPAWN_DELAY, getData(container, Keys.INFINITE_DESPAWN_DELAY));
+    public Optional<DespawnDelayData> fill(DataMap container, DespawnDelayData data) {
+        container.getInt(Keys.DESPAWN_DELAY.getQuery()).ifPresent(d ->
+                data.set(Keys.DESPAWN_DELAY, d));
+        container.getBoolean(Keys.INFINITE_DESPAWN_DELAY.getQuery()).ifPresent(d ->
+                data.set(Keys.INFINITE_DESPAWN_DELAY, d));
         return Optional.of(data);
     }
 

@@ -24,15 +24,11 @@
  */
 package org.spongepowered.common.mixin.core.tileentity;
 
-import static org.spongepowered.api.data.DataQuery.of;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.tileentity.TileEntityBeacon;
-import net.minecraft.tileentity.TileEntityFurnace;
 import org.spongepowered.api.block.tileentity.carrier.Beacon;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -88,17 +84,17 @@ public abstract class MixinTileEntityBeacon extends MixinTileEntityLockable impl
 
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
-        container.set(of("effect1"), getField(1));
-        container.set(of("effect2"), getField(2));
-        return container;
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set("effect1", getField(1))
+                .set("effect2", getField(2));
     }
 
     @Override
-    public void sendDataToContainer(DataView dataView) {
-        dataView.set(of("effect1"), getField(1));
-        dataView.set(of("effect2"), getField(2));
+    public void sendDataToContainer(DataMap dataView) {
+        //TODO: I don't understand... Why do we need this method? (it is duplicate code anyway)
+        dataView.set("effect1", getField(1));
+        dataView.set("effect2", getField(2));
     }
 
     @Override

@@ -32,7 +32,8 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.WorldSettings;
 import net.minecraft.world.WorldType;
 import net.minecraft.world.storage.WorldInfo;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.data.persistence.DataFormats;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
@@ -83,7 +84,7 @@ public abstract class MixinWorldSettings implements WorldArchetype, IMixinWorldS
     private DimensionType dimensionType = DimensionTypes.OVERWORLD;
     private Difficulty difficulty = Difficulties.NORMAL;
     private SerializationBehavior serializationBehavior = SerializationBehaviors.AUTOMATIC;
-    private DataContainer generatorSettings = DataContainer.createNew();
+    private DataMap generatorSettings = new MemoryDataMap();
     private boolean isEnabled = true;
     private boolean loadOnStartup = true;
     private boolean keepSpawnLoaded = true;
@@ -135,16 +136,13 @@ public abstract class MixinWorldSettings implements WorldArchetype, IMixinWorldS
     public void onSetGeneratorOptions(String generatorOptions, CallbackInfoReturnable<WorldSettings> cir) {
         // Minecraft uses a String, we want to return a fancy DataContainer
         // Parse the world generator settings as JSON
-        DataContainer settings = null;
+        this.generatorSettings.clear();
         try {
-            settings = DataFormats.JSON.read(generatorOptions);
+            DataFormats.JSON.read(this.generatorSettings, generatorOptions);
         } catch (JsonParseException | IOException ignored) {
+            // not json, assume custom
+            generatorSettings.set(DataQueries.WORLD_CUSTOM_SETTINGS, generatorOptions);
         }
-        // If null, assume custom
-        if (settings == null) {
-            settings = DataContainer.createNew().set(DataQueries.WORLD_CUSTOM_SETTINGS, generatorOptions);
-        }
-        this.generatorSettings = settings;
     }
 
     @Override
@@ -201,7 +199,7 @@ public abstract class MixinWorldSettings implements WorldArchetype, IMixinWorldS
     }
 
     @Override
-    public DataContainer getGeneratorSettings() {
+    public DataMap getGeneratorSettings() {
         return this.generatorSettings;
     }
 
@@ -291,7 +289,7 @@ public abstract class MixinWorldSettings implements WorldArchetype, IMixinWorldS
     }
 
     @Override
-    public void setGeneratorSettings(DataContainer generatorSettings) {
+    public void setGeneratorSettings(DataMap generatorSettings) {
         this.generatorSettings = generatorSettings;
     }
 

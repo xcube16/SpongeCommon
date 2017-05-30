@@ -49,7 +49,7 @@ public class ImmutableSpongeSignData extends AbstractImmutableListData<Text, Imm
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
             .set(Keys.SIGN_LINES.getQuery(), this.getValue()
                 .stream()

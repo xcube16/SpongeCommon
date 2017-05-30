@@ -25,6 +25,7 @@
 package org.spongepowered.common.util.persistence.data;
 
 import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.Queries;
@@ -51,7 +52,7 @@ public class FakeSerializable implements DataSerializable {
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         DataContainer container = DataContainer.createNew();
         container.set(Queries.CONTENT_VERSION, getContentVersion());
         container.set(DataQuery.of("foo"), this.foo);

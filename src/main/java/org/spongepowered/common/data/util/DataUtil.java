@@ -90,6 +90,7 @@ public final class DataUtil {
     }
 
     //TODO: remove?
+    @Deprecated
     public static DataView checkDataExists(final DataView dataView, final DataQuery query) throws InvalidDataException {
         if (!checkNotNull(dataView).contains(checkNotNull(query))) {
             throw new InvalidDataException("Missing data for query: " + query.asString('.'));

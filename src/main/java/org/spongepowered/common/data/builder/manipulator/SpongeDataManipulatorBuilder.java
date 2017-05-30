@@ -27,9 +27,8 @@ package org.spongepowered.common.data.builder.manipulator;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.DataManipulatorBuilder;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
@@ -48,9 +47,10 @@ public final class SpongeDataManipulatorBuilder<T extends DataManipulator<T, I>,
     private final DataProcessorDelegate<T, I> delegate;
     private final Class<T> manipulatorClass;
     private final Constructor<T> constructor;
-    private final DataFunction<DataContainer, T, Optional<T>> buildFunction;
+    private final DataFunction<DataMap, T, Optional<T>> buildFunction;
 
-    public SpongeDataManipulatorBuilder(DataProcessorDelegate<T, I> delegate, Class<T> manipulatorClass, DataFunction<DataContainer, T, Optional<T>> buildFunction) {
+    public SpongeDataManipulatorBuilder(DataProcessorDelegate<T, I> delegate, Class<T> manipulatorClass, DataFunction<DataMap, T, Optional<T>>
+            buildFunction) {
         this.delegate = checkNotNull(delegate);
         checkNotNull(manipulatorClass);
         checkArgument(!Modifier.isAbstract(manipulatorClass.getModifiers()));
@@ -79,13 +79,7 @@ public final class SpongeDataManipulatorBuilder<T extends DataManipulator<T, I>,
     }
 
     @Override
-    public Optional<T> build(DataView container) throws InvalidDataException {
-        final DataContainer usedContainer;
-        if (container instanceof DataContainer) {
-            usedContainer = (DataContainer) container;
-        } else {
-            usedContainer = container.copy();
-        }
-        return this.buildFunction.apply(usedContainer, create());
+    public Optional<T> build(DataMap container) throws InvalidDataException {
+        return this.buildFunction.apply(container, create());
     }
 }

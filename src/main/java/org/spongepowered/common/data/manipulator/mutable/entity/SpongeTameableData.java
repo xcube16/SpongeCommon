@@ -68,7 +68,7 @@ public class SpongeTameableData extends AbstractData<TameableData, ImmutableTame
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         final String uuid = this.owner == null ? "none" : this.owner.toString();
         return super.toContainer()
                 .set(Keys.TAMED_OWNER.getQuery(), uuid);

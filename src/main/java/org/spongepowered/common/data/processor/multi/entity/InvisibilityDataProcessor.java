@@ -26,8 +26,8 @@ package org.spongepowered.common.data.processor.multi.entity;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.Entity;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -88,7 +88,8 @@ public class InvisibilityDataProcessor
     }
 
     @Override
-    public Optional<InvisibilityData> fill(DataContainer container, InvisibilityData invisibilityData) {
+    public Optional<InvisibilityData> fill(DataMap container, InvisibilityData invisibilityData) {
+        //TODO: Does'nt InvisibilityData have default values? (could replace the orElse()'s with ifPresent()'s)
         final boolean vanished = container.getBoolean(Keys.VANISH.getQuery()).orElse(false);
         final boolean invisible = container.getBoolean(Keys.INVISIBLE.getQuery()).orElse(false);
         final boolean collision = container.getBoolean(Keys.VANISH_IGNORES_COLLISION.getQuery()).orElse(false);

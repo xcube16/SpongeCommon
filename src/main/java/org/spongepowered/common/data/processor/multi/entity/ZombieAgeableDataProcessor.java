@@ -24,14 +24,10 @@
  */
 package org.spongepowered.common.data.processor.multi.entity;
 
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.monster.EntityZombie;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -79,12 +75,14 @@ public class ZombieAgeableDataProcessor extends AbstractEntityDataProcessor<Enti
     }
 
     @Override
-    public Optional<AgeableData> fill(DataContainer container, AgeableData ageableData) {
-        if (!container.contains(Keys.AGE.getQuery()) || !container.contains(Keys.IS_ADULT.getQuery())) {
+    public Optional<AgeableData> fill(DataMap container, AgeableData ageableData) {
+        Optional<Integer> age = container.getInt(Keys.AGE.getQuery());
+        Optional<Boolean> adult = container.getBoolean(Keys.IS_ADULT.getQuery());
+        if (!age.isPresent() || !adult.isPresent()) {
             return Optional.empty();
         }
-        ageableData.set(Keys.AGE, getData(container, Keys.AGE));
-        ageableData.set(Keys.IS_ADULT, getData(container, Keys.IS_ADULT));
+        ageableData.set(Keys.AGE, age.get());
+        ageableData.set(Keys.IS_ADULT, adult.get());
         return Optional.of(ageableData);
     }
 

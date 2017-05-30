@@ -87,7 +87,7 @@ public class SpongeWireAttachementData extends AbstractData<WireAttachmentData, 
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
             .set(Keys.WIRE_ATTACHMENTS.getQuery(), this.wireAttachmentMap)
             .set(Keys.WIRE_ATTACHMENT_NORTH.getQuery(), this.wireAttachmentMap.get(Direction.NORTH).getId())

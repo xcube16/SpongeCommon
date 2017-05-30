@@ -27,7 +27,7 @@ package org.spongepowered.common.world;
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.base.Objects;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
@@ -90,9 +90,9 @@ public class SpongeLocatableBlock implements LocatableBlock {
     }
 
     @Override
-    public DataContainer toContainer() {
-        return DataContainer.createNew()
-                .set(Queries.CONTENT_VERSION, 1)
+    public void toContainer(DataMap container) {
+        container
+                .set(Queries.CONTENT_VERSION, getContentVersion())
                 .set(Queries.WORLD_ID, this.worldId)
                 .set(Queries.POSITION_X, this.position.getX())
                 .set(Queries.POSITION_Y, this.position.getY())

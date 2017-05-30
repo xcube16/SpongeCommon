@@ -103,7 +103,7 @@ public class SpongeHideData extends AbstractData<HideData, ImmutableHideData> im
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
                 .set(Keys.HIDE_ENCHANTMENTS, this.enchantments)
                 .set(Keys.HIDE_ATTRIBUTES, this.attributes)

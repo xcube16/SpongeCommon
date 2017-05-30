@@ -30,7 +30,8 @@ import net.minecraft.entity.EntityLiving;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.WorldServer;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.entity.EntityArchetype;
 import org.spongepowered.api.entity.EntitySnapshot;
 import org.spongepowered.api.entity.EntityType;
@@ -67,8 +68,8 @@ public class SpongeEntityArchetype extends AbstractArchetype<EntityType, EntityS
     }
 
     @Override
-    public DataContainer getEntityData() {
-        return NbtTranslator.getInstance().translateFrom(this.data);
+    public DataMap getEntityData() {
+        return NbtTranslator.getInstance().translate(this.data, new MemoryDataMap());
     }
 
     @SuppressWarnings("unchecked")
@@ -142,11 +143,9 @@ public class SpongeEntityArchetype extends AbstractArchetype<EntityType, EntityS
     }
 
     @Override
-    public DataContainer toContainer() {
-        return DataContainer.createNew()
-                .set(DataQueries.EntityArchetype.ENTITY_TYPE, this.type)
-                .set(DataQueries.EntityArchetype.ENTITY_DATA, getEntityData())
-                ;
+    public void toContainer(DataMap container) {
+        container.set(DataQueries.EntityArchetype.ENTITY_TYPE, this.type)
+                .set(DataQueries.EntityArchetype.ENTITY_DATA, getEntityData());
     }
 
     @Override

@@ -63,7 +63,7 @@ public abstract class MixinTileEntityCommandBlock extends MixinTileEntity implem
 
     @Override
     @SuppressWarnings("deprecated")
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         DataContainer container = super.toContainer();
         container.set(of("StoredCommand"), this.getCommandBlockLogic().getCommand());
         container.set(of("SuccessCount"), this.getCommandBlockLogic().getSuccessCount());

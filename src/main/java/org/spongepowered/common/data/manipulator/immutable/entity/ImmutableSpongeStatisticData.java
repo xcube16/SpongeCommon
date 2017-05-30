@@ -24,7 +24,7 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableStatisticData;
 import org.spongepowered.api.data.manipulator.mutable.entity.StatisticData;
@@ -51,8 +51,9 @@ public class ImmutableSpongeStatisticData extends AbstractImmutableMappedData<St
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer().set(Keys.STATISTICS, getValue());
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.STATISTICS, getValue());
     }
 
 }

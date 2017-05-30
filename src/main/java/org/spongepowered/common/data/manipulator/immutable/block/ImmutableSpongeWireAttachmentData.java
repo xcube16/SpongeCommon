@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.immutable.block;
 
 import com.google.common.collect.ImmutableMap;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.block.ImmutableWireAttachmentData;
 import org.spongepowered.api.data.manipulator.mutable.block.WireAttachmentData;
@@ -95,8 +95,9 @@ public class ImmutableSpongeWireAttachmentData extends AbstractImmutableData<Imm
     }
 
     @Override
-    public DataContainer toContainer() {
-        return super.toContainer()
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container
             .set(Keys.WIRE_ATTACHMENTS.getQuery(), this.wireAttachmentMap.entrySet().stream()
                 .collect(Collectors.toMap(k -> k.getKey().name(), v -> v.getValue().getId())))
             .set(Keys.WIRE_ATTACHMENT_NORTH.getQuery(), this.wireAttachmentMap.get(Direction.NORTH).getId())

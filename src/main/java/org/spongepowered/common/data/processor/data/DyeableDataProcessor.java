@@ -34,9 +34,8 @@ import net.minecraft.init.Items;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -101,13 +100,9 @@ public class DyeableDataProcessor extends AbstractSingleDataProcessor<DyeColor, 
     }
 
     @Override
-    public Optional<DyeableData> fill(DataContainer container, DyeableData dyeableData) {
-        Optional<String> id = container.getString(Keys.DYE_COLOR.getQuery());
-        if (id.isPresent()) {
-            dyeableData.set(Keys.DYE_COLOR, Sponge.getGame().getRegistry().getType(DyeColor.class, id.get()).get());
-            return Optional.of(dyeableData);
-        }
-        return Optional.empty();
+    public Optional<DyeableData> fill(DataMap container, DyeableData dyeableData) {
+        return container.getSpongeObject(Keys.DYE_COLOR.getQuery(), DyeColor.class).map(c ->
+                dyeableData.set(Keys.DYE_COLOR, c));
     }
 
     @Override

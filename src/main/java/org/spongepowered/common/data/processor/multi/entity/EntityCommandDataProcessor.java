@@ -27,8 +27,8 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.Maps;
 import net.minecraft.entity.item.EntityMinecartCommandBlock;
 import net.minecraft.tileentity.CommandBlockBaseLogic;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -49,24 +49,18 @@ public class EntityCommandDataProcessor extends AbstractEntityDataProcessor<Enti
     }
 
     @Override
-    public Optional<CommandData> fill(DataContainer container, CommandData commandData) {
-        if (!container.contains(
-                Keys.LAST_COMMAND_OUTPUT.getQuery(), 
-                Keys.SUCCESS_COUNT.getQuery(), 
-                Keys.COMMAND.getQuery(), 
-                Keys.TRACKS_OUTPUT.getQuery())) {
+    public Optional<CommandData> fill(DataMap container, CommandData commandData) {
+        Optional<Integer> successCount = container.getInt(Keys.SUCCESS_COUNT.getQuery());
+        Optional<String> command = container.getString(Keys.COMMAND.getQuery());
+        Optional<Boolean> tracksOutput = container.getBoolean(Keys.TRACKS_OUTPUT.getQuery());
+        if (!successCount.isPresent() || !command.isPresent() || !tracksOutput.isPresent()) {
             return Optional.empty();
         }
-        @SuppressWarnings("unchecked")
-        Optional<Text> lastCommandOutput = (Optional<Text>) container.get(Keys.LAST_COMMAND_OUTPUT.getQuery()).get();
-        int successCount = container.getInt(Keys.SUCCESS_COUNT.getQuery()).get();
-        String command = container.getString(Keys.COMMAND.getQuery()).get();
-        boolean tracksOutput = container.getBoolean(Keys.TRACKS_OUTPUT.getQuery()).get();
-        
-        commandData.set(Keys.LAST_COMMAND_OUTPUT, lastCommandOutput);
-        commandData.set(Keys.SUCCESS_COUNT, successCount);
-        commandData.set(Keys.COMMAND, command);
-        commandData.set(Keys.TRACKS_OUTPUT, tracksOutput);
+        // just give Optional directly to LAST_COMMAND_OUTPUT as it is an OptionalValue
+        commandData.set(Keys.LAST_COMMAND_OUTPUT, container.getSpongeObject(Keys.LAST_COMMAND_OUTPUT.getQuery(), Text.class));
+        commandData.set(Keys.SUCCESS_COUNT, successCount.get());
+        commandData.set(Keys.COMMAND, command.get());
+        commandData.set(Keys.TRACKS_OUTPUT, tracksOutput.get());
         return Optional.of(commandData);
     }
 

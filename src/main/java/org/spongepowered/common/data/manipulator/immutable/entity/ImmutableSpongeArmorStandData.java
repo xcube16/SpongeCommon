@@ -103,7 +103,7 @@ public class ImmutableSpongeArmorStandData extends AbstractImmutableData<Immutab
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
                 .set(Keys.ARMOR_STAND_HAS_ARMS, this.arms)
                 .set(Keys.ARMOR_STAND_HAS_BASE_PLATE, this.basePlate)

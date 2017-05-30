@@ -52,7 +52,7 @@ public class ImmutableSpongeAchievementData extends AbstractImmutableSingleSetDa
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer().set(Keys.ACHIEVEMENTS, getValue());
     }
 

@@ -175,7 +175,7 @@ public class SpongeEntitySnapshot implements EntitySnapshot {
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         final List<DataView> dataList = DataUtil.getSerializedImmutableManipulatorList(this.manipulators);
         final DataContainer container = DataContainer.createNew()
             .set(Queries.CONTENT_VERSION, getContentVersion())

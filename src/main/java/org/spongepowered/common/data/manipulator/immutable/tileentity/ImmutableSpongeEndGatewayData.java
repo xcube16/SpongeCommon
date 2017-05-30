@@ -112,7 +112,7 @@ public final class ImmutableSpongeEndGatewayData extends AbstractImmutableData<I
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
             .set(Keys.EXIT_POSITION.getQuery(), this.exitPortal)
             .set(Keys.EXACT_TELEPORT.getQuery(), this.exactTeleport)

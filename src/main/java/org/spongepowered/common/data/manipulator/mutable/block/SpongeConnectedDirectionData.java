@@ -92,7 +92,7 @@ public class SpongeConnectedDirectionData extends AbstractData<ConnectedDirectio
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
                 .set(Keys.CONNECTED_DIRECTIONS.getQuery(), this.connectedDirections)
                 .set(Keys.CONNECTED_NORTH.getQuery(), this.connectedDirections.contains(Direction.NORTH))

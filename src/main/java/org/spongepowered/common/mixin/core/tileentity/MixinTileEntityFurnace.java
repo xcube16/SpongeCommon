@@ -68,7 +68,7 @@ public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable imp
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         DataContainer container = super.toContainer();
         container.set(of("BurnTime"), this.getField(0));
         container.set(of("BurnTimeTotal"), this.getField(1));

@@ -27,8 +27,8 @@ package org.spongepowered.common.data.processor.multi.tileentity;
 import com.google.common.collect.Maps;
 import net.minecraft.tileentity.TileEntityFurnace;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -39,7 +39,6 @@ import org.spongepowered.api.world.World;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.manipulator.mutable.tileentity.SpongeFurnaceData;
 import org.spongepowered.common.data.processor.common.AbstractTileEntityDataProcessor;
-import org.spongepowered.common.data.util.ImplementationRequiredForTest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -119,7 +118,7 @@ public class FurnaceDataProcessor extends AbstractTileEntityDataProcessor<TileEn
     }
 
     @Override
-    public Optional<FurnaceData> fill(DataContainer container, FurnaceData furnaceData) {
+    public Optional<FurnaceData> fill(DataMap container, FurnaceData furnaceData) {
         if (!container.contains(Keys.PASSED_BURN_TIME.getQuery()) ||
                 !container.contains(Keys.MAX_BURN_TIME.getQuery()) ||
                 !container.contains(Keys.PASSED_COOK_TIME.getQuery()) ||

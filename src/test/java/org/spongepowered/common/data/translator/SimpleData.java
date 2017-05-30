@@ -69,7 +69,7 @@ class SimpleData implements DataSerializable {
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         DataContainer container = DataContainer.createNew();
         container.set(DataQuery.of("myInt"), this.testInt);
         container.set(DataQuery.of("myDouble"), this.testDouble);

@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.mutable;
 
 import net.minecraft.init.Items;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableRepresentedItemData;
 import org.spongepowered.api.data.manipulator.mutable.RepresentedItemData;
@@ -62,9 +62,9 @@ public class SpongeRepresentedItemData extends AbstractSingleData<ItemStackSnaps
     }
 
     @Override
-    public DataContainer toContainer() {
-        return DataContainer.createNew()
-            .set(Keys.REPRESENTED_ITEM, this.getValue());
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
+        container.set(Keys.REPRESENTED_ITEM, this.getValue());
     }
 
     @Override

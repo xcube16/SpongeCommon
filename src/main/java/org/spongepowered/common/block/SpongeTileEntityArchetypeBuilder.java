@@ -34,8 +34,8 @@ import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.tileentity.TileEntity;
 import org.spongepowered.api.block.tileentity.TileEntityArchetype;
 import org.spongepowered.api.block.tileentity.TileEntityType;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
@@ -60,7 +60,7 @@ public class SpongeTileEntityArchetypeBuilder extends AbstractDataBuilder<TileEn
     BlockState     blockState;    // -These two fields can never be null
     @Nullable
     TileEntityType tileEntityType;
-    DataContainer  tileData;      // This can be empty, but cannot be null.
+    DataMap tileData;      // This can be empty, but cannot be null.
 
     public SpongeTileEntityArchetypeBuilder() {
         super(TileEntityArchetype.class, DataVersions.TileEntitArchetype.BASE_VERSION);
@@ -68,9 +68,9 @@ public class SpongeTileEntityArchetypeBuilder extends AbstractDataBuilder<TileEn
 
     @Override
     public TileEntityArchetype.Builder reset() {
-        this.blockState = null;
+        this.blockState = null; //TODO: wat?!?! "These two fields can never be null"
         this.tileEntityType = null;
-        this.tileData = null;
+        this.tileData = null; //TODO: same here
         return this;
     }
 
@@ -78,7 +78,8 @@ public class SpongeTileEntityArchetypeBuilder extends AbstractDataBuilder<TileEn
     public TileEntityArchetype.Builder from(TileEntityArchetype value) {
         this.tileEntityType = value.getTileEntityType();
         this.blockState = value.getState();
-        this.tileData = value.getTileData();
+        this.tileData = new MemoryDataMap();
+        value.getTileData(this.tileData);
         return this;
     }
 
@@ -124,9 +125,9 @@ public class SpongeTileEntityArchetypeBuilder extends AbstractDataBuilder<TileEn
     }
 
     @Override
-    public TileEntityArchetype.Builder tileData(DataView dataView) {
+    public TileEntityArchetype.Builder tileData(DataMap dataView) {
         checkNotNull(dataView, "Provided DataView cannot be null!");
-        final DataContainer copy = dataView.copy();
+        final DataMap copy = dataView.copy();
         DataUtil.getValidators(Validations.TILE_ENTITY).validate(copy);
         this.tileData = copy;
         return this;
@@ -136,7 +137,7 @@ public class SpongeTileEntityArchetypeBuilder extends AbstractDataBuilder<TileEn
     @Override
     public TileEntityArchetype.Builder setData(DataManipulator<?, ?> manipulator) {
         if (this.tileData == null) {
-            this.tileData = DataContainer.createNew();
+            this.tileData = new MemoryDataMap();
         }
         DataUtil.getRawNbtProcessor(NbtDataTypes.TILE_ENTITY, manipulator.getClass())
                 .ifPresent(processor -> processor.storeToView(this.tileData, manipulator));
@@ -147,7 +148,7 @@ public class SpongeTileEntityArchetypeBuilder extends AbstractDataBuilder<TileEn
     @Override
     public <E, V extends BaseValue<E>> TileEntityArchetype.Builder set(V value) {
         if (this.tileData == null) {
-            this.tileData = DataContainer.createNew();
+            this.tileData = new MemoryDataMap();
         }
         DataUtil.getRawNbtProcessor(NbtDataTypes.TILE_ENTITY, value.getKey())
                 .ifPresent(processor -> processor.offer(this.tileData, value));
@@ -158,7 +159,7 @@ public class SpongeTileEntityArchetypeBuilder extends AbstractDataBuilder<TileEn
     @Override
     public <E, V extends BaseValue<E>> TileEntityArchetype.Builder set(Key<V> key, E value) {
         if (this.tileData == null) {
-            this.tileData = DataContainer.createNew();
+            this.tileData = new MemoryDataMap();
         }
         DataUtil.getRawNbtProcessor(NbtDataTypes.TILE_ENTITY, key)
                 .ifPresent(processor -> processor.offer(this.tileData, value));
@@ -170,26 +171,20 @@ public class SpongeTileEntityArchetypeBuilder extends AbstractDataBuilder<TileEn
         checkState(this.blockState != null, "BlockState cannot be null!");
         checkState(this.tileEntityType != null, "TileEntityType cannot be null!");
         if (this.tileData == null) {
-            this.tileData = DataContainer.createNew();
+            this.tileData = new MemoryDataMap();
         }
         return new SpongeTileEntityArchetype(this);
     }
 
     @Override
-    protected Optional<TileEntityArchetype> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<TileEntityArchetype> buildContent(DataMap container) throws InvalidDataException {
         final SpongeTileEntityArchetypeBuilder builder = new SpongeTileEntityArchetypeBuilder();
-        if (container.contains(DataQueries.TileEntityArchetype.TILE_TYPE, DataQueries.TileEntityArchetype.BLOCK_STATE)) {
-            builder.tile(container.getCatalogType(DataQueries.TileEntityArchetype.TILE_TYPE, TileEntityType.class)
+            builder.tile(container.getSpongeObject(DataQueries.TileEntityArchetype.TILE_TYPE, TileEntityType.class)
                     .orElseThrow(() -> new InvalidDataException("Could not deserialize a TileEntityType!")));
-            builder.state(container.getCatalogType(DataQueries.TileEntityArchetype.BLOCK_STATE, BlockState.class)
+            builder.state(container.getSpongeObject(DataQueries.TileEntityArchetype.BLOCK_STATE, BlockState.class)
                     .orElseThrow(() -> new InvalidDataException("Could not deserialize a BlockState!")));
-        } else {
-            throw new InvalidDataException("Missing the TileEntityType and BlockState! Cannot re-construct a TileEntityArchetype!");
-        }
-        if (container.contains(DataQueries.TileEntityArchetype.TILE_DATA)) {
-            builder.tileData(container.getView(DataQueries.TileEntityArchetype.TILE_DATA)
+            builder.tileData(container.getMap(DataQueries.TileEntityArchetype.TILE_DATA)
                     .orElseThrow(() -> new InvalidDataException("No DataView found for the TileEntity data tag!")));
-        }
         return Optional.of(builder.build());
     }
 

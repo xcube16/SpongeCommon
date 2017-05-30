@@ -31,6 +31,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
 import org.spongepowered.api.data.DataSerializable;
 import org.spongepowered.api.data.DataView;
@@ -67,7 +68,7 @@ public final class JsonDataFormat extends SpongeCatalogType implements StringDat
         return "JSON";
     }
 
-    public static DataContainer serialize(Gson gson, Object o) throws IOException {
+    public static DataMap serialize(Gson gson, Object o) throws IOException {
         DataViewJsonWriter writer = new DataViewJsonWriter();
         gson.toJson(o, o.getClass(), writer);
         return writer.getResult();

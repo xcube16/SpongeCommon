@@ -54,7 +54,7 @@ public class ImmutableSpongeSkinData extends AbstractImmutableSingleData<UUID, I
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return super.toContainer()
             .set(Keys.SKIN_UNIQUE_ID.getQuery(), this.value.toString());
     }

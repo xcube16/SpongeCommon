@@ -60,7 +60,7 @@ public class SpongeRepresentedPlayerData extends AbstractSingleData<GameProfile,
         }
 
         @Override
-        public DataContainer toContainer() {
+        public void toContainer(DataMap container) {
             return DataContainer.createNew();
         }
 
@@ -99,7 +99,7 @@ public class SpongeRepresentedPlayerData extends AbstractSingleData<GameProfile,
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         final DataContainer container = super.toContainer();
         if (this.getValue().getUniqueId() != null) {
             container.set(this.usedKey.getQuery().then(DataQueries.GAME_PROFILE_ID), this.getValue().getUniqueId().toString());

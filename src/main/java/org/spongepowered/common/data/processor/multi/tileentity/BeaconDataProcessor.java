@@ -27,9 +27,8 @@ package org.spongepowered.common.data.processor.multi.tileentity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.potion.Potion;
 import net.minecraft.tileentity.TileEntityBeacon;
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -87,20 +86,11 @@ public class BeaconDataProcessor extends AbstractTileEntityDataProcessor<TileEnt
     }
 
     @Override
-    public Optional<BeaconData> fill(DataContainer container, BeaconData beaconData) {
-        if (!container.contains(Keys.BEACON_PRIMARY_EFFECT.getQuery()) && !container.contains(Keys.BEACON_SECONDARY_EFFECT.getQuery())) {
-            return Optional.empty();
-        }
-        if (container.contains(Keys.BEACON_PRIMARY_EFFECT.getQuery())) {
-            PotionEffectType type =
-                    Sponge.getRegistry().getType(PotionEffectType.class, container.getString(Keys.BEACON_PRIMARY_EFFECT.getQuery()).get()).get();
-            beaconData.primaryEffect().set(Optional.of(type));
-        }
-        if (container.contains(Keys.BEACON_SECONDARY_EFFECT.getQuery())) {
-            PotionEffectType type =
-                    Sponge.getRegistry().getType(PotionEffectType.class, container.getString(Keys.BEACON_SECONDARY_EFFECT.getQuery()).get()).get();
-            beaconData.secondaryEffect().set(Optional.of(type));
-        }
+    public Optional<BeaconData> fill(DataMap container, BeaconData beaconData) {
+        beaconData.primaryEffect().set(
+                container.getSpongeObject(Keys.BEACON_PRIMARY_EFFECT.getQuery(), PotionEffectType.class));
+        beaconData.secondaryEffect().set(
+                container.getSpongeObject(Keys.BEACON_SECONDARY_EFFECT.getQuery(), PotionEffectType.class));
         return Optional.of(beaconData);
     }
 

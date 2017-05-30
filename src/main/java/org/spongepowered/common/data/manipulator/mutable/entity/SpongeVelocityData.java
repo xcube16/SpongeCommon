@@ -63,7 +63,7 @@ public class SpongeVelocityData extends AbstractSingleData<Vector3d, VelocityDat
     @Override
     public void toContainer(DataMap container) {
         super.toContainer(container);
-        DataUtil.setVector3d(container, getValue());
+        container.set(Keys.VELOCITY, getValue());
     }
 
     @Override

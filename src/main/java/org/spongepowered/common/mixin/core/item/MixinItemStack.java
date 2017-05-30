@@ -38,9 +38,11 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.Level;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataList;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.MemoryDataList;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
@@ -179,12 +181,12 @@ public abstract class MixinItemStack implements ItemStack, IMixinItemStack, IMix
     }
 
     @Override
-    public boolean validateRawData(DataView container) {
+    public boolean validateRawData(DataMap container) {
         return false;
     }
 
     @Override
-    public void setRawData(DataView container) throws InvalidDataException {
+    public void setRawData(DataMap container) throws InvalidDataException {
 
     }
 
@@ -199,9 +201,8 @@ public abstract class MixinItemStack implements ItemStack, IMixinItemStack, IMix
     }
 
     @Override
-    public DataContainer toContainer() {
-        final DataContainer container = DataContainer.createNew()
-            .set(Queries.CONTENT_VERSION, getContentVersion())
+    public void toContainer(DataMap container) {
+        container.set(Queries.CONTENT_VERSION, getContentVersion())
                 .set(DataQueries.ITEM_TYPE, this.getItem().getId())
                 .set(DataQueries.ITEM_COUNT, this.getQuantity())
                 .set(DataQueries.ITEM_DAMAGE_VALUE, this.getItemDamage());
@@ -215,16 +216,14 @@ public abstract class MixinItemStack implements ItemStack, IMixinItemStack, IMix
             }
             NbtDataUtil.filterSpongeCustomData(compound); // We must filter the custom data so it isn't stored twice
             if (!compound.hasNoTags()) {
-                final DataContainer unsafeNbt = NbtTranslator.getInstance().translateFrom(compound);
-                container.set(DataQueries.UNSAFE_NBT, unsafeNbt);
+                NbtTranslator.getInstance().translate(compound, container.createMap(DataQueries.UNSAFE_NBT));
             }
         }
         // We only need to include the custom data, not vanilla manipulators supported by sponge implementation
         final Collection<DataManipulator<?, ?>> manipulators = getCustomManipulators();
         if (!manipulators.isEmpty()) {
-            container.set(DataQueries.DATA_MANIPULATORS, DataUtil.getSerializedManipulatorList(manipulators));
+            DataUtil.serializeManipulatorList(container.createList(DataQueries.DATA_MANIPULATORS), manipulators);
         }
-        return container;
     }
 
     @Override
@@ -279,10 +278,10 @@ public abstract class MixinItemStack implements ItemStack, IMixinItemStack, IMix
             final NBTTagList list = compound.getTagList(NbtDataUtil.CUSTOM_MANIPULATOR_TAG_LIST, NbtDataUtil.TAG_COMPOUND);
             if (!list.hasNoTags()) {
                 compound.removeTag(NbtDataUtil.CUSTOM_MANIPULATOR_TAG_LIST);
-                final List<DataView> views = Lists.newArrayList();
+                final DataList views = new MemoryDataList();
                 for (int i = 0; i < list.tagCount(); i++) {
                     final NBTTagCompound dataCompound = list.getCompoundTagAt(i);
-                    views.add(NbtTranslator.getInstance().translateFrom(dataCompound));
+                    NbtTranslator.getInstance().translate(dataCompound, views.addMap());
                 }
                 final SerializedDataTransaction transaction = DataUtil.deserializeManipulatorList(views);
                 final List<DataManipulator<?, ?>> manipulators = transaction.deserializedManipulators;
@@ -302,15 +301,15 @@ public abstract class MixinItemStack implements ItemStack, IMixinItemStack, IMix
         }
         if (compound.hasKey(NbtDataUtil.FAILED_CUSTOM_DATA, NbtDataUtil.TAG_LIST)) {
             final NBTTagList list = compound.getTagList(NbtDataUtil.FAILED_CUSTOM_DATA, NbtDataUtil.TAG_COMPOUND);
-            final ImmutableList.Builder<DataView> builder = ImmutableList.builder();
+            final DataList views = new MemoryDataList();
             if (list.tagCount() != 0) {
                 for (int i = 0; i < list.tagCount(); i++) {
                     final NBTTagCompound internal = list.getCompoundTagAt(i);
-                    builder.add(NbtTranslator.getInstance().translateFrom(internal));
+                    NbtTranslator.getInstance().translate(internal, views.addMap());
                 }
             }
             // Re-attempt to deserialize custom data
-            final SerializedDataTransaction transaction = DataUtil.deserializeManipulatorList(builder.build());
+            final SerializedDataTransaction transaction = DataUtil.deserializeManipulatorList(views);
             final List<DataManipulator<?, ?>> manipulators = transaction.deserializedManipulators;
             for (DataManipulator<?, ?> manipulator : manipulators) {
                 offer(manipulator);
@@ -382,10 +381,11 @@ public abstract class MixinItemStack implements ItemStack, IMixinItemStack, IMix
     private void resyncCustomToTag() {
         if (!this.manipulators.isEmpty()) {
             final NBTTagList newList = new NBTTagList();
-            final List<DataView> manipulatorViews = DataUtil.getSerializedManipulatorList(this.getCustomManipulators());
-            for (DataView dataView : manipulatorViews) {
-                newList.appendTag(NbtTranslator.getInstance().translateData(dataView));
-            }
+            final DataList manipulatorViews = new MemoryDataList();
+            DataUtil.serializeManipulatorList(manipulatorViews, this.getCustomManipulators());
+            manipulatorViews.forEachKey(i ->
+                    manipulatorViews.getMap(i).ifPresent(m ->
+                            newList.appendTag(NbtTranslator.getInstance().translate(m))));
             final NBTTagCompound spongeCompound = getOrCreateSubCompound(NbtDataUtil.SPONGE_DATA);
             spongeCompound.setTag(NbtDataUtil.CUSTOM_MANIPULATOR_TAG_LIST, newList);
         } else if (!this.failedData.isEmpty()) {

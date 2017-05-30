@@ -82,7 +82,7 @@ public class SpongeFireworkEffect implements FireworkEffect {
     }
 
     @Override
-    public DataContainer toContainer() {
+    public void toContainer(DataMap container) {
         return DataContainer.createNew()
                 .set(Queries.CONTENT_VERSION, getContentVersion())
                 .set(DataQueries.FIREWORK_SHAPE, this.shape.getId())

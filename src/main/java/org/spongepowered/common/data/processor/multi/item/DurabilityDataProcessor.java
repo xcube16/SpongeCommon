@@ -27,8 +27,8 @@ package org.spongepowered.common.data.processor.multi.item;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -81,7 +81,7 @@ public class DurabilityDataProcessor extends AbstractItemDataProcessor<Durabilit
     }
 
     @Override
-    public Optional<DurabilityData> fill(DataContainer container, DurabilityData durabilityData) {
+    public Optional<DurabilityData> fill(DataMap container, DurabilityData durabilityData) {
         final Optional<Integer> durability = container.getInt(Keys.ITEM_DURABILITY.getQuery());
         final Optional<Boolean> unbreakable = container.getBoolean(Keys.UNBREAKABLE.getQuery());
         if (durability.isPresent() && unbreakable.isPresent()) {

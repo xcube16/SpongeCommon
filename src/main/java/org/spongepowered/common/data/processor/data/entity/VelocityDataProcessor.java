@@ -24,14 +24,10 @@
  */
 package org.spongepowered.common.data.processor.data.entity;
 
-import static org.spongepowered.common.data.util.DataUtil.checkDataExists;
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
 import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.entity.Entity;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableVelocityData;
 import org.spongepowered.api.data.manipulator.mutable.entity.VelocityData;
@@ -40,7 +36,7 @@ import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.common.data.manipulator.mutable.entity.SpongeVelocityData;
 import org.spongepowered.common.data.processor.common.AbstractEntitySingleDataProcessor;
-import org.spongepowered.common.data.util.DataQueries;
+import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeValue;
 import org.spongepowered.common.data.value.mutable.SpongeValue;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
@@ -70,13 +66,10 @@ public class VelocityDataProcessor extends AbstractEntitySingleDataProcessor<Ent
     }
 
     @Override
-    public Optional<VelocityData> fill(DataContainer container, VelocityData velocityData) {
-        checkDataExists(container, Keys.VELOCITY.getQuery());
-        final DataView internalView = container.getView(Keys.VELOCITY.getQuery()).get();
-        final double x = getData(internalView, DataQueries.VELOCITY_X, Double.class);
-        final double y = getData(internalView, DataQueries.VELOCITY_Y, Double.class);
-        final double z = getData(internalView, DataQueries.VELOCITY_Z, Double.class);
-        return Optional.of(velocityData.set(Keys.VELOCITY, new Vector3d(x, y, z)));
+    public Optional<VelocityData> fill(DataMap container, VelocityData velocityData) {
+        return container.getMap(Keys.VELOCITY.getQuery())
+                .map(DataUtil::getVector3d)
+                .map(vector3d -> velocityData.set(Keys.VELOCITY, vector3d));
     }
 
     @Override

@@ -27,8 +27,8 @@ package org.spongepowered.common.extra.fluid;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.Property;
@@ -56,7 +56,7 @@ public class SpongeFluidStack implements FluidStack {
 
     private FluidType fluidType;
     private int volume;
-    @Nullable private DataContainer extraData;
+    @Nullable private DataMap extraData;
 
     SpongeFluidStack(SpongeFluidStackBuilder builder) {
         this.fluidType = builder.fluidType;
@@ -87,12 +87,14 @@ public class SpongeFluidStack implements FluidStack {
     }
 
     @Override
-    public boolean validateRawData(DataView container) {
+    public boolean validateRawData(DataMap container) {
+        //TODO: the data still might not be valid
         return container.contains(Queries.CONTENT_VERSION, DataQueries.FLUID_TYPE, DataQueries.FLUID_VOLUME);
     }
 
     @Override
-    public void setRawData(DataView container) throws InvalidDataException {
+    public void setRawData(DataMap container) throws InvalidDataException {
+        // TODO: duplicate code of SpongeFluidStackBuilder#buildContent()
         try {
             final int contentVersion = container.getInt(Queries.CONTENT_VERSION).get();
             if (contentVersion != this.getContentVersion()) {
@@ -106,11 +108,10 @@ public class SpongeFluidStack implements FluidStack {
             }
             this.fluidType = fluidType.get();
             this.volume = volume;
-            if (container.contains(DataQueries.UNSAFE_NBT)) {
-                this.extraData = container.getView(DataQueries.UNSAFE_NBT).get().copy();
-            }
+            container.getMap(DataQueries.UNSAFE_NBT).ifPresent(m ->
+                    this.extraData = m.copy());
         } catch (Exception e) {
-            throw new InvalidDataException("DataContainer contained invalid data!", e);
+            throw new InvalidDataException("DataMap contained invalid data!", e);
         }
     }
 
@@ -180,15 +181,14 @@ public class SpongeFluidStack implements FluidStack {
     }
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = DataContainer.createNew()
+    public void toContainer(DataMap container) {
+        container
             .set(Queries.CONTENT_VERSION, this.getContentVersion())
             .set(DataQueries.FLUID_TYPE, this.fluidType.getId())
             .set(DataQueries.FLUID_VOLUME, this.volume);
         if (this.extraData != null) {
             container.set(DataQueries.UNSAFE_NBT, this.extraData);
         }
-        return container;
     }
 
     @Override

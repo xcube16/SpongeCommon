@@ -24,11 +24,9 @@
  */
 package org.spongepowered.common.mixin.core.tileentity;
 
-import static org.spongepowered.api.data.DataQuery.of;
-
 import net.minecraft.tileentity.TileEntityNote;
 import org.spongepowered.api.block.tileentity.Note;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
@@ -44,10 +42,9 @@ public abstract class MixinTileEntityNote extends MixinTileEntity implements Not
     @Shadow public byte note;
 
     @Override
-    public DataContainer toContainer() {
-        DataContainer container = super.toContainer();
+    public void toContainer(DataMap container) {
+        super.toContainer(container);
         container.set(DataQueries.TILE_NOTE_ID, this.note);
-        return container;
     }
 
     @Override

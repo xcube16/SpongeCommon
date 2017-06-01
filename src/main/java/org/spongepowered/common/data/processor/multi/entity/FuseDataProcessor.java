@@ -25,11 +25,10 @@
 package org.spongepowered.common.data.processor.multi.entity;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.spongepowered.common.data.util.DataUtil.getData;
 
 import com.google.common.collect.ImmutableMap;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -85,9 +84,11 @@ public class FuseDataProcessor extends AbstractMultiDataSingleTargetProcessor<Fu
     }
 
     @Override
-    public Optional<FuseData> fill(DataContainer container, FuseData fuseData) {
-        fuseData.set(Keys.FUSE_DURATION, getData(container, Keys.FUSE_DURATION));
-        fuseData.set(Keys.TICKS_REMAINING, getData(container, Keys.TICKS_REMAINING));
+    public Optional<FuseData> fill(DataMap container, FuseData fuseData) {
+        container.getInt(Keys.FUSE_DURATION.getQuery()).ifPresent(d ->
+                fuseData.set(Keys.FUSE_DURATION, d));
+        container.getInt(Keys.TICKS_REMAINING.getQuery()).ifPresent(r ->
+                fuseData.set(Keys.TICKS_REMAINING, r));
         return Optional.of(fuseData);
     }
 

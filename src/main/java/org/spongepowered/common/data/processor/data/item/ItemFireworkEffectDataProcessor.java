@@ -27,7 +27,7 @@ package org.spongepowered.common.data.processor.data.item;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableFireworkEffectData;
@@ -41,10 +41,10 @@ import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.common.data.manipulator.mutable.SpongeFireworkEffectData;
 import org.spongepowered.common.data.processor.common.AbstractItemSingleDataProcessor;
 import org.spongepowered.common.data.processor.common.FireworkUtils;
-import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeListValue;
 import org.spongepowered.common.data.value.mutable.SpongeListValue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,11 +71,11 @@ public class ItemFireworkEffectDataProcessor
     }
 
     @Override
-    public Optional<FireworkEffectData> fill(DataContainer container, FireworkEffectData fireworkEffectData) {
-        DataUtil.checkDataExists(container, Keys.FIREWORK_EFFECTS.getQuery());
-        List<FireworkEffect> effects = container.getSerializableList(Keys.FIREWORK_EFFECTS.getQuery(),
-                FireworkEffect.class).get();
-
+    public Optional<FireworkEffectData> fill(DataMap container, FireworkEffectData fireworkEffectData) {
+        List<FireworkEffect> effects = new ArrayList<>();
+        container.getList(Keys.FIREWORK_EFFECTS.getQuery()).ifPresent(l ->
+                l.forEachKey(i ->
+                        l.getSpongeObject(i, FireworkEffect.class).ifPresent(effects::add)));
         return Optional.of(fireworkEffectData.set(Keys.FIREWORK_EFFECTS, effects));
     }
 

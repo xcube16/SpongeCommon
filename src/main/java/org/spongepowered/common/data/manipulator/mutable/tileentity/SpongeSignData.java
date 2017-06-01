@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.mutable.tileentity;
 
 import com.google.common.collect.Lists;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableSignData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
@@ -49,8 +49,8 @@ public class SpongeSignData extends AbstractListData<Text, SignData, ImmutableSi
 
     @Override
     public void toContainer(DataMap container) {
-        return super.toContainer()
-            .set(Keys.SIGN_LINES.getQuery(), this.asList().stream()
+        super.toContainer(container);
+        container.set(Keys.SIGN_LINES.getQuery(), this.asList().stream()
                 .map(TextSerializers.JSON::serialize)
                 .collect(Collectors.toList()));
     }

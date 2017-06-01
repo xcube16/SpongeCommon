@@ -24,13 +24,11 @@
  */
 package org.spongepowered.common.data.processor.data.tileentity;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.tileentity.TileEntityEndGateway;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -94,29 +92,19 @@ public final class EndGatewayDataProcessor extends AbstractTileEntityDataProcess
     }
 
     @Override
-    public Optional<EndGatewayData> fill(DataContainer container, EndGatewayData data) {
-        checkNotNull(data, "data");
-
-        Optional<Vector3i> exitPosition = container.getObject(Keys.EXIT_POSITION.getQuery(), Vector3i.class);
-        if (exitPosition.isPresent()) {
-            data = data.set(Keys.EXIT_POSITION, exitPosition.get());
+    public Optional<EndGatewayData> fill(DataMap container, EndGatewayData data) {
+        Optional<Vector3i> exitPosition = container.getSpongeObject(Keys.EXIT_POSITION.getQuery(), Vector3i.class);
+        if (!exitPosition.isPresent()) {
+            return Optional.empty(); // we must have an exit location
         }
+        data.set(Keys.EXIT_POSITION, exitPosition.get());
 
-        Optional<Boolean> exactTeleport = container.getBoolean(Keys.EXACT_TELEPORT.getQuery());
-        if (exactTeleport.isPresent()) {
-            data = data.set(Keys.EXACT_TELEPORT, exactTeleport.get());
-        }
-
-        Optional<Long> age = container.getLong(Keys.END_GATEWAY_AGE.getQuery());
-        if (age.isPresent()) {
-            data = data.set(Keys.END_GATEWAY_AGE, age.get());
-        }
-
-        Optional<Integer> teleportCooldown = container.getInt(Keys.END_GATEWAY_TELEPORT_COOLDOWN.getQuery());
-        if (teleportCooldown.isPresent()) {
-            data = data.set(Keys.END_GATEWAY_TELEPORT_COOLDOWN, teleportCooldown.get());
-        }
-
+        container.getBoolean(Keys.EXACT_TELEPORT.getQuery()).ifPresent(t ->
+                data.set(Keys.EXACT_TELEPORT, t));
+        container.getLong(Keys.END_GATEWAY_AGE.getQuery()).ifPresent(a ->
+                data.set(Keys.END_GATEWAY_AGE, a));
+        container.getInt(Keys.END_GATEWAY_TELEPORT_COOLDOWN.getQuery()).ifPresent(c ->
+                data.set(Keys.END_GATEWAY_TELEPORT_COOLDOWN, c));
         return Optional.of(data);
     }
 

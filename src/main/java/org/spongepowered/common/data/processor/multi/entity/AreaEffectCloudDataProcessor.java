@@ -28,6 +28,7 @@ import net.minecraft.entity.EntityAreaEffectCloud;
 import net.minecraft.util.EnumParticleTypes;
 import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -121,12 +122,27 @@ public class AreaEffectCloudDataProcessor extends AbstractEntityDataProcessor<En
     }
 
     @Override
-    public Optional<AreaEffectCloudData> fill(DataContainer container, AreaEffectCloudData areaEffectCloudData) {
-        return null;
+    public Optional<AreaEffectCloudData> fill(DataMap container, AreaEffectCloudData data) {
+        Optional<Integer> age = container.getInt(Keys.AREA_EFFECT_CLOUD_AGE.getQuery());
+        Optional<Integer> repDelay = container.getInt(Keys.AREA_EFFECT_CLOUD_REAPPLICATION_DELAY.getQuery());
+        Optional<Color> color = container.getSpongeObject(Keys.AREA_EFFECT_CLOUD_COLOR.getQuery(), Color.class);
+        Optional<Integer> duration = container.getInt(Keys.AREA_EFFECT_CLOUD_DURATION.getQuery());
+        Optional<Integer> durationOnUse = container.getInt(Keys.AREA_EFFECT_CLOUD_DURATION_ON_USE.getQuery());
+        Optional<ParticleType> particleType = container.getSpongeObject(Keys.AREA_EFFECT_CLOUD_PARTICLE_TYPE.getQuery(), ParticleType.class);
+        Optional<Double> radius = container.getDouble(Keys.AREA_EFFECT_CLOUD_RADIUS.getQuery());
+        Optional<Double> radiusOnUse = container.getDouble(Keys.AREA_EFFECT_CLOUD_RADIUS_ON_USE.getQuery());
+        Optional<Integer> waitTime = container.getInt(Keys.AREA_EFFECT_CLOUD_WAIT_TIME.getQuery());
+        Optional<DataList> potionEffects = container.getSpongeObject(Keys.POTION_EFFECTS.getQuery(), PotionEffect.class);
+        if (!age.isPresent() ||) {
+
+        }
+
+
+        return Optional.empty();
     }
 
     @Override
     public DataTransactionResult remove(DataHolder dataHolder) {
-        return null;
+        return null; //TODO: I think someone forgot to do this
     }
 }

@@ -119,7 +119,7 @@ public class MobSpawnerDataProcessor extends AbstractMultiDataSingleTargetProces
     }
 
     private Optional<WeightedSerializableObject<EntityArchetype>> getWeightedEntity(DataMap data) {
-        Optional<EntityArchetype> entity = data.getSpongeObject(Queries.WEIGHTED_SERIALIZABLE, EntityArchetype.class);
+        Optional<EntityArchetype> entity = data.getObject(Queries.WEIGHTED_SERIALIZABLE, EntityArchetype.class);
         Optional<Double> weight = data.getDouble(Queries.WEIGHTED_SERIALIZABLE_WEIGHT);
         if (entity.isPresent() && weight.isPresent()) {
             return Optional.of(new WeightedSerializableObject<>(entity.get(), weight.get().intValue()));

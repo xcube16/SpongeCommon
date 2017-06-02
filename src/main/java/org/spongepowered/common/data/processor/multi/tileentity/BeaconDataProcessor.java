@@ -88,9 +88,9 @@ public class BeaconDataProcessor extends AbstractTileEntityDataProcessor<TileEnt
     @Override
     public Optional<BeaconData> fill(DataMap container, BeaconData beaconData) {
         beaconData.primaryEffect().set(
-                container.getSpongeObject(Keys.BEACON_PRIMARY_EFFECT.getQuery(), PotionEffectType.class));
+                container.getObject(Keys.BEACON_PRIMARY_EFFECT.getQuery(), PotionEffectType.class));
         beaconData.secondaryEffect().set(
-                container.getSpongeObject(Keys.BEACON_SECONDARY_EFFECT.getQuery(), PotionEffectType.class));
+                container.getObject(Keys.BEACON_SECONDARY_EFFECT.getQuery(), PotionEffectType.class));
         return Optional.of(beaconData);
     }
 

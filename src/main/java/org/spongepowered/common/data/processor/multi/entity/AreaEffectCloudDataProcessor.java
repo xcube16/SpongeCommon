@@ -125,14 +125,14 @@ public class AreaEffectCloudDataProcessor extends AbstractEntityDataProcessor<En
     public Optional<AreaEffectCloudData> fill(DataMap container, AreaEffectCloudData data) {
         Optional<Integer> age = container.getInt(Keys.AREA_EFFECT_CLOUD_AGE.getQuery());
         Optional<Integer> repDelay = container.getInt(Keys.AREA_EFFECT_CLOUD_REAPPLICATION_DELAY.getQuery());
-        Optional<Color> color = container.getSpongeObject(Keys.AREA_EFFECT_CLOUD_COLOR.getQuery(), Color.class);
+        Optional<Color> color = container.getObject(Keys.AREA_EFFECT_CLOUD_COLOR.getQuery(), Color.class);
         Optional<Integer> duration = container.getInt(Keys.AREA_EFFECT_CLOUD_DURATION.getQuery());
         Optional<Integer> durationOnUse = container.getInt(Keys.AREA_EFFECT_CLOUD_DURATION_ON_USE.getQuery());
-        Optional<ParticleType> particleType = container.getSpongeObject(Keys.AREA_EFFECT_CLOUD_PARTICLE_TYPE.getQuery(), ParticleType.class);
+        Optional<ParticleType> particleType = container.getObject(Keys.AREA_EFFECT_CLOUD_PARTICLE_TYPE.getQuery(), ParticleType.class);
         Optional<Double> radius = container.getDouble(Keys.AREA_EFFECT_CLOUD_RADIUS.getQuery());
         Optional<Double> radiusOnUse = container.getDouble(Keys.AREA_EFFECT_CLOUD_RADIUS_ON_USE.getQuery());
         Optional<Integer> waitTime = container.getInt(Keys.AREA_EFFECT_CLOUD_WAIT_TIME.getQuery());
-        Optional<DataList> potionEffects = container.getSpongeObject(Keys.POTION_EFFECTS.getQuery(), PotionEffect.class);
+        Optional<DataList> potionEffects = container.getObject(Keys.POTION_EFFECTS.getQuery(), PotionEffect.class);
         if (!age.isPresent() ||) {
 
         }

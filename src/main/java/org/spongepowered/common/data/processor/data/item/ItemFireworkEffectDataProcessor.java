@@ -75,7 +75,7 @@ public class ItemFireworkEffectDataProcessor
         List<FireworkEffect> effects = new ArrayList<>();
         container.getList(Keys.FIREWORK_EFFECTS.getQuery()).ifPresent(l ->
                 l.forEachKey(i ->
-                        l.getSpongeObject(i, FireworkEffect.class).ifPresent(effects::add)));
+                        l.getObject(i, FireworkEffect.class).ifPresent(effects::add)));
         return Optional.of(fireworkEffectData.set(Keys.FIREWORK_EFFECTS, effects));
     }
 

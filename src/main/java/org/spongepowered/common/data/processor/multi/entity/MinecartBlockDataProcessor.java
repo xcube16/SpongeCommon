@@ -79,7 +79,7 @@ public class MinecartBlockDataProcessor extends AbstractEntityDataProcessor<Enti
 
     @Override
     public Optional<MinecartBlockData> fill(DataMap container, MinecartBlockData data) {
-        container.getSpongeObject(Keys.REPRESENTED_BLOCK.getQuery(), BlockState.class).ifPresent(b ->
+        container.getObject(Keys.REPRESENTED_BLOCK.getQuery(), BlockState.class).ifPresent(b ->
                 data.set(Keys.REPRESENTED_BLOCK, b));
         container.getInt(Keys.OFFSET.getQuery()).ifPresent(o ->
                 data.set(Keys.OFFSET, o));

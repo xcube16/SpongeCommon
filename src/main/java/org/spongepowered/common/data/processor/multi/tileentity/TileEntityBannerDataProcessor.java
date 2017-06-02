@@ -85,10 +85,10 @@ public class TileEntityBannerDataProcessor extends AbstractTileEntityDataProcess
         container.getList(Keys.BANNER_PATTERNS.getQuery()).ifPresent(l -> {
             List<PatternLayer> layers = new ArrayList<>();
             l.forEachKey(i ->
-                    l.getSpongeObject(i, PatternLayer.class).ifPresent(layers::add));
+                    l.getObject(i, PatternLayer.class).ifPresent(layers::add));
             bannerData.set(Keys.BANNER_PATTERNS, layers);
         });
-        container.getSpongeObject(Keys.BANNER_BASE_COLOR.getQuery(), DyeColor.class).ifPresent(c ->
+        container.getObject(Keys.BANNER_BASE_COLOR.getQuery(), DyeColor.class).ifPresent(c ->
             bannerData.set(Keys.BANNER_BASE_COLOR, c));
         return Optional.of(bannerData);
     }

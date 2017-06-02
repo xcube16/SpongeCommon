@@ -86,7 +86,7 @@ public class ItemEnchantmentDataProcessor
     public Optional<EnchantmentData> fill(DataMap container, EnchantmentData enchantmentData) {
         final List<ItemEnchantment> enchantments = new ArrayList<>();
         container.getList(Keys.ITEM_ENCHANTMENTS.getQuery()).ifPresent(l ->
-                l.forEachKey(i -> l.getSpongeObject(i, ItemEnchantment.class).ifPresent(enchantments::add)));
+                l.forEachKey(i -> l.getObject(i, ItemEnchantment.class).ifPresent(enchantments::add)));
         enchantmentData.setElements(enchantments);
         return Optional.of(enchantmentData);
     }

@@ -93,7 +93,7 @@ public final class EndGatewayDataProcessor extends AbstractTileEntityDataProcess
 
     @Override
     public Optional<EndGatewayData> fill(DataMap container, EndGatewayData data) {
-        Optional<Vector3i> exitPosition = container.getSpongeObject(Keys.EXIT_POSITION.getQuery(), Vector3i.class);
+        Optional<Vector3i> exitPosition = container.getObject(Keys.EXIT_POSITION.getQuery(), Vector3i.class);
         if (!exitPosition.isPresent()) {
             return Optional.empty(); // we must have an exit location
         }

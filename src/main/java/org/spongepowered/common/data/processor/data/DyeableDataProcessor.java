@@ -101,7 +101,7 @@ public class DyeableDataProcessor extends AbstractSingleDataProcessor<DyeColor, 
 
     @Override
     public Optional<DyeableData> fill(DataMap container, DyeableData dyeableData) {
-        return container.getSpongeObject(Keys.DYE_COLOR.getQuery(), DyeColor.class).map(c ->
+        return container.getObject(Keys.DYE_COLOR.getQuery(), DyeColor.class).map(c ->
                 dyeableData.set(Keys.DYE_COLOR, c));
     }
 

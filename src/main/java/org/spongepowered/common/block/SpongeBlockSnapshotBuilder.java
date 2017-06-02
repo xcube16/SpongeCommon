@@ -228,10 +228,10 @@ public class SpongeBlockSnapshotBuilder extends AbstractDataBuilder<BlockSnapsho
         Optional<String> notifierUuid = container.getString(Queries.NOTIFIER_ID);
 
         // We now reconstruct the custom data and all extra data.
-        final BlockState blockState = container.getSpongeObject(DataQueries.BLOCK_STATE, BlockState.class).get();
+        final BlockState blockState = container.getObject(DataQueries.BLOCK_STATE, BlockState.class).get();
         BlockState extendedState = null;
         if (container.contains(DataQueries.BLOCK_EXTENDED_STATE)) {
-            extendedState = container.getSpongeObject(DataQueries.BLOCK_EXTENDED_STATE, BlockState.class).get();
+            extendedState = container.getObject(DataQueries.BLOCK_EXTENDED_STATE, BlockState.class).get();
         } else {
             extendedState = blockState;
         }

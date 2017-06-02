@@ -61,5 +61,4 @@ public abstract class AbstractMultiDataProcessor<T extends DataManipulator<T, I>
             return Optional.of(manipulator);
         }
     }
-
 }

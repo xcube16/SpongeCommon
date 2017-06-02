@@ -179,9 +179,9 @@ public class SpongeTileEntityArchetypeBuilder extends AbstractDataBuilder<TileEn
     @Override
     protected Optional<TileEntityArchetype> buildContent(DataMap container) throws InvalidDataException {
         final SpongeTileEntityArchetypeBuilder builder = new SpongeTileEntityArchetypeBuilder();
-            builder.tile(container.getSpongeObject(DataQueries.TileEntityArchetype.TILE_TYPE, TileEntityType.class)
+            builder.tile(container.getObject(DataQueries.TileEntityArchetype.TILE_TYPE, TileEntityType.class)
                     .orElseThrow(() -> new InvalidDataException("Could not deserialize a TileEntityType!")));
-            builder.state(container.getSpongeObject(DataQueries.TileEntityArchetype.BLOCK_STATE, BlockState.class)
+            builder.state(container.getObject(DataQueries.TileEntityArchetype.BLOCK_STATE, BlockState.class)
                     .orElseThrow(() -> new InvalidDataException("Could not deserialize a BlockState!")));
             builder.tileData(container.getMap(DataQueries.TileEntityArchetype.TILE_DATA)
                     .orElseThrow(() -> new InvalidDataException("No DataView found for the TileEntity data tag!")));

@@ -88,7 +88,7 @@ public class FallingBlockDataProcessor extends AbstractEntityDataProcessor<Entit
                 fbData.set(Keys.FALL_DAMAGE_PER_BLOCK, d));
         container.getDouble(Keys.MAX_FALL_DAMAGE.getQuery()).ifPresent(d ->
                 fbData.set(Keys.MAX_FALL_DAMAGE, d));
-        container.getSpongeObject(Keys.FALLING_BLOCK_STATE.getQuery(), BlockState.class).ifPresent(s ->
+        container.getObject(Keys.FALLING_BLOCK_STATE.getQuery(), BlockState.class).ifPresent(s ->
                 fbData.set(Keys.FALLING_BLOCK_STATE, s));
         container.getBoolean(Keys.CAN_PLACE_AS_BLOCK.getQuery()).ifPresent(b ->
                 fbData.set(Keys.CAN_PLACE_AS_BLOCK, b));

@@ -58,7 +58,7 @@ public class ItemSkullDataProcessor
 
     @Override
     public Optional<SkullData> fill(DataMap container, SkullData skullData) {
-        container.getSpongeObject(Keys.SKULL_TYPE.getQuery(), SkullType.class).ifPresent(t ->
+        container.getObject(Keys.SKULL_TYPE.getQuery(), SkullType.class).ifPresent(t ->
                 skullData.set(Keys.SKULL_TYPE, t));
         return Optional.of(skullData);
     }

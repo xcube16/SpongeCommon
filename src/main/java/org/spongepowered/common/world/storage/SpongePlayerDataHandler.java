@@ -99,7 +99,7 @@ public final class SpongePlayerDataHandler {
                     }
 
                     DataMap container = NbtTranslator.getInstance().translateFrom(compound);
-                    SpongePlayerData data = container.getSpongeObject(DataQuery.of(), SpongePlayerData.class).get();
+                    SpongePlayerData data = container.getObject(DataQuery.of(), SpongePlayerData.class).get();
                     handlerInstance.playerDataMap.put(data.uuid, data);
                 }
             }

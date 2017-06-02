@@ -111,7 +111,7 @@ public class SpongeFluidStackSnapshotBuilder extends AbstractDataBuilder<FluidSt
 
     @Override
     protected Optional<FluidStackSnapshot> buildContent(DataMap container) {
-        Optional<FluidType> type = container.getSpongeObject(DataQueries.FLUID_TYPE, FluidType.class);
+        Optional<FluidType> type = container.getObject(DataQueries.FLUID_TYPE, FluidType.class);
         Optional<Integer> volume = container.getInt(DataQueries.FLUID_VOLUME);
         if (type.isPresent() && volume.isPresent()) {
             SpongeFluidStackSnapshotBuilder builder = new SpongeFluidStackSnapshotBuilder();

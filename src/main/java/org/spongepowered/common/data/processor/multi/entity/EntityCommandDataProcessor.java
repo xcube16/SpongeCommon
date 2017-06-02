@@ -57,7 +57,7 @@ public class EntityCommandDataProcessor extends AbstractEntityDataProcessor<Enti
             return Optional.empty();
         }
         // just give Optional directly to LAST_COMMAND_OUTPUT as it is an OptionalValue
-        commandData.set(Keys.LAST_COMMAND_OUTPUT, container.getSpongeObject(Keys.LAST_COMMAND_OUTPUT.getQuery(), Text.class));
+        commandData.set(Keys.LAST_COMMAND_OUTPUT, container.getObject(Keys.LAST_COMMAND_OUTPUT.getQuery(), Text.class));
         commandData.set(Keys.SUCCESS_COUNT, successCount.get());
         commandData.set(Keys.COMMAND, command.get());
         commandData.set(Keys.TRACKS_OUTPUT, tracksOutput.get());

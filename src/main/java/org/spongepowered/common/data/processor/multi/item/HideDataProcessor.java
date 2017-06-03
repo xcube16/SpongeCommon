@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.item;
 import com.google.common.collect.Maps;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
@@ -40,7 +39,6 @@ import org.spongepowered.common.data.util.DataConstants;
 import org.spongepowered.common.data.util.NbtDataUtil;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class HideDataProcessor extends AbstractMultiDataSingleTargetProcessor<ItemStack, HideData, ImmutableHideData> {
 
@@ -102,22 +100,6 @@ public class HideDataProcessor extends AbstractMultiDataSingleTargetProcessor<It
     @Override
     protected HideData createManipulator() {
         return new SpongeHideData();
-    }
-
-    @Override
-    public Optional<HideData> fill(DataContainer container, HideData hideData) {
-        Optional<Boolean> enchantments = container.getBoolean(Keys.HIDE_ENCHANTMENTS.getQuery());
-        Optional<Boolean> attributes = container.getBoolean(Keys.HIDE_ATTRIBUTES.getQuery());
-        Optional<Boolean> unbreakable = container.getBoolean(Keys.HIDE_UNBREAKABLE.getQuery());
-        Optional<Boolean> canDestroy = container.getBoolean(Keys.HIDE_CAN_DESTROY.getQuery());
-        Optional<Boolean> canPlace = container.getBoolean(Keys.HIDE_CAN_PLACE.getQuery());
-        Optional<Boolean> miscellaneous = container.getBoolean(Keys.HIDE_MISCELLANEOUS.getQuery());
-        if (enchantments.isPresent() && attributes.isPresent() && unbreakable.isPresent() && canDestroy.isPresent() && canPlace.isPresent()
-                && miscellaneous.isPresent()) {
-            return Optional.of(new SpongeHideData(enchantments.get(), attributes.get(), unbreakable.get(), canDestroy.get(), canPlace.get(),
-                    miscellaneous.get()));
-        }
-        return Optional.empty();
     }
 
     @Override

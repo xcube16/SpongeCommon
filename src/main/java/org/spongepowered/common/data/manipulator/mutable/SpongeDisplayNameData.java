@@ -68,7 +68,7 @@ public class SpongeDisplayNameData extends AbstractSingleData<Text, DisplayNameD
     @Override
     public void toContainer(DataMap container) {
         super.toContainer(container);
-        container.set(Keys.DISPLAY_NAME.getQuery(), TextSerializers.JSON.serialize(this.getValue()));
+        container.set(Keys.DISPLAY_NAME.getQuery(), this.getValue());
     }
 
 }

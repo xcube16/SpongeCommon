@@ -24,12 +24,9 @@
  */
 package org.spongepowered.common.data.processor.data.tileentity;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.tileentity.TileEntityStructure;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
@@ -37,13 +34,11 @@ import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableStructureData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.StructureData;
 import org.spongepowered.api.data.type.StructureMode;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.manipulator.mutable.tileentity.SpongeStructureData;
 import org.spongepowered.common.data.processor.common.AbstractTileEntityDataProcessor;
 import org.spongepowered.common.interfaces.block.tile.IMixinTileEntityStructure;
 
 import java.util.Map;
-import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -118,58 +113,6 @@ public final class StructureDataProcessor extends AbstractTileEntityDataProcesso
     @Override
     protected StructureData createManipulator() {
         return new SpongeStructureData();
-    }
-
-    @Override
-    public Optional<StructureData> fill(DataContainer container, StructureData data) {
-        checkNotNull(data, "data");
-
-        Optional<String> author = container.getString(Keys.STRUCTURE_AUTHOR.getQuery());
-        if (author.isPresent()) {
-            data = data.set(Keys.STRUCTURE_AUTHOR, author.get());
-        }
-
-        Optional<Boolean> ignoreEntities = container.getBoolean(Keys.STRUCTURE_IGNORE_ENTITIES.getQuery());
-        if (ignoreEntities.isPresent()) {
-            data = data.set(Keys.STRUCTURE_IGNORE_ENTITIES, ignoreEntities.get());
-        }
-
-        Optional<Float> integrity = container.getFloat(Keys.STRUCTURE_INTEGRITY.getQuery());
-        if (integrity.isPresent()) {
-            data = data.set(Keys.STRUCTURE_INTEGRITY, integrity.get());
-        }
-
-        Optional<StructureMode> mode = container.getObject(Keys.STRUCTURE_MODE.getQuery(), StructureMode.class);
-        if (mode.isPresent()) {
-            data = data.set(Keys.STRUCTURE_MODE, mode.get());
-        }
-
-        Optional<Vector3i> position = container.getObject(Keys.STRUCTURE_POSITION.getQuery(), Vector3i.class);
-        if (position.isPresent()) {
-            data = data.set(Keys.STRUCTURE_POSITION, position.get());
-        }
-
-        Optional<Boolean> powered = container.getBoolean(Keys.STRUCTURE_POWERED.getQuery());
-        if (powered.isPresent()) {
-            data = data.set(Keys.STRUCTURE_POWERED, powered.get());
-        }
-
-        Optional<Boolean> showAir = container.getBoolean(Keys.STRUCTURE_SHOW_AIR.getQuery());
-        if (showAir.isPresent()) {
-            data = data.set(Keys.STRUCTURE_SHOW_AIR, showAir.get());
-        }
-
-        Optional<Boolean> showBoundingBox = container.getBoolean(Keys.STRUCTURE_SHOW_BOUNDING_BOX.getQuery());
-        if (showBoundingBox.isPresent()) {
-            data = data.set(Keys.STRUCTURE_SHOW_BOUNDING_BOX, showBoundingBox.get());
-        }
-
-        Optional<Vector3i> size = container.getObject(Keys.STRUCTURE_SIZE.getQuery(), Vector3i.class);
-        if (size.isPresent()) {
-            data = data.set(Keys.STRUCTURE_SIZE, size.get());
-        }
-
-        return Optional.of(data);
     }
 
     @Override

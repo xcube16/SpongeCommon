@@ -49,28 +49,6 @@ public class TileEntityCommandDataProcessor extends AbstractTileEntityDataProces
     }
 
     @Override
-    public Optional<CommandData> fill(DataContainer container, CommandData commandData) {
-        if (!container.contains(
-                Keys.LAST_COMMAND_OUTPUT.getQuery(), 
-                Keys.SUCCESS_COUNT.getQuery(), 
-                Keys.COMMAND.getQuery(),
-                Keys.TRACKS_OUTPUT.getQuery())) {
-            return Optional.empty();
-        }
-        @SuppressWarnings("unchecked")
-        Optional<Text> lastCommandOutput = (Optional<Text>) container.get(Keys.LAST_COMMAND_OUTPUT.getQuery()).get();
-        int successCount = container.getInt(Keys.SUCCESS_COUNT.getQuery()).get();
-        String command = container.getString(Keys.COMMAND.getQuery()).get();
-        boolean tracksOutput = container.getBoolean(Keys.TRACKS_OUTPUT.getQuery()).get();
-        
-        commandData.set(Keys.LAST_COMMAND_OUTPUT, lastCommandOutput);
-        commandData.set(Keys.SUCCESS_COUNT, successCount);
-        commandData.set(Keys.COMMAND, command);
-        commandData.set(Keys.TRACKS_OUTPUT, tracksOutput);
-        return Optional.of(commandData);
-    }
-
-    @Override
     public DataTransactionResult remove(DataHolder dataHolder) {
         return DataTransactionResult.failNoData();
     }

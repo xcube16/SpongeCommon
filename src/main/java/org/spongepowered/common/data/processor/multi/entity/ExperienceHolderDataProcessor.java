@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.player.EntityPlayer;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -38,7 +37,6 @@ import org.spongepowered.common.data.processor.common.AbstractEntityDataProcesso
 import org.spongepowered.common.interfaces.entity.player.IMixinEntityPlayerMP;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class ExperienceHolderDataProcessor extends AbstractEntityDataProcessor<EntityPlayer, ExperienceHolderData, ImmutableExperienceHolderData> {
 
@@ -75,17 +73,6 @@ public class ExperienceHolderDataProcessor extends AbstractEntityDataProcessor<E
                 Keys.TOTAL_EXPERIENCE, totalExp,
                 Keys.EXPERIENCE_SINCE_LEVEL, expSinceLevel,
                 Keys.EXPERIENCE_FROM_START_OF_LEVEL, expBetweenLevels);
-    }
-
-    @Override
-    public Optional<ExperienceHolderData> fill(DataMap container, ExperienceHolderData expData) {
-        container.getInt(Keys.EXPERIENCE_LEVEL.getQuery()).ifPresent(l ->
-                expData.set(Keys.EXPERIENCE_LEVEL, l));
-        container.getInt(Keys.TOTAL_EXPERIENCE.getQuery()).ifPresent(e ->
-                expData.set(Keys.TOTAL_EXPERIENCE, e));
-        container.getInt(Keys.EXPERIENCE_SINCE_LEVEL.getQuery()).ifPresent(e ->
-                expData.set(Keys.EXPERIENCE_SINCE_LEVEL, e));
-        return Optional.of(expData);
     }
 
     @Override

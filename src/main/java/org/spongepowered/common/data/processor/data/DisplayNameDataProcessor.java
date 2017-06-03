@@ -32,7 +32,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.IWorldNameable;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -45,7 +44,6 @@ import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.manipulator.immutable.ImmutableSpongeDisplayNameData;
 import org.spongepowered.common.data.manipulator.mutable.SpongeDisplayNameData;
@@ -116,14 +114,6 @@ public class DisplayNameDataProcessor extends AbstractSingleDataProcessor<Text, 
         }
 
         return Optional.empty();
-    }
-
-    @Override
-    public Optional<DisplayNameData> fill(DataMap container, DisplayNameData displayNameData) {
-        //TODO: store Text in DataView directly
-        container.getString(Keys.DISPLAY_NAME.getQuery()).ifPresent(n ->
-                displayNameData.set(Keys.DISPLAY_NAME, TextSerializers.JSON.deserialize(n)));
-        return Optional.of(displayNameData);
     }
 
     @Override

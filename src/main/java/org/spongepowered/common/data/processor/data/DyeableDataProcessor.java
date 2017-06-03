@@ -35,7 +35,6 @@ import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -97,12 +96,6 @@ public class DyeableDataProcessor extends AbstractSingleDataProcessor<DyeColor, 
             }
         }
         return Optional.empty();
-    }
-
-    @Override
-    public Optional<DyeableData> fill(DataMap container, DyeableData dyeableData) {
-        return container.getObject(Keys.DYE_COLOR.getQuery(), DyeColor.class).map(c ->
-                dyeableData.set(Keys.DYE_COLOR, c));
     }
 
     @Override

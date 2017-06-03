@@ -28,13 +28,11 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.potion.Potion;
 import net.minecraft.tileentity.TileEntityBeacon;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableBeaconData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.BeaconData;
-import org.spongepowered.api.effect.potion.PotionEffectType;
 import org.spongepowered.common.data.manipulator.mutable.tileentity.SpongeBeaconData;
 import org.spongepowered.common.data.processor.common.AbstractTileEntityDataProcessor;
 
@@ -83,15 +81,6 @@ public class BeaconDataProcessor extends AbstractTileEntityDataProcessor<TileEnt
     @Override
     protected BeaconData createManipulator() {
         return new SpongeBeaconData();
-    }
-
-    @Override
-    public Optional<BeaconData> fill(DataMap container, BeaconData beaconData) {
-        beaconData.primaryEffect().set(
-                container.getObject(Keys.BEACON_PRIMARY_EFFECT.getQuery(), PotionEffectType.class));
-        beaconData.secondaryEffect().set(
-                container.getObject(Keys.BEACON_SECONDARY_EFFECT.getQuery(), PotionEffectType.class));
-        return Optional.of(beaconData);
     }
 
     @Override

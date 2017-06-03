@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.data.item;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableLoreData;
@@ -36,15 +35,12 @@ import org.spongepowered.api.data.value.ValueContainer;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.data.value.mutable.ListValue;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextParseException;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongeLoreData;
 import org.spongepowered.common.data.processor.common.AbstractItemSingleDataProcessor;
 import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeListValue;
 import org.spongepowered.common.data.value.mutable.SpongeListValue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,16 +48,6 @@ public class ItemLoreDataProcessor extends AbstractItemSingleDataProcessor<List<
 
     public ItemLoreDataProcessor() {
         super(input -> true, Keys.ITEM_LORE);
-    }
-
-    @Override
-    public Optional<LoreData> fill(DataMap container, LoreData loreData) {
-        //TODO: store Text directly in DataView, not json
-        List<Text> lore = new ArrayList<>();
-        container.getList(Keys.ITEM_LORE.getQuery()).ifPresent(list ->
-                list.forEachKey(i -> list.getString(i).ifPresent(text ->
-                        lore.add(TextSerializers.JSON.deserialize(text)))));
-        return Optional.of(loreData.set(Keys.ITEM_LORE, lore));
     }
 
     @Override

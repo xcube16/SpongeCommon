@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.EntityAgeable;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -37,7 +36,6 @@ import org.spongepowered.common.data.manipulator.mutable.entity.SpongeAgeableDat
 import org.spongepowered.common.data.processor.common.AbstractEntityDataProcessor;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class AgeableDataProcessor extends AbstractEntityDataProcessor<EntityAgeable, AgeableData, ImmutableAgeableData> {
 
@@ -77,18 +75,6 @@ public class AgeableDataProcessor extends AbstractEntityDataProcessor<EntityAgea
     @Override
     protected Map<Key<?>, ?> getValues(EntityAgeable entity) {
         return ImmutableMap.<Key<?>, Object>of(Keys.AGE, entity.getAge(), Keys.IS_ADULT, entity.isChild());
-    }
-
-    @Override
-    public Optional<AgeableData> fill(DataMap container, AgeableData ageableData) {
-        Optional<Integer> age = container.getInt(Keys.AGE.getQuery());
-        Optional<Boolean> isAdult = container.getBoolean(Keys.AGE.getQuery());
-        if (!age.isPresent() || !isAdult.isPresent()) {
-            return Optional.empty();
-        }
-        ageableData.set(Keys.AGE, age.get());
-        ageableData.set(Keys.IS_ADULT, isAdult.get());
-        return Optional.of(ageableData);
     }
 
     @Override

@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.tileentity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.tileentity.TileEntityBanner;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -39,10 +38,8 @@ import org.spongepowered.common.data.manipulator.mutable.tileentity.SpongeBanner
 import org.spongepowered.common.data.processor.common.AbstractTileEntityDataProcessor;
 import org.spongepowered.common.interfaces.block.tile.IMixinBanner;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 public class TileEntityBannerDataProcessor extends AbstractTileEntityDataProcessor<TileEntityBanner, BannerData, ImmutableBannerData> {
 
@@ -78,19 +75,6 @@ public class TileEntityBannerDataProcessor extends AbstractTileEntityDataProcess
     @Override
     protected BannerData createManipulator() {
         return new SpongeBannerData();
-    }
-
-    @Override
-    public Optional<BannerData> fill(DataMap container, BannerData bannerData) {
-        container.getList(Keys.BANNER_PATTERNS.getQuery()).ifPresent(l -> {
-            List<PatternLayer> layers = new ArrayList<>();
-            l.forEachKey(i ->
-                    l.getObject(i, PatternLayer.class).ifPresent(layers::add));
-            bannerData.set(Keys.BANNER_PATTERNS, layers);
-        });
-        container.getObject(Keys.BANNER_BASE_COLOR.getQuery(), DyeColor.class).ifPresent(c ->
-            bannerData.set(Keys.BANNER_BASE_COLOR, c));
-        return Optional.of(bannerData);
     }
 
     @Override

@@ -26,7 +26,6 @@ package org.spongepowered.common.data.processor.data.entity;
 
 import com.flowpowered.math.vector.Vector3d;
 import net.minecraft.entity.Entity;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableVelocityData;
@@ -36,7 +35,6 @@ import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.common.data.manipulator.mutable.entity.SpongeVelocityData;
 import org.spongepowered.common.data.processor.common.AbstractEntitySingleDataProcessor;
-import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeValue;
 import org.spongepowered.common.data.value.mutable.SpongeValue;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
@@ -63,13 +61,6 @@ public class VelocityDataProcessor extends AbstractEntitySingleDataProcessor<Ent
     @Override
     protected Optional<Vector3d> getVal(Entity entity) {
         return Optional.of(((IMixinEntity) entity).getVelocity());
-    }
-
-    @Override
-    public Optional<VelocityData> fill(DataMap container, VelocityData velocityData) {
-        return container.getMap(Keys.VELOCITY.getQuery())
-                .map(DataUtil::getVector3d)
-                .map(vector3d -> velocityData.set(Keys.VELOCITY, vector3d));
     }
 
     @Override

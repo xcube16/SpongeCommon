@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.common;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
@@ -39,7 +38,6 @@ import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.ValueProcessor;
-import org.spongepowered.common.data.util.DataUtil;
 
 import java.util.Optional;
 
@@ -103,12 +101,6 @@ public abstract class AbstractSingleDataSingleTargetProcessor<Holder, T, V exten
             final M merged = checkNotNull(overlap).merge(manipulator.copy(), from(dataHolder).orElse(null));
             return Optional.of(manipulator.set(this.key, merged.get(this.key).get()));
         }
-    }
-
-    @Override
-    public Optional<M> fill(DataMap container, M m) {
-        m.set(this.key, DataUtil.getData(container, this.key));
-        return Optional.of(m);
     }
 
     @SuppressWarnings("unchecked")

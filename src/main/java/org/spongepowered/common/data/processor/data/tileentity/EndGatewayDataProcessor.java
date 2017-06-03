@@ -28,7 +28,6 @@ import com.flowpowered.math.vector.Vector3i;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.tileentity.TileEntityEndGateway;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -39,7 +38,6 @@ import org.spongepowered.common.data.processor.common.AbstractTileEntityDataProc
 import org.spongepowered.common.interfaces.block.tile.IMixinTileEntityEndGateway;
 
 import java.util.Map;
-import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -89,23 +87,6 @@ public final class EndGatewayDataProcessor extends AbstractTileEntityDataProcess
     @Override
     protected EndGatewayData createManipulator() {
         return new SpongeEndGatewayData();
-    }
-
-    @Override
-    public Optional<EndGatewayData> fill(DataMap container, EndGatewayData data) {
-        Optional<Vector3i> exitPosition = container.getObject(Keys.EXIT_POSITION.getQuery(), Vector3i.class);
-        if (!exitPosition.isPresent()) {
-            return Optional.empty(); // we must have an exit location
-        }
-        data.set(Keys.EXIT_POSITION, exitPosition.get());
-
-        container.getBoolean(Keys.EXACT_TELEPORT.getQuery()).ifPresent(t ->
-                data.set(Keys.EXACT_TELEPORT, t));
-        container.getLong(Keys.END_GATEWAY_AGE.getQuery()).ifPresent(a ->
-                data.set(Keys.END_GATEWAY_AGE, a));
-        container.getInt(Keys.END_GATEWAY_TELEPORT_COOLDOWN.getQuery()).ifPresent(c ->
-                data.set(Keys.END_GATEWAY_TELEPORT_COOLDOWN, c));
-        return Optional.of(data);
     }
 
     @Override

@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.Entity;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -39,7 +38,6 @@ import org.spongepowered.common.entity.EntityUtil;
 import org.spongepowered.common.interfaces.entity.IMixinEntity;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class InvisibilityDataProcessor
         extends AbstractEntityDataProcessor<Entity, InvisibilityData, ImmutableInvisibilityData> {
@@ -85,20 +83,6 @@ public class InvisibilityDataProcessor
                 Keys.VANISH, ((IMixinEntity) dataHolder).isVanished(),
                 Keys.VANISH_IGNORES_COLLISION, ((IMixinEntity) dataHolder).ignoresCollision(),
                 Keys.VANISH_PREVENTS_TARGETING, ((IMixinEntity) dataHolder).isUntargetable());
-    }
-
-    @Override
-    public Optional<InvisibilityData> fill(DataMap container, InvisibilityData invisibilityData) {
-        //TODO: Does'nt InvisibilityData have default values? (could replace the orElse()'s with ifPresent()'s)
-        final boolean vanished = container.getBoolean(Keys.VANISH.getQuery()).orElse(false);
-        final boolean invisible = container.getBoolean(Keys.INVISIBLE.getQuery()).orElse(false);
-        final boolean collision = container.getBoolean(Keys.VANISH_IGNORES_COLLISION.getQuery()).orElse(false);
-        final boolean targeting = container.getBoolean(Keys.VANISH_PREVENTS_TARGETING.getQuery()).orElse(false);
-        return Optional.of(invisibilityData
-                .set(Keys.VANISH, vanished)
-                .set(Keys.INVISIBLE, invisible)
-                .set(Keys.VANISH_IGNORES_COLLISION, collision)
-                .set(Keys.VANISH_PREVENTS_TARGETING, targeting));
     }
 
     @Override

@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.item.EntityArmorStand;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -37,7 +36,6 @@ import org.spongepowered.common.data.manipulator.mutable.entity.SpongeArmorStand
 import org.spongepowered.common.data.processor.common.AbstractEntityDataProcessor;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class ArmorStandDataProcessor extends AbstractEntityDataProcessor<EntityArmorStand, ArmorStandData, ImmutableArmorStandData> {
 
@@ -76,19 +74,6 @@ public class ArmorStandDataProcessor extends AbstractEntityDataProcessor<EntityA
     @Override
     protected ArmorStandData createManipulator() {
         return new SpongeArmorStandData();
-    }
-
-    @Override
-    public Optional<ArmorStandData> fill(DataMap container, ArmorStandData armorStandData) {
-        container.getBoolean(Keys.ARMOR_STAND_HAS_ARMS.getQuery()).ifPresent(a ->
-                armorStandData.set(Keys.ARMOR_STAND_HAS_ARMS, a));
-        container.getBoolean(Keys.ARMOR_STAND_MARKER.getQuery()).ifPresent(m ->
-                armorStandData.set(Keys.ARMOR_STAND_MARKER, m));
-        container.getBoolean(Keys.ARMOR_STAND_HAS_BASE_PLATE.getQuery()).ifPresent(b ->
-                armorStandData.set(Keys.ARMOR_STAND_HAS_BASE_PLATE, b));
-        container.getBoolean(Keys.ARMOR_STAND_IS_SMALL.getQuery()).ifPresent(s ->
-                armorStandData.set(Keys.ARMOR_STAND_IS_SMALL, s));
-        return Optional.of(armorStandData);
     }
 
     @Override

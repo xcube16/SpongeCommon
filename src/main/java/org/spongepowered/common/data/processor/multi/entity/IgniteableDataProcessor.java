@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.Entity;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -37,21 +36,11 @@ import org.spongepowered.common.data.manipulator.mutable.entity.SpongeIgniteable
 import org.spongepowered.common.data.processor.common.AbstractEntityDataProcessor;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class IgniteableDataProcessor extends AbstractEntityDataProcessor<Entity, IgniteableData, ImmutableIgniteableData> {
 
     public IgniteableDataProcessor() {
         super(Entity.class);
-    }
-
-    @Override
-    public Optional<IgniteableData> fill(DataMap container, IgniteableData igniteableData) {
-        container.getInt(Keys.FIRE_TICKS.getQuery()).ifPresent(t ->
-                igniteableData.set(Keys.FIRE_TICKS, t));
-        container.getInt(Keys.FIRE_DAMAGE_DELAY.getQuery()).ifPresent(d ->
-                igniteableData.set(Keys.FIRE_DAMAGE_DELAY, d));
-        return Optional.of(igniteableData);
     }
 
     @Override

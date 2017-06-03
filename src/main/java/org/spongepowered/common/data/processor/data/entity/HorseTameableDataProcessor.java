@@ -54,17 +54,6 @@ public class HorseTameableDataProcessor
     }
 
     @Override
-    public Optional<TameableData> fill(final DataMap container, final TameableData tameableData) {
-        container.getString(Keys.TAMED_OWNER.getQuery()).ifPresent(uuid -> {
-            if (!uuid.equals("none")) {
-                final UUID ownerUUID = UUID.fromString(uuid);
-                tameableData.set(Keys.TAMED_OWNER, Optional.of(ownerUUID));
-            }
-        });
-        return Optional.of(tameableData);
-    }
-
-    @Override
     protected boolean set(EntityHorse horse, Optional<UUID> uuidOptional) {
         horse.setOwnerUniqueId(uuidOptional.orElse(null));
         if (uuidOptional.isPresent()) {

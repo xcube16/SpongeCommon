@@ -27,9 +27,7 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityFallingBlock;
-import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -39,7 +37,6 @@ import org.spongepowered.common.data.manipulator.mutable.entity.SpongeFallingBlo
 import org.spongepowered.common.data.processor.common.AbstractEntityDataProcessor;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class FallingBlockDataProcessor extends AbstractEntityDataProcessor<EntityFallingBlock, FallingBlockData, ImmutableFallingBlockData> {
 
@@ -80,25 +77,6 @@ public class FallingBlockDataProcessor extends AbstractEntityDataProcessor<Entit
     @Override
     protected FallingBlockData createManipulator() {
         return new SpongeFallingBlockData();
-    }
-
-    @Override
-    public Optional<FallingBlockData> fill(DataMap container, FallingBlockData fbData) {
-        container.getDouble(Keys.FALL_DAMAGE_PER_BLOCK.getQuery()).ifPresent(d ->
-                fbData.set(Keys.FALL_DAMAGE_PER_BLOCK, d));
-        container.getDouble(Keys.MAX_FALL_DAMAGE.getQuery()).ifPresent(d ->
-                fbData.set(Keys.MAX_FALL_DAMAGE, d));
-        container.getObject(Keys.FALLING_BLOCK_STATE.getQuery(), BlockState.class).ifPresent(s ->
-                fbData.set(Keys.FALLING_BLOCK_STATE, s));
-        container.getBoolean(Keys.CAN_PLACE_AS_BLOCK.getQuery()).ifPresent(b ->
-                fbData.set(Keys.CAN_PLACE_AS_BLOCK, b));
-        container.getBoolean(Keys.CAN_DROP_AS_ITEM.getQuery()).ifPresent(i ->
-                fbData.set(Keys.CAN_DROP_AS_ITEM, i));
-        container.getInt(Keys.FALL_TIME.getQuery()).ifPresent(t ->
-                fbData.set(Keys.FALL_TIME, t));
-        container.getBoolean(Keys.FALLING_BLOCK_CAN_HURT_ENTITIES.getQuery()).ifPresent(h ->
-                fbData.set(Keys.FALLING_BLOCK_CAN_HURT_ENTITIES, h));
-        return Optional.of(fbData);
     }
 
     @Override

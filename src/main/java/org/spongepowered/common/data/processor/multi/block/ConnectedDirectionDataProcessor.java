@@ -28,7 +28,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -39,18 +38,12 @@ import org.spongepowered.common.data.manipulator.mutable.block.SpongeConnectedDi
 import org.spongepowered.common.data.processor.common.AbstractMultiDataSingleTargetProcessor;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class ConnectedDirectionDataProcessor extends
         AbstractMultiDataSingleTargetProcessor<ItemStack, ConnectedDirectionData, ImmutableConnectedDirectionData> {
 
     public ConnectedDirectionDataProcessor() {
         super(ItemStack.class);
-    }
-
-    @Override
-    public Optional<ConnectedDirectionData> fill(DataMap container, ConnectedDirectionData m) {
-        return Optional.of(m);
     }
 
     @Override

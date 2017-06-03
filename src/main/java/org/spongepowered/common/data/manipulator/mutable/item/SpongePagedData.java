@@ -31,7 +31,6 @@ import org.spongepowered.api.data.manipulator.mutable.item.PagedData;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongePagedData;
 import org.spongepowered.common.data.manipulator.mutable.common.AbstractListData;
-import org.spongepowered.common.text.SpongeTexts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +48,7 @@ public class SpongePagedData extends AbstractListData<Text, PagedData, Immutable
     @Override
     public void toContainer(DataMap container) {
         super.toContainer(container);
-        container.set(Keys.BOOK_PAGES.getQuery(), SpongeTexts.asJson(getValue()));
+        container.set(Keys.BOOK_PAGES.getQuery(), getValue());
     }
 
 }

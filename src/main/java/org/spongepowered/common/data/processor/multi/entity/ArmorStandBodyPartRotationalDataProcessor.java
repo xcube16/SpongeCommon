@@ -28,11 +28,9 @@ import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.Maps;
 import net.minecraft.entity.item.EntityArmorStand;
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataQuery;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableBodyPartRotationalData;
@@ -42,7 +40,6 @@ import org.spongepowered.api.data.type.BodyParts;
 import org.spongepowered.common.data.manipulator.mutable.entity.SpongeBodyPartRotationalData;
 import org.spongepowered.common.data.processor.common.AbstractEntityDataProcessor;
 import org.spongepowered.common.data.util.DataConstants;
-import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.util.VecHelper;
 
 import java.util.Arrays;
@@ -65,20 +62,19 @@ public class ArmorStandBodyPartRotationalDataProcessor
     }
 
     @Override
-    public Optional<BodyPartRotationalData> fill(DataContainer container, BodyPartRotationalData data) {
-        Optional<DataView> opt = container.getView(Keys.BODY_ROTATIONS.getQuery());
+    // TODO: Remove this fill implementation when the universal implementation supports MapValue
+    public Optional<BodyPartRotationalData> fill(DataMap container, BodyPartRotationalData data) {
+        Optional<DataMap> opt = container.getMap(Keys.BODY_ROTATIONS.getQuery());
         if (!opt.isPresent()) {
             return Optional.empty();
         }
 
-        // Deserialize BODY_ROTATIONS from <DataQuery, DataView> to Map<BodyPart, Vector3d>
-        DataView bodyRotationsData = opt.get();
+        // Deserialize BODY_ROTATIONS from <String, Vector3d> to Map<BodyPart, Vector3d>
+        DataMap bodyRotationsData = opt.get();
         Map<BodyPart, Vector3d> bodyRotations = Maps.newHashMap();
-        for (DataQuery key : bodyRotationsData.getKeys(false)) {
-            bodyRotations.put(
-                    Sponge.getRegistry().getType(BodyPart.class, key.toString()).get(),
-                    DataUtil.getPosition3d(bodyRotationsData.getView(key).get()));
-        }
+        bodyRotationsData.forEachKey(key -> bodyRotations.put(
+                Sponge.getRegistry().getType(BodyPart.class, key).get(),
+                bodyRotationsData.getObject(key, Vector3d.class).get()));
 
         data.set(Keys.BODY_ROTATIONS, bodyRotations);
         return Optional.of(data);

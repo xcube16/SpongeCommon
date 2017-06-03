@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.player.EntityPlayer;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -37,7 +36,6 @@ import org.spongepowered.common.data.manipulator.mutable.entity.SpongeMovementSp
 import org.spongepowered.common.data.processor.common.AbstractEntityDataProcessor;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class MovementSpeedDataProcessor extends AbstractEntityDataProcessor<EntityPlayer, MovementSpeedData, ImmutableMovementSpeedData> {
 
@@ -69,15 +67,6 @@ public class MovementSpeedDataProcessor extends AbstractEntityDataProcessor<Enti
     @Override
     protected MovementSpeedData createManipulator() {
         return new SpongeMovementSpeedData();
-    }
-
-    @Override
-    public Optional<MovementSpeedData> fill(DataMap container, MovementSpeedData movementSpeedData) {
-        container.getDouble(Keys.WALKING_SPEED.getQuery()).ifPresent(w ->
-                movementSpeedData.set(Keys.WALKING_SPEED, w));
-        container.getDouble(Keys.FLYING_SPEED.getQuery()).ifPresent(f ->
-                movementSpeedData.set(Keys.FLYING_SPEED, f));
-        return Optional.of(movementSpeedData);
     }
 
     @Override

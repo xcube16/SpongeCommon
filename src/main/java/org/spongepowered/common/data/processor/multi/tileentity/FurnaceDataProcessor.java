@@ -28,7 +28,6 @@ import com.google.common.collect.Maps;
 import net.minecraft.tileentity.TileEntityFurnace;
 import org.spongepowered.api.block.BlockTypes;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -42,7 +41,6 @@ import org.spongepowered.common.data.processor.common.AbstractTileEntityDataProc
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 public class FurnaceDataProcessor extends AbstractTileEntityDataProcessor<TileEntityFurnace, FurnaceData, ImmutableFurnaceData> {
 
@@ -115,28 +113,6 @@ public class FurnaceDataProcessor extends AbstractTileEntityDataProcessor<TileEn
     @Override
     protected FurnaceData createManipulator() {
         return new SpongeFurnaceData();
-    }
-
-    @Override
-    public Optional<FurnaceData> fill(DataMap container, FurnaceData furnaceData) {
-        if (!container.contains(Keys.PASSED_BURN_TIME.getQuery()) ||
-                !container.contains(Keys.MAX_BURN_TIME.getQuery()) ||
-                !container.contains(Keys.PASSED_COOK_TIME.getQuery()) ||
-                !container.contains(Keys.MAX_COOK_TIME.getQuery())) {
-            return Optional.empty();
-        }
-
-        final int passedBurnTime = container.getInt(Keys.PASSED_BURN_TIME.getQuery()).get();
-        final int maxBurnTime = container.getInt(Keys.MAX_BURN_TIME.getQuery()).get();
-        final int passedCookTime = container.getInt(Keys.PASSED_COOK_TIME.getQuery()).get();
-        final int maxCookTime = container.getInt(Keys.MAX_COOK_TIME.getQuery()).get();
-
-        furnaceData.set(Keys.PASSED_BURN_TIME, passedBurnTime);
-        furnaceData.set(Keys.MAX_BURN_TIME, maxBurnTime);
-        furnaceData.set(Keys.PASSED_COOK_TIME, passedCookTime);
-        furnaceData.set(Keys.MAX_COOK_TIME, maxCookTime);
-
-        return Optional.of(furnaceData);
     }
 
     @Override

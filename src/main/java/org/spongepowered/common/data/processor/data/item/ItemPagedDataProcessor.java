@@ -29,7 +29,6 @@ import static org.spongepowered.common.item.inventory.util.ItemStackUtil.getTagC
 import com.google.common.collect.ImmutableList;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutablePagedData;
@@ -38,14 +37,12 @@ import org.spongepowered.api.data.value.ValueContainer;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.data.value.mutable.ListValue;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongePagedData;
 import org.spongepowered.common.data.processor.common.AbstractItemSingleDataProcessor;
 import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeListValue;
 import org.spongepowered.common.data.value.mutable.SpongeListValue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,18 +50,6 @@ public class ItemPagedDataProcessor extends AbstractItemSingleDataProcessor<List
 
     public ItemPagedDataProcessor() {
         super(input -> input.getItem() == Items.WRITABLE_BOOK || input.getItem() == Items.WRITTEN_BOOK, Keys.BOOK_PAGES);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Optional<PagedData> fill(DataMap container, PagedData pagedData) {
-        //TODO: store Text directly in DataView
-        List<Text> pages = new ArrayList<>();
-        container.getList(Keys.BOOK_PAGES.getQuery()).ifPresent(list ->
-                list.forEachKey(i -> list.getString(i).ifPresent(json ->
-                        pages.add(TextSerializers.JSON.deserialize(json)))));
-
-        return Optional.of(pagedData.set(Keys.BOOK_PAGES, pages));
     }
 
     @Override

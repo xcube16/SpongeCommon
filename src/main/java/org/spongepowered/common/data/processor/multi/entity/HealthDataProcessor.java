@@ -28,7 +28,6 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -39,7 +38,6 @@ import org.spongepowered.common.data.processor.common.AbstractEntityDataProcesso
 import org.spongepowered.common.registry.type.event.DamageSourceRegistryModule;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class HealthDataProcessor extends AbstractEntityDataProcessor<EntityLivingBase, HealthData, ImmutableHealthData> {
 
@@ -74,15 +72,6 @@ public class HealthDataProcessor extends AbstractEntityDataProcessor<EntityLivin
         final double maxHealth = entity.getMaxHealth();
         return ImmutableMap.<Key<?>, Object>of(Keys.HEALTH, health,
                                                Keys.MAX_HEALTH, maxHealth);
-    }
-
-    @Override
-    public Optional<HealthData> fill(DataMap container, HealthData healthData) {
-        container.getDouble(Keys.MAX_HEALTH.getQuery()).ifPresent(m ->
-                healthData.set(Keys.MAX_HEALTH, m));
-        container.getDouble(Keys.HEALTH.getQuery()).ifPresent(m ->
-                healthData.set(Keys.HEALTH, m));
-        return Optional.of(healthData);
     }
 
     @Override

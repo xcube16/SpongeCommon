@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.processor.data.item;
 
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableSkullData;
@@ -54,13 +53,6 @@ public class ItemSkullDataProcessor
     @Override
     protected Optional<SkullType> getVal(ItemStack itemStack) {
         return Optional.of(SkullUtils.getSkullType(itemStack));
-    }
-
-    @Override
-    public Optional<SkullData> fill(DataMap container, SkullData skullData) {
-        container.getObject(Keys.SKULL_TYPE.getQuery(), SkullType.class).ifPresent(t ->
-                skullData.set(Keys.SKULL_TYPE, t));
-        return Optional.of(skullData);
     }
 
     @Override

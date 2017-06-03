@@ -28,7 +28,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.collect.ImmutableMap;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -40,7 +39,6 @@ import org.spongepowered.common.data.processor.common.AbstractMultiDataSingleTar
 import org.spongepowered.common.interfaces.entity.explosive.IMixinFusedExplosive;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class FuseDataProcessor extends AbstractMultiDataSingleTargetProcessor<FusedExplosive, FuseData, ImmutableFuseData> {
 
@@ -81,15 +79,6 @@ public class FuseDataProcessor extends AbstractMultiDataSingleTargetProcessor<Fu
     @Override
     protected FuseData createManipulator() {
         return new SpongeFuseData();
-    }
-
-    @Override
-    public Optional<FuseData> fill(DataMap container, FuseData fuseData) {
-        container.getInt(Keys.FUSE_DURATION.getQuery()).ifPresent(d ->
-                fuseData.set(Keys.FUSE_DURATION, d));
-        container.getInt(Keys.TICKS_REMAINING.getQuery()).ifPresent(r ->
-                fuseData.set(Keys.TICKS_REMAINING, r));
-        return Optional.of(fuseData);
     }
 
     @Override

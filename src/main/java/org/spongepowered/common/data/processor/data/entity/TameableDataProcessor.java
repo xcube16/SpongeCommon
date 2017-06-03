@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.processor.data.entity;
 
 import net.minecraft.entity.passive.EntityTameable;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableTameableData;
@@ -51,16 +50,6 @@ public class TameableDataProcessor
     @Override
     protected Optional<Optional<UUID>> getVal(EntityTameable tameable) {
         return Optional.of(Optional.ofNullable(tameable.getOwnerId()));
-    }
-
-    @Override
-    public Optional<TameableData> fill(final DataMap container, final TameableData tameableData) {
-        container.getString(Keys.TAMED_OWNER.getQuery()).ifPresent(uuid -> {
-            if (!uuid.equals("none")) {
-                tameableData.set(Keys.TAMED_OWNER, Optional.of(UUID.fromString(uuid)));
-            }
-        });
-        return Optional.of(tameableData);
     }
 
     @Override

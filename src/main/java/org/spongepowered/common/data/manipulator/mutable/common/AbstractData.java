@@ -256,5 +256,10 @@ public abstract class AbstractData<M extends DataManipulator<M, I>, I extends Im
     @Override
     public void toContainer(DataMap container) {
         container.set(Queries.CONTENT_VERSION, getContentVersion());
+        this.keyFieldGetterMap.forEach((key, value) -> {
+            if (value != null) {
+                container.set(key.getQuery(), value);
+            } // else: must be an optional value, don't store anything
+        });
     }
 }

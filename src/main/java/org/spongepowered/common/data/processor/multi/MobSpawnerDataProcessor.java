@@ -89,6 +89,9 @@ public class MobSpawnerDataProcessor extends AbstractMultiDataSingleTargetProces
 
     @Override
     public Optional<MobSpawnerData> fill(DataMap container, MobSpawnerData data) {
+        // TODO: universal support for Key<Value<WeightedSerializableObject<EntityArchetype>>>
+        // TODO: universal support for Key<WeightedCollectionValue<EntityArchetype>>
+
         container.getShort(Keys.SPAWNER_REMAINING_DELAY.getQuery()).ifPresent(v ->
                 data.set(Keys.SPAWNER_REMAINING_DELAY, v));
         container.getShort(Keys.SPAWNER_MINIMUM_DELAY.getQuery()).ifPresent(v ->

@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.processor.data.entity;
 
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutablePassengerData;
@@ -109,12 +108,6 @@ public class PassengerDataProcessor extends AbstractEntitySingleDataProcessor<ne
             return DataTransactionResult.successNoData();
         }
         return DataTransactionResult.failNoData();
-    }
-
-    @Override
-    public Optional<PassengerData> fill(DataContainer container, PassengerData passengerData) {
-        passengerData.set(Keys.PASSENGERS, container.getObjectList(Keys.PASSENGERS.getQuery(), UUID.class).get());
-        return Optional.of(passengerData);
     }
 
     @Override

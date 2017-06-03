@@ -32,12 +32,15 @@ import org.spongepowered.api.data.value.BaseValue;
 import org.spongepowered.api.data.value.mutable.ListValue;
 import org.spongepowered.api.data.value.mutable.MapValue;
 import org.spongepowered.api.data.value.mutable.OptionalValue;
+import org.spongepowered.api.data.value.mutable.SetValue;
 import org.spongepowered.api.entity.EntityType;
 import org.spongepowered.common.data.DataProcessor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public abstract class AbstractSpongeDataProcessor<M extends DataManipulator<M, I>, I extends ImmutableDataManipulator<I, M>> implements DataProcessor<M, I> {
 
@@ -55,18 +58,25 @@ public abstract class AbstractSpongeDataProcessor<M extends DataManipulator<M, I
     @SuppressWarnings("unchecked")
     public Optional<M> fill(DataMap container, M manipulator) {
         for (Key key : manipulator.getKeys()) {
+            Class<?> vtype = key.getValueToken().getRawType();
             //TODO: further abstraction would be nice
 
-            if (MapValue.class.isAssignableFrom(key.getValueToken().getRawType())) {
+            if (MapValue.class.isAssignableFrom(vtype)) {
                 //TODO: don't know MapValue generics at runtime :(
                 throw new UnsupportedOperationException("MapValue is not supported yet");
 
-            } else if (ListValue.class.isAssignableFrom(key.getValueToken().getRawType())) {
+            } else if (ListValue.class.isAssignableFrom(vtype)) {
                 List value = new ArrayList<>();
                 container.getList(key.getQuery()).ifPresent(l ->
                         l.forEachKey(i ->
                                 l.getObject(i, key.getElementToken().getRawType()).ifPresent(value::add)));
                 manipulator.set((Key<? extends BaseValue<List>>) key, value);
+            } else if (SetValue.class.isAssignableFrom(vtype)) {
+                Set value = new HashSet<>();
+                container.getList(key.getQuery()).ifPresent(l ->
+                        l.forEachKey(i ->
+                                l.getObject(i, key.getElementToken().getRawType()).ifPresent(value::add)));
+                manipulator.set((Key<? extends BaseValue<Set>>) key, value);
             }
 
             Optional<?> value = container.getObject(key.getQuery(), key.getElementToken().getRawType());
@@ -74,7 +84,14 @@ public abstract class AbstractSpongeDataProcessor<M extends DataManipulator<M, I
                 manipulator.set((Key<? extends BaseValue<Object>>) key, value);
             } else if (value.isPresent()) {
                 manipulator.set((Key<? extends BaseValue<Object>>) key, value.get());
-            } else { //TODO: ability for some keys to be loaded with default values to make it more easy on config files that dont define all values
+            } else {
+                //TODO: ability for some keys to be loaded with default values to make it more easy on config files
+                //      that don't define all values, or older data that does not include new values.
+                //      An extension/something like to BaseValue#getDefault() might work.
+                //      Maybe Key might be a better place for getDefault() than a BaseValue instance?
+                //      (I think requiring an instance of BaseValue to get a default value was a stupid design decision)
+                //      As some keys might not be able to provide a valid default value, a usefull getDefault() method
+                //      might need to return Optional?
                 return Optional.empty();
             }
         }

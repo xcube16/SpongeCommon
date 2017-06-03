@@ -26,7 +26,6 @@ package org.spongepowered.common.data.processor.data.item;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.item.ItemStack;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableEnchantmentData;
@@ -41,7 +40,6 @@ import org.spongepowered.common.data.util.NbtDataUtil;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeListValue;
 import org.spongepowered.common.data.value.mutable.SpongeListValue;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -80,15 +78,6 @@ public class ItemEnchantmentDataProcessor
     @Override
     protected ImmutableValue<List<ItemEnchantment>> constructImmutableValue(List<ItemEnchantment> value) {
         return new ImmutableSpongeListValue<>(Keys.ITEM_ENCHANTMENTS, ImmutableList.copyOf(value));
-    }
-
-    @Override
-    public Optional<EnchantmentData> fill(DataMap container, EnchantmentData enchantmentData) {
-        final List<ItemEnchantment> enchantments = new ArrayList<>();
-        container.getList(Keys.ITEM_ENCHANTMENTS.getQuery()).ifPresent(l ->
-                l.forEachKey(i -> l.getObject(i, ItemEnchantment.class).ifPresent(enchantments::add)));
-        enchantmentData.setElements(enchantments);
-        return Optional.of(enchantmentData);
     }
 
     @Override

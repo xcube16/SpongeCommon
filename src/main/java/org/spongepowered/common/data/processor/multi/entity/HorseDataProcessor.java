@@ -26,7 +26,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.passive.EntityHorse;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
@@ -40,7 +39,6 @@ import org.spongepowered.common.entity.SpongeHorseColor;
 import org.spongepowered.common.entity.SpongeHorseStyle;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class HorseDataProcessor extends AbstractEntityDataProcessor<EntityHorse, HorseData, ImmutableHorseData> {
 
@@ -76,15 +74,6 @@ public class HorseDataProcessor extends AbstractEntityDataProcessor<EntityHorse,
                 Keys.HORSE_COLOR, HorseUtils.getHorseColor(entity),
                 Keys.HORSE_STYLE, HorseUtils.getHorseStyle(entity)
         );
-    }
-
-    @Override
-    public Optional<HorseData> fill(DataContainer container, HorseData horseData) {
-
-        horseData.set(Keys.HORSE_COLOR, HorseUtils.getHorseColor(container));
-        horseData.set(Keys.HORSE_STYLE, HorseUtils.getHorseStyle(container));
-
-        return Optional.of(horseData);
     }
 
     @Override

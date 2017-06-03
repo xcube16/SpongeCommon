@@ -29,7 +29,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityMinecart;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -41,7 +40,6 @@ import org.spongepowered.common.data.processor.common.AbstractEntityDataProcesso
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeValue;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class MinecartBlockDataProcessor extends AbstractEntityDataProcessor<EntityMinecart, MinecartBlockData, ImmutableMinecartBlockData> {
 
@@ -75,15 +73,6 @@ public class MinecartBlockDataProcessor extends AbstractEntityDataProcessor<Enti
     @Override
     protected MinecartBlockData createManipulator() {
         return new SpongeMinecartBlockData();
-    }
-
-    @Override
-    public Optional<MinecartBlockData> fill(DataMap container, MinecartBlockData data) {
-        container.getObject(Keys.REPRESENTED_BLOCK.getQuery(), BlockState.class).ifPresent(b ->
-                data.set(Keys.REPRESENTED_BLOCK, b));
-        container.getInt(Keys.OFFSET.getQuery()).ifPresent(o ->
-                data.set(Keys.OFFSET, o));
-        return Optional.of(data);
     }
 
     @Override

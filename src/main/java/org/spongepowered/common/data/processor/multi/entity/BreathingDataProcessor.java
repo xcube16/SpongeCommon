@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.EntityLivingBase;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -38,7 +37,6 @@ import org.spongepowered.common.data.processor.common.AbstractEntityDataProcesso
 import org.spongepowered.common.interfaces.entity.IMixinEntityLivingBase;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class BreathingDataProcessor extends AbstractEntityDataProcessor<EntityLivingBase, BreathingData, ImmutableBreathingData> {
 
@@ -67,15 +65,6 @@ public class BreathingDataProcessor extends AbstractEntityDataProcessor<EntityLi
     @Override
     protected Map<Key<?>, ?> getValues(EntityLivingBase entity) {
         return ImmutableMap.<Key<?>, Object>of(Keys.MAX_AIR, ((IMixinEntityLivingBase) entity).getMaxAir(), Keys.REMAINING_AIR, entity.getAir());
-    }
-
-    @Override
-    public Optional<BreathingData> fill(DataMap container, BreathingData breathingData) {
-        container.getInt(Keys.MAX_AIR.getQuery()).ifPresent(i ->
-                breathingData.set(Keys.MAX_AIR, i));
-        container.getInt(Keys.REMAINING_AIR.getQuery()).ifPresent(i ->
-                breathingData.set(Keys.REMAINING_AIR, i));
-        return Optional.of(breathingData);
     }
 
     @Override

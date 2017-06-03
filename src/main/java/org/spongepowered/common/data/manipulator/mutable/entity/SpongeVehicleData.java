@@ -44,6 +44,8 @@ import javax.annotation.Nullable;
 @ImplementationRequiredForTest
 public class SpongeVehicleData extends AbstractData<VehicleData, ImmutableVehicleData> implements VehicleData {
 
+    //TODO: Review nullability. copy(), asImmutable(), and many other critical methods do NOT work when anything is null!
+    //TODO: might as well be non-nullable
     private @Nullable EntitySnapshot vehicle;
     private @Nullable EntitySnapshot baseVehicle;
 

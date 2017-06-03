@@ -91,8 +91,8 @@ public class SpongeHorseData extends AbstractData<HorseData, ImmutableHorseData>
     @Override
     public void toContainer(DataMap container) {
         super.toContainer(container);
-        container.set(Keys.HORSE_COLOR.getQuery(), this.horseColor.getId())
-                .set(Keys.HORSE_STYLE.getQuery(), this.horseStyle.getId());
+        container.set(Keys.HORSE_COLOR, this.horseColor)
+                .set(Keys.HORSE_STYLE, this.horseStyle);
 
     }
 

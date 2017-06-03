@@ -31,7 +31,6 @@ import org.spongepowered.api.data.manipulator.mutable.item.LoreData;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongeLoreData;
 import org.spongepowered.common.data.manipulator.mutable.common.AbstractListData;
-import org.spongepowered.common.text.SpongeTexts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +49,7 @@ public class SpongeLoreData extends AbstractListData<Text, LoreData, ImmutableLo
     @Override
     public void toContainer(DataMap container) {
         super.toContainer(container);
-        container.set(Keys.ITEM_LORE.getQuery(), SpongeTexts.asJson(getValue()));
+        container.set(Keys.ITEM_LORE.getQuery(), getValue());
     }
 
 }

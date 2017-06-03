@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.tileentity;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import net.minecraft.tileentity.TileEntityChest;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataHolder;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
@@ -38,9 +37,7 @@ import org.spongepowered.api.util.Direction;
 import org.spongepowered.common.data.manipulator.mutable.block.SpongeConnectedDirectionData;
 import org.spongepowered.common.data.processor.common.AbstractTileEntityDataProcessor;
 
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public class TileConnectedDirectionDataProcessor
@@ -48,17 +45,6 @@ public class TileConnectedDirectionDataProcessor
 
     public TileConnectedDirectionDataProcessor() {
         super(TileEntityChest.class);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Optional<ConnectedDirectionData> fill(DataContainer container, ConnectedDirectionData m) {
-        Optional<List<?>> dirs = container.getList(Keys.CONNECTED_DIRECTIONS.getQuery());
-        if (dirs.isPresent()) {
-            m.set(Keys.CONNECTED_DIRECTIONS, Sets.newHashSet((List<Direction>) dirs.get()));
-            return Optional.of(m);
-        }
-        return Optional.empty();
     }
 
     @Override

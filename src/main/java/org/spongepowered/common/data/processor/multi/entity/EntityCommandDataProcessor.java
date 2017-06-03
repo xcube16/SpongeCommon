@@ -28,7 +28,6 @@ import com.google.common.collect.Maps;
 import net.minecraft.entity.item.EntityMinecartCommandBlock;
 import net.minecraft.tileentity.CommandBlockBaseLogic;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -46,22 +45,6 @@ public class EntityCommandDataProcessor extends AbstractEntityDataProcessor<Enti
 
     public EntityCommandDataProcessor() {
         super(EntityMinecartCommandBlock.class);
-    }
-
-    @Override
-    public Optional<CommandData> fill(DataMap container, CommandData commandData) {
-        Optional<Integer> successCount = container.getInt(Keys.SUCCESS_COUNT.getQuery());
-        Optional<String> command = container.getString(Keys.COMMAND.getQuery());
-        Optional<Boolean> tracksOutput = container.getBoolean(Keys.TRACKS_OUTPUT.getQuery());
-        if (!successCount.isPresent() || !command.isPresent() || !tracksOutput.isPresent()) {
-            return Optional.empty();
-        }
-        // just give Optional directly to LAST_COMMAND_OUTPUT as it is an OptionalValue
-        commandData.set(Keys.LAST_COMMAND_OUTPUT, container.getObject(Keys.LAST_COMMAND_OUTPUT.getQuery(), Text.class));
-        commandData.set(Keys.SUCCESS_COUNT, successCount.get());
-        commandData.set(Keys.COMMAND, command.get());
-        commandData.set(Keys.TRACKS_OUTPUT, tracksOutput.get());
-        return Optional.of(commandData);
     }
 
     @Override

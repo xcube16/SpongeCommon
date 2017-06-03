@@ -101,18 +101,6 @@ public class ShieldBannerDataProcessor extends AbstractItemDataProcessor<BannerD
     }
 
     @Override
-    public Optional<BannerData> fill(DataContainer container, BannerData durabilityData) {
-        final Optional<Integer> durability = container.getInt(Keys.ITEM_DURABILITY.getQuery());
-        final Optional<Boolean> unbreakable = container.getBoolean(Keys.UNBREAKABLE.getQuery());
-        if (durability.isPresent() && unbreakable.isPresent()) {
-            durabilityData.set(Keys.ITEM_DURABILITY, durability.get());
-            durabilityData.set(Keys.UNBREAKABLE, unbreakable.get());
-            return Optional.of(durabilityData);
-        }
-        return Optional.empty();
-    }
-
-    @Override
     public DataTransactionResult remove(DataHolder dataHolder) {
         return DataTransactionResult.failNoData();
     }

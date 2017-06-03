@@ -27,7 +27,6 @@ package org.spongepowered.common.data.processor.multi.entity;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.entity.item.EntityItem;
 import org.spongepowered.api.data.DataHolder;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.key.Keys;
@@ -38,7 +37,6 @@ import org.spongepowered.common.data.processor.common.AbstractEntityDataProcesso
 import org.spongepowered.common.interfaces.entity.item.IMixinEntityItem;
 
 import java.util.Map;
-import java.util.Optional;
 
 public final class PickupDelayDataProcessor extends AbstractEntityDataProcessor<EntityItem, PickupDelayData, ImmutablePickupDelayData> {
 
@@ -71,15 +69,6 @@ public final class PickupDelayDataProcessor extends AbstractEntityDataProcessor<
     @Override
     protected PickupDelayData createManipulator() {
         return new SpongePickupDelayData();
-    }
-
-    @Override
-    public Optional<PickupDelayData> fill(DataMap container, PickupDelayData data) {
-        container.getInt(Keys.PICKUP_DELAY.getQuery()).ifPresent(d ->
-                data.set(Keys.PICKUP_DELAY, d));
-        container.getBoolean(Keys.INFINITE_PICKUP_DELAY.getQuery()).ifPresent(i ->
-                data.set(Keys.INFINITE_PICKUP_DELAY, i));
-        return Optional.of(data);
     }
 
     @Override

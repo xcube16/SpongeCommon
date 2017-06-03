@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.processor.data.tileentity;
 
 import net.minecraft.tileentity.TileEntitySkull;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableSkullData;
@@ -59,13 +58,6 @@ public class TileEntitySkullDataProcessor
     @Override
     protected Optional<SkullType> getVal(TileEntitySkull skull) {
         return Optional.of(SkullUtils.getSkullType(skull));
-    }
-
-    @Override
-    public Optional<SkullData> fill(DataMap container, SkullData skullData) {
-        container.getObject(Keys.SKULL_TYPE.getQuery(), SkullType.class).ifPresent(t ->
-                skullData.set(Keys.SKULL_TYPE, t));
-        return Optional.of(skullData);
     }
 
     @Override

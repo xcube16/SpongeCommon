@@ -24,19 +24,15 @@
  */
 package org.spongepowered.common.data.processor.data.item;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.DataTransactionResult;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableSignData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
-import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.value.ValueContainer;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.data.value.mutable.ListValue;
@@ -78,24 +74,6 @@ public class ItemSignDataProcessor extends AbstractItemSingleDataProcessor<List<
             texts.add(SpongeTexts.fromLegacy(tileCompound.getString("Text" + (i + 1))));
         }
         return Optional.of(texts);
-    }
-
-    @Override
-    public Optional<SignData> fill(DataContainer container, SignData signData) {
-        if (!container.contains(Keys.SIGN_LINES.getQuery())) {
-            return Optional.empty();
-        }
-        checkNotNull(signData);
-        final List<String> lines = container.getStringList(Keys.SIGN_LINES.getQuery()).get();
-        final List<Text> textLines = Lists.newArrayListWithCapacity(4);
-        try {
-            for (int i = 0; i < 4; i++) {
-                textLines.set(i, TextSerializers.JSON.deserialize(lines.get(i)));
-            }
-        } catch (Exception e) {
-            throw new InvalidDataException("Could not translate text json lines", e);
-        }
-        return Optional.of(signData.set(Keys.SIGN_LINES, textLines));
     }
 
     @Override

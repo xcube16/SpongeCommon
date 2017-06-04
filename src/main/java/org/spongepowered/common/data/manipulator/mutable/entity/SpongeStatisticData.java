@@ -120,11 +120,4 @@ public class SpongeStatisticData extends AbstractMappedData<Statistic, Long, Sta
     public ImmutableStatisticData asImmutable() {
         return new ImmutableSpongeStatisticData(getValue());
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.STATISTICS, getValue());
-    }
-
 }

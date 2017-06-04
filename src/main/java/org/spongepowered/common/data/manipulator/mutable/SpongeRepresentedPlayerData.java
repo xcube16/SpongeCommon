@@ -25,7 +25,7 @@
 package org.spongepowered.common.data.manipulator.mutable;
 
 import com.google.common.collect.Multimap;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableRepresentedPlayerData;
 import org.spongepowered.api.data.manipulator.mutable.RepresentedPlayerData;
@@ -34,7 +34,6 @@ import org.spongepowered.api.profile.GameProfile;
 import org.spongepowered.api.profile.property.ProfileProperty;
 import org.spongepowered.common.data.manipulator.immutable.ImmutableSpongeRepresentedPlayerData;
 import org.spongepowered.common.data.manipulator.mutable.common.AbstractSingleData;
-import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.data.value.mutable.SpongeValue;
 
 import java.util.Optional;
@@ -61,7 +60,6 @@ public class SpongeRepresentedPlayerData extends AbstractSingleData<GameProfile,
 
         @Override
         public void toContainer(DataMap container) {
-            return DataContainer.createNew();
         }
 
         @Override
@@ -96,18 +94,6 @@ public class SpongeRepresentedPlayerData extends AbstractSingleData<GameProfile,
     @Override
     public RepresentedPlayerData copy() {
         return new SpongeRepresentedPlayerData(this.getValue());
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        final DataContainer container = super.toContainer();
-        if (this.getValue().getUniqueId() != null) {
-            container.set(this.usedKey.getQuery().then(DataQueries.GAME_PROFILE_ID), this.getValue().getUniqueId().toString());
-        }
-        if (this.getValue().getName().isPresent()) {
-            container.set(this.usedKey.getQuery().then(DataQueries.GAME_PROFILE_NAME), this.getValue().getName().get());
-        }
-        return container;
     }
 
     @Override

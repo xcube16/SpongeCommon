@@ -25,14 +25,12 @@
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import com.flowpowered.math.vector.Vector3d;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableVelocityData;
 import org.spongepowered.api.data.manipulator.mutable.entity.VelocityData;
 import org.spongepowered.api.data.value.mutable.Value;
 import org.spongepowered.common.data.manipulator.immutable.entity.ImmutableSpongeVelocityData;
 import org.spongepowered.common.data.manipulator.mutable.common.AbstractSingleData;
-import org.spongepowered.common.data.util.DataUtil;
 import org.spongepowered.common.data.value.mutable.SpongeValue;
 
 public class SpongeVelocityData extends AbstractSingleData<Vector3d, VelocityData, ImmutableVelocityData> implements VelocityData {
@@ -58,12 +56,6 @@ public class SpongeVelocityData extends AbstractSingleData<Vector3d, VelocityDat
     @Override
     public ImmutableVelocityData asImmutable() {
         return new ImmutableSpongeVelocityData(getValue());
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.VELOCITY, getValue());
     }
 
     @Override

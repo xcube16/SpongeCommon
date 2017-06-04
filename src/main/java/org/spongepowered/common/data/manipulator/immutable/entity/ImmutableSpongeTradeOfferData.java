@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableTradeOfferData;
 import org.spongepowered.api.data.manipulator.mutable.entity.TradeOfferData;
@@ -40,11 +39,4 @@ public class ImmutableSpongeTradeOfferData extends AbstractImmutableListData<Tra
     public ImmutableSpongeTradeOfferData(List<TradeOffer> offers) {
         super(ImmutableTradeOfferData.class, offers, Keys.TRADE_OFFERS, SpongeTradeOfferData.class);
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.TRADE_OFFERS, getValue());
-    }
-
 }

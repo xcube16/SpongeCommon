@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.manipulator.immutable.block;
 
 import com.google.common.collect.ImmutableMap;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.block.ImmutableWireAttachmentData;
 import org.spongepowered.api.data.manipulator.mutable.block.WireAttachmentData;
@@ -40,7 +39,6 @@ import org.spongepowered.common.data.value.immutable.ImmutableSpongeMapValue;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeValue;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ImmutableSpongeWireAttachmentData extends AbstractImmutableData<ImmutableWireAttachmentData, WireAttachmentData> implements ImmutableWireAttachmentData {
 
@@ -92,18 +90,6 @@ public class ImmutableSpongeWireAttachmentData extends AbstractImmutableData<Imm
     @Override
     public WireAttachmentData asMutable() {
         return new SpongeWireAttachementData(this.wireAttachmentMap);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container
-            .set(Keys.WIRE_ATTACHMENTS.getQuery(), this.wireAttachmentMap.entrySet().stream()
-                .collect(Collectors.toMap(k -> k.getKey().name(), v -> v.getValue().getId())))
-            .set(Keys.WIRE_ATTACHMENT_NORTH.getQuery(), this.wireAttachmentMap.get(Direction.NORTH).getId())
-            .set(Keys.WIRE_ATTACHMENT_EAST.getQuery(), this.wireAttachmentMap.get(Direction.EAST).getId())
-            .set(Keys.WIRE_ATTACHMENT_SOUTH.getQuery(), this.wireAttachmentMap.get(Direction.SOUTH).getId())
-            .set(Keys.WIRE_ATTACHMENT_WEST.getQuery(), this.wireAttachmentMap.get(Direction.WEST).getId());
     }
 
     public ImmutableMap<Direction, WireAttachmentType> getWireAttachmentMap() {

@@ -27,7 +27,6 @@ package org.spongepowered.common.data.manipulator.immutable.tileentity;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableBannerData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.BannerData;
@@ -90,12 +89,5 @@ public class ImmutableSpongeBannerData extends AbstractImmutableData<ImmutableBa
     @Override
     public BannerData asMutable() {
         return new SpongeBannerData(this.base, this.layers);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.BANNER_BASE_COLOR.getQuery(), this.base.getId())
-                .set(Keys.BANNER_PATTERNS, this.layers);
     }
 }

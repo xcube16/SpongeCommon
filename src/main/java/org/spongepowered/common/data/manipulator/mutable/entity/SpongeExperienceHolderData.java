@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableExperienceHolderData;
 import org.spongepowered.api.data.manipulator.mutable.entity.ExperienceHolderData;
@@ -63,14 +62,6 @@ public class SpongeExperienceHolderData extends AbstractData<ExperienceHolderDat
     @Override
     public ImmutableExperienceHolderData asImmutable() {
         return new ImmutableSpongeExperienceHolderData(this.level, this.totalExp, this.expSinceLevel);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.EXPERIENCE_LEVEL.getQuery(), this.level)
-                .set(Keys.TOTAL_EXPERIENCE.getQuery(), this.totalExp)
-                .set(Keys.EXPERIENCE_SINCE_LEVEL.getQuery(), this.expSinceLevel);
     }
 
     @Override

@@ -27,7 +27,6 @@ package org.spongepowered.common.data.manipulator.mutable.entity;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableVehicleData;
 import org.spongepowered.api.data.manipulator.mutable.entity.VehicleData;
@@ -45,6 +44,7 @@ import javax.annotation.Nullable;
 public class SpongeVehicleData extends AbstractData<VehicleData, ImmutableVehicleData> implements VehicleData {
 
     //TODO: Review nullability. copy(), asImmutable(), and many other critical methods do NOT work when anything is null!
+    //      note: both keys are NOT an OptionalValue!
     //TODO: might as well be non-nullable
     private @Nullable EntitySnapshot vehicle;
     private @Nullable EntitySnapshot baseVehicle;
@@ -90,15 +90,6 @@ public class SpongeVehicleData extends AbstractData<VehicleData, ImmutableVehicl
         checkState(this.vehicle != null, "Vehicle cannot be null!");
         checkState(this.baseVehicle != null, "Base Vehicle cannot be null!");
         return new ImmutableSpongeVehicleData(this.vehicle, this.baseVehicle);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        checkState(this.vehicle != null, "Vehicle cannot be null!");
-        checkState(this.baseVehicle != null, "Base Vehicle cannot be null!");
-        super.toContainer(container);
-        container.set(Keys.VEHICLE, this.vehicle)
-            .set(Keys.BASE_VEHICLE, this.baseVehicle);
     }
 
     public EntitySnapshot getVehicle() {

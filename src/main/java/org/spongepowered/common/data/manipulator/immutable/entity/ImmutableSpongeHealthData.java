@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableHealthData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HealthData;
@@ -78,13 +77,6 @@ public class ImmutableSpongeHealthData extends AbstractImmutableData<ImmutableHe
     @Override
     public HealthData asMutable() {
         return new SpongeHealthData(this.health, this.maxHealth);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.HEALTH.getQuery(), this.health)
-                .set(Keys.MAX_HEALTH.getQuery(), this.maxHealth);
     }
 
     @Override

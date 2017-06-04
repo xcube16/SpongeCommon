@@ -32,8 +32,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.data.DataContainer;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Property;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
@@ -176,27 +175,14 @@ public class SpongeEntitySnapshot implements EntitySnapshot {
 
     @Override
     public void toContainer(DataMap container) {
-        final List<DataView> dataList = DataUtil.getSerializedImmutableManipulatorList(this.manipulators);
-        final DataContainer container = DataContainer.createNew()
+        DataUtil.serializeImmutableManipulatorList(container.createList(DataQueries.DATA_MANIPULATORS), this.manipulators);
+        container
             .set(Queries.CONTENT_VERSION, getContentVersion())
             .set(Queries.WORLD_ID, this.worldUuid.toString())
             .set(DataQueries.ENTITY_TYPE, this.entityType.getId())
-            .createView(DataQueries.SNAPSHOT_WORLD_POSITION)
-                .set(Queries.POSITION_X, this.position.getX())
-                .set(Queries.POSITION_Y, this.position.getY())
-                .set(Queries.POSITION_Z, this.position.getZ())
-            .getContainer()
-            .createView(DataQueries.ENTITY_ROTATION)
-                .set(Queries.POSITION_X, this.rotation.getX())
-                .set(Queries.POSITION_Y, this.rotation.getY())
-                .set(Queries.POSITION_Z, this.rotation.getZ())
-            .getContainer()
-            .createView(DataQueries.ENTITY_SCALE)
-                .set(Queries.POSITION_X, this.scale.getX())
-                .set(Queries.POSITION_Y, this.scale.getY())
-                .set(Queries.POSITION_Z, this.scale.getZ())
-            .getContainer()
-            .set(DataQueries.DATA_MANIPULATORS, dataList);
+            .set(DataQueries.SNAPSHOT_WORLD_POSITION, this.position)
+            .set(DataQueries.ENTITY_ROTATION, this.rotation)
+            .set(DataQueries.ENTITY_SCALE, this.scale);
 
         if (this.entityUuid != null) {
             container.set(DataQueries.ENTITY_ID, this.entityUuid.toString());
@@ -204,8 +190,6 @@ public class SpongeEntitySnapshot implements EntitySnapshot {
         if (this.compound != null) {
             container.set(DataQueries.UNSAFE_NBT, NbtTranslator.getInstance().translateFrom(this.compound));
         }
-
-        return container;
     }
 
     @SuppressWarnings("unchecked")

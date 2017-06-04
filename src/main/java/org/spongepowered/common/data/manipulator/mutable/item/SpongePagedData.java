@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.item;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutablePagedData;
 import org.spongepowered.api.data.manipulator.mutable.item.PagedData;
@@ -44,11 +43,4 @@ public class SpongePagedData extends AbstractListData<Text, PagedData, Immutable
     public SpongePagedData(List<Text> pages) {
         super(PagedData.class, pages, Keys.BOOK_PAGES, ImmutableSpongePagedData.class);
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.BOOK_PAGES.getQuery(), getValue());
-    }
-
 }

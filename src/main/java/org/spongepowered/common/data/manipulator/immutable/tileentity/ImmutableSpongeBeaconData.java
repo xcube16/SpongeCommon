@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.tileentity;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableBeaconData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.BeaconData;
@@ -92,17 +91,4 @@ public class ImmutableSpongeBeaconData extends AbstractImmutableData<ImmutableBe
     public BeaconData asMutable() {
         return new SpongeBeaconData(this.primaryEffect, this.secondaryEffect);
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        DataContainer dataContainer = super.toContainer();
-        if (this.primaryEffect != null) {
-            dataContainer = dataContainer.set(Keys.BEACON_PRIMARY_EFFECT.getQuery(), this.primaryEffect.getId());
-        }
-        if (this.secondaryEffect != null) {
-            dataContainer = dataContainer.set(Keys.BEACON_SECONDARY_EFFECT.getQuery(), this.secondaryEffect.getId());
-        }
-        return dataContainer;
-    }
-
 }

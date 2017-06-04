@@ -25,13 +25,9 @@
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.spongepowered.api.data.Queries.POSITION_X;
-import static org.spongepowered.api.data.Queries.POSITION_Y;
-import static org.spongepowered.api.data.Queries.POSITION_Z;
 
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableMap;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableBodyPartRotationalData;
 import org.spongepowered.api.data.manipulator.mutable.entity.BodyPartRotationalData;
@@ -84,37 +80,6 @@ public class ImmutableSpongeBodyPartRotationalData extends AbstractImmutableData
     @Override
     public BodyPartRotationalData asMutable() {
         return new SpongeBodyPartRotationalData(this.rotations);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        Vector3d headRotation = this.rotations.get(BodyParts.HEAD);
-        Vector3d chestRotation = this.rotations.get(BodyParts.CHEST);
-        Vector3d leftArmRotation = this.rotations.get(BodyParts.LEFT_ARM);
-        Vector3d rightArmRotation = this.rotations.get(BodyParts.RIGHT_ARM);
-        Vector3d leftLegRotation = this.rotations.get(BodyParts.LEFT_LEG);
-        Vector3d rightLegRotation = this.rotations.get(BodyParts.RIGHT_LEG);
-
-        return super.toContainer()
-                .set(Keys.BODY_ROTATIONS, this.rotations)
-                .set(Keys.HEAD_ROTATION.getQuery().then(POSITION_X), headRotation.getX())
-                .set(Keys.HEAD_ROTATION.getQuery().then(POSITION_Y), headRotation.getY())
-                .set(Keys.HEAD_ROTATION.getQuery().then(POSITION_Z), headRotation.getZ())
-                .set(Keys.CHEST_ROTATION.getQuery().then(POSITION_X), chestRotation.getX())
-                .set(Keys.CHEST_ROTATION.getQuery().then(POSITION_Y), chestRotation.getY())
-                .set(Keys.CHEST_ROTATION.getQuery().then(POSITION_Z), chestRotation.getZ())
-                .set(Keys.LEFT_ARM_ROTATION.getQuery().then(POSITION_X), leftArmRotation.getX())
-                .set(Keys.LEFT_ARM_ROTATION.getQuery().then(POSITION_Y), leftArmRotation.getY())
-                .set(Keys.LEFT_ARM_ROTATION.getQuery().then(POSITION_Z), leftArmRotation.getZ())
-                .set(Keys.RIGHT_ARM_ROTATION.getQuery().then(POSITION_X), rightArmRotation.getX())
-                .set(Keys.RIGHT_ARM_ROTATION.getQuery().then(POSITION_Y), rightArmRotation.getY())
-                .set(Keys.RIGHT_ARM_ROTATION.getQuery().then(POSITION_Z), rightArmRotation.getZ())
-                .set(Keys.LEFT_LEG_ROTATION.getQuery().then(POSITION_X), leftLegRotation.getX())
-                .set(Keys.LEFT_LEG_ROTATION.getQuery().then(POSITION_Y), leftLegRotation.getY())
-                .set(Keys.LEFT_LEG_ROTATION.getQuery().then(POSITION_Z), leftLegRotation.getZ())
-                .set(Keys.RIGHT_LEG_ROTATION.getQuery().then(POSITION_X), rightLegRotation.getX())
-                .set(Keys.RIGHT_LEG_ROTATION.getQuery().then(POSITION_Y), rightLegRotation.getY())
-                .set(Keys.RIGHT_LEG_ROTATION.getQuery().then(POSITION_Z), rightLegRotation.getZ());
     }
 
     @Override

@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableCriticalHitData;
 import org.spongepowered.api.data.manipulator.mutable.entity.CriticalHitData;
@@ -56,12 +55,6 @@ public class SpongeCriticalHitData extends AbstractSingleData<Boolean, CriticalH
     @Override
     public Value<Boolean> criticalHit() {
         return SpongeValueFactory.getInstance().createValue(Keys.CRITICAL_HIT, getValue(), false);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.CRITICAL_HIT, getValue());
     }
 
     @Override

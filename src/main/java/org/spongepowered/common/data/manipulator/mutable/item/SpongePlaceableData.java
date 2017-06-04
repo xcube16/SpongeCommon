@@ -26,7 +26,6 @@ package org.spongepowered.common.data.manipulator.mutable.item;
 
 import com.google.common.collect.Sets;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutablePlaceableData;
 import org.spongepowered.api.data.manipulator.mutable.item.PlaceableData;
@@ -35,7 +34,6 @@ import org.spongepowered.common.data.manipulator.immutable.item.ImmutableSpongeP
 import org.spongepowered.common.data.manipulator.mutable.common.AbstractSingleSetData;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SpongePlaceableData extends AbstractSingleSetData<BlockType, PlaceableData, ImmutablePlaceableData> implements PlaceableData {
     
@@ -45,14 +43,6 @@ public class SpongePlaceableData extends AbstractSingleSetData<BlockType, Placea
 
     public SpongePlaceableData(Set<BlockType> placeable) {
         super(PlaceableData.class, Sets.newHashSet(placeable), Keys.PLACEABLE_BLOCKS, ImmutableSpongePlaceableData.class);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        return super.toContainer()
-            .set(Keys.PLACEABLE_BLOCKS.getQuery(), getValue().stream()
-                .map(BlockType::getId)
-                .collect(Collectors.toList()));
     }
 
     @SuppressWarnings("unchecked")

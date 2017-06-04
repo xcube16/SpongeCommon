@@ -27,7 +27,6 @@ package org.spongepowered.common.data.manipulator.mutable.block;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.Sets;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.block.ImmutableConnectedDirectionData;
 import org.spongepowered.api.data.manipulator.mutable.block.ConnectedDirectionData;
@@ -89,16 +88,6 @@ public class SpongeConnectedDirectionData extends AbstractData<ConnectedDirectio
     @Override
     public ImmutableConnectedDirectionData asImmutable() {
         return new ImmutableSpongeConnectedDirectionData(this.connectedDirections);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        return super.toContainer()
-                .set(Keys.CONNECTED_DIRECTIONS.getQuery(), this.connectedDirections)
-                .set(Keys.CONNECTED_NORTH.getQuery(), this.connectedDirections.contains(Direction.NORTH))
-                .set(Keys.CONNECTED_SOUTH.getQuery(), this.connectedDirections.contains(Direction.SOUTH))
-                .set(Keys.CONNECTED_EAST.getQuery(), this.connectedDirections.contains(Direction.EAST))
-                .set(Keys.CONNECTED_WEST.getQuery(), this.connectedDirections.contains(Direction.WEST));
     }
 
     private Set<Direction> getDirections() {

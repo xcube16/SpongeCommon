@@ -26,7 +26,6 @@ package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableHorseData;
 import org.spongepowered.api.data.manipulator.mutable.entity.HorseData;
@@ -86,14 +85,6 @@ public class SpongeHorseData extends AbstractData<HorseData, ImmutableHorseData>
     @Override
     public ImmutableHorseData asImmutable() {
         return new ImmutableSpongeHorseData(this.horseColor, this.horseStyle);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.HORSE_COLOR, this.horseColor)
-                .set(Keys.HORSE_STYLE, this.horseStyle);
-
     }
 
     private HorseColor getHorseColor() {

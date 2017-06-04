@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableRepresentedItemData;
 import org.spongepowered.api.data.manipulator.mutable.RepresentedItemData;
@@ -56,11 +55,4 @@ public class ImmutableSpongeRepresentedItemData extends AbstractImmutableSingleD
     public RepresentedItemData asMutable() {
         return new SpongeRepresentedItemData(this.value);
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.REPRESENTED_ITEM, this.value);
-    }
-
 }

@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableInvisibilityData;
 import org.spongepowered.api.data.manipulator.mutable.entity.InvisibilityData;
@@ -94,15 +93,6 @@ public class SpongeInvisibilityData extends AbstractData<InvisibilityData, Immut
     @Override
     public int getContentVersion() {
         return DataVersions.Data.INVISIBILITY_DATA_WITH_VANISH;
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.INVISIBLE, this.invisible)
-                .set(Keys.VANISH, this.vanish)
-                .set(Keys.VANISH_IGNORES_COLLISION, this.collision)
-                .set(Keys.VANISH_PREVENTS_TARGETING, this.untargetable);
     }
 
     private boolean isVanish() {

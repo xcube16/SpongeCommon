@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.manipulator.mutable.item;
 
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableBlockItemData;
 import org.spongepowered.api.data.manipulator.mutable.item.BlockItemData;
@@ -48,12 +47,6 @@ public class SpongeBlockItemData extends AbstractSingleData<BlockState, BlockIte
     @Override
     public BlockItemData copy() {
         return new SpongeBlockItemData(this.getValue());
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        return super.toContainer()
-            .set(Keys.ITEM_BLOCKSTATE, this.getValue());
     }
 
     @Override

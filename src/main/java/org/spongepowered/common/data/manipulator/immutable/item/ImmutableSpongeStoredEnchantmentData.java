@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.item;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableStoredEnchantmentData;
 import org.spongepowered.api.data.manipulator.mutable.item.StoredEnchantmentData;
@@ -40,11 +39,5 @@ public class ImmutableSpongeStoredEnchantmentData
 
     public ImmutableSpongeStoredEnchantmentData(List<ItemEnchantment> value) {
         super(ImmutableStoredEnchantmentData.class, value, Keys.STORED_ENCHANTMENTS, SpongeStoredEnchantmentData.class);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.STORED_ENCHANTMENTS, getValue());
     }
 }

@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.manipulator.mutable;
 
 import com.google.common.collect.Lists;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableTradeOfferData;
 import org.spongepowered.api.data.manipulator.mutable.entity.TradeOfferData;
@@ -37,6 +36,7 @@ import java.util.List;
 
 public class SpongeTradeOfferData extends AbstractListData<TradeOffer, TradeOfferData, ImmutableTradeOfferData> implements TradeOfferData {
 
+    // TODO: Is this class unfinished or something? (this variable is unused and I am to chicken to remove it)
     private List<TradeOffer> offers = Lists.newArrayList();
 
     public SpongeTradeOfferData() {
@@ -46,11 +46,4 @@ public class SpongeTradeOfferData extends AbstractListData<TradeOffer, TradeOffe
     public SpongeTradeOfferData(List<TradeOffer> tradeOffers) {
         super(TradeOfferData.class, tradeOffers, Keys.TRADE_OFFERS, ImmutableSpongeTradeOfferData.class);
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.TRADE_OFFERS, this.offers);
-    }
-
 }

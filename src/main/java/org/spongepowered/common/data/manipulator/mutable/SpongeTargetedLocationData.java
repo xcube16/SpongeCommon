@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.manipulator.mutable;
 
 import com.flowpowered.math.vector.Vector3d;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableTargetedLocationData;
 import org.spongepowered.api.data.manipulator.mutable.TargetedLocationData;
@@ -64,11 +63,4 @@ public final class SpongeTargetedLocationData extends AbstractSingleData<Vector3
     public Value<Vector3d> target() {
         return new SpongeValue<>(this.usedKey, this.getValue());
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(this.usedKey, this.getValue());
-    }
-
 }

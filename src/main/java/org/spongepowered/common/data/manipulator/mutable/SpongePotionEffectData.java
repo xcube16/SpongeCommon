@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutablePotionEffectData;
 import org.spongepowered.api.data.manipulator.mutable.PotionEffectData;
@@ -43,11 +42,5 @@ public class SpongePotionEffectData extends AbstractListData<PotionEffect, Potio
 
     public SpongePotionEffectData(List<PotionEffect> effects) {
         super(PotionEffectData.class, effects, Keys.POTION_EFFECTS, ImmutableSpongePotionEffectData.class);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.POTION_EFFECTS, this.getValue());
     }
 }

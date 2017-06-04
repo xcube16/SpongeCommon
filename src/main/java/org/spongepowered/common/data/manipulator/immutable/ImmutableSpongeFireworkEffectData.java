@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableFireworkEffectData;
 import org.spongepowered.api.data.manipulator.mutable.FireworkEffectData;
@@ -39,11 +38,5 @@ public class ImmutableSpongeFireworkEffectData extends AbstractImmutableListData
 
     public ImmutableSpongeFireworkEffectData(List<FireworkEffect> effects) {
         super(ImmutableFireworkEffectData.class, effects, Keys.FIREWORK_EFFECTS, SpongeFireworkEffectData.class);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.FIREWORK_EFFECTS, this.getValue());
     }
 }

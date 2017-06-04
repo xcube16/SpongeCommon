@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableInvisibilityData;
 import org.spongepowered.api.data.manipulator.mutable.entity.InvisibilityData;
@@ -87,15 +86,6 @@ public class ImmutableSpongeInvisibilityData extends AbstractImmutableData<Immut
 
         registerFieldGetter(Keys.VANISH_PREVENTS_TARGETING, this::isUntargetable);
         registerKeyValue(Keys.VANISH_PREVENTS_TARGETING, this::untargetable);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.INVISIBLE, this.invisible)
-                .set(Keys.VANISH, this.vanish)
-                .set(Keys.VANISH_IGNORES_COLLISION, this.collision)
-                .set(Keys.VANISH_PREVENTS_TARGETING, this.untargetable);
     }
 
     @Override

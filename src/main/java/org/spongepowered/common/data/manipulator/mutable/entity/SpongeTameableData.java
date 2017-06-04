@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableTameableData;
 import org.spongepowered.api.data.manipulator.mutable.entity.TameableData;
@@ -65,13 +64,6 @@ public class SpongeTameableData extends AbstractData<TameableData, ImmutableTame
     @Override
     public ImmutableTameableData asImmutable() {
         return ImmutableSpongeTameableData.create(this.owner);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        final String uuid = this.owner == null ? "none" : this.owner.toString();
-        return super.toContainer()
-                .set(Keys.TAMED_OWNER.getQuery(), uuid);
     }
 
     public Optional<UUID> getOwner(){

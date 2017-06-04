@@ -25,14 +25,12 @@
 package org.spongepowered.common.data.manipulator.immutable.item;
 
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutablePagedData;
 import org.spongepowered.api.data.manipulator.mutable.item.PagedData;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.common.data.manipulator.immutable.common.AbstractImmutableListData;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongePagedData;
-import org.spongepowered.common.text.SpongeTexts;
 
 import java.util.List;
 
@@ -44,11 +42,5 @@ public class ImmutableSpongePagedData extends AbstractImmutableListData<Text, Im
 
     public ImmutableSpongePagedData(List<Text> pages) {
         super(ImmutablePagedData.class, pages, Keys.BOOK_PAGES, SpongePagedData.class);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.BOOK_PAGES.getQuery(), SpongeTexts.asJson(this.getValue()));
     }
 }

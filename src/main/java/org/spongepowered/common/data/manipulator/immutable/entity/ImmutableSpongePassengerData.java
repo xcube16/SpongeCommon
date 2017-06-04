@@ -26,7 +26,6 @@ package org.spongepowered.common.data.manipulator.immutable.entity;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutablePassengerData;
 import org.spongepowered.api.data.manipulator.mutable.entity.PassengerData;
@@ -53,11 +52,5 @@ public class ImmutableSpongePassengerData extends AbstractImmutableListData<UUID
     @Override
     public PassengerData asMutable() {
         return new SpongePassengerData(this.getValue());
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.PASSENGERS, this.getValue());
     }
 }

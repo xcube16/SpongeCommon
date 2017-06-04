@@ -24,13 +24,11 @@
  */
 package org.spongepowered.common.data.manipulator.immutable;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableDisplayNameData;
 import org.spongepowered.api.data.manipulator.mutable.DisplayNameData;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.common.data.manipulator.immutable.common.AbstractImmutableSingleData;
 import org.spongepowered.common.data.manipulator.mutable.SpongeDisplayNameData;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeValue;
@@ -62,12 +60,4 @@ public class ImmutableSpongeDisplayNameData extends AbstractImmutableSingleData<
     public ImmutableValue<Text> displayName() {
         return this.nameValue;
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        //TODO: store text directly in DataView
-        container.set(Keys.DISPLAY_NAME.getQuery(), TextSerializers.JSON.serialize(this.getValue()));
-    }
-
 }

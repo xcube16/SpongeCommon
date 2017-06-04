@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableAgeableData;
 import org.spongepowered.api.data.manipulator.mutable.entity.AgeableData;
@@ -85,13 +84,6 @@ public class SpongeAgeableData extends AbstractData<AgeableData, ImmutableAgeabl
         registerFieldGetter(Keys.IS_ADULT, SpongeAgeableData.this::isAdult);
         registerFieldSetter(Keys.IS_ADULT, SpongeAgeableData.this::setAdult);
         registerKeyValue(Keys.IS_ADULT, SpongeAgeableData.this::adult);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.AGE, this.age)
-                .set(Keys.IS_ADULT, this.adult);
     }
 
     public int getAge() {

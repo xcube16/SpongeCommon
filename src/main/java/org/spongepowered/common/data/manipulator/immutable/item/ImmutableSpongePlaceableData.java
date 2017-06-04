@@ -26,8 +26,6 @@ package org.spongepowered.common.data.manipulator.immutable.item;
 
 import com.google.common.collect.ImmutableSet;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.DataList;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutablePlaceableData;
 import org.spongepowered.api.data.manipulator.mutable.item.PlaceableData;
@@ -45,13 +43,6 @@ public class ImmutableSpongePlaceableData extends AbstractImmutableSingleSetData
 
     public ImmutableSpongePlaceableData(Set<BlockType> placeable) {
         super(ImmutablePlaceableData.class, placeable, Keys.PLACEABLE_BLOCKS, SpongePlaceableData.class);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        DataList blocks = container.createList(Keys.PLACEABLE_BLOCKS.getQuery());
-        getValue().forEach(b -> blocks.add(b.getId()));
     }
 
     @SuppressWarnings("unchecked")

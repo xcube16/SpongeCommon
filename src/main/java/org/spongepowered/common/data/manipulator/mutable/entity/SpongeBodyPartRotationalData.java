@@ -29,7 +29,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableBodyPartRotationalData;
 import org.spongepowered.api.data.manipulator.mutable.entity.BodyPartRotationalData;
@@ -65,12 +64,6 @@ public class SpongeBodyPartRotationalData extends AbstractData<BodyPartRotationa
         super(BodyPartRotationalData.class);
         this.rotations = Maps.newHashMap(checkNotNull(rotations, "rotations"));
         registerGettersAndSetters();
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.BODY_ROTATIONS, this.rotations);
     }
 
     @Override

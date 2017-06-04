@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.manipulator.immutable.tileentity;
 
 import com.flowpowered.math.vector.Vector3i;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableEndGatewayData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.EndGatewayData;
@@ -110,14 +109,4 @@ public final class ImmutableSpongeEndGatewayData extends AbstractImmutableData<I
     public EndGatewayData asMutable() {
         return new SpongeEndGatewayData(this.exitPortal, this.exactTeleport, this.age, this.teleportCooldown);
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        return super.toContainer()
-            .set(Keys.EXIT_POSITION.getQuery(), this.exitPortal)
-            .set(Keys.EXACT_TELEPORT.getQuery(), this.exactTeleport)
-            .set(Keys.END_GATEWAY_AGE.getQuery(), this.age)
-            .set(Keys.END_GATEWAY_TELEPORT_COOLDOWN.getQuery(), this.teleportCooldown);
-    }
-
 }

@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableAgeableData;
 import org.spongepowered.api.data.manipulator.mutable.entity.AgeableData;
@@ -70,13 +69,6 @@ public class ImmutableSpongeAgeableData extends AbstractImmutableData<ImmutableA
     @Override
     public ImmutableValue<Boolean> adult() {
         return ImmutableSpongeValue.cachedOf(Keys.IS_ADULT, true, this.adult);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.AGE, this.age)
-                .set(Keys.IS_ADULT, this.adult);
     }
 
     @Override

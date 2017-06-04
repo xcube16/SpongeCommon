@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.tileentity;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableNoteData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.NoteData;
@@ -63,11 +62,5 @@ public class SpongeNoteData extends AbstractSingleData<NotePitch, NoteData, Immu
     @Override
     public NoteData copy() {
         return new SpongeNoteData(getValue());
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        return super.toContainer()
-            .set(Keys.NOTE_PITCH.getQuery(), getValue().getId());
     }
 }

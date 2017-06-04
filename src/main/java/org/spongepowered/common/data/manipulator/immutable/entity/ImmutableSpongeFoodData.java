@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableFoodData;
 import org.spongepowered.api.data.manipulator.mutable.entity.FoodData;
@@ -80,14 +79,6 @@ public class ImmutableSpongeFoodData extends AbstractImmutableData<ImmutableFood
     @Override
     public FoodData asMutable() {
         return new SpongeFoodData(this.foodLevel, this.foodSaturationLevel, this.foodExhaustionLevel);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.FOOD_LEVEL, this.foodLevel)
-                .set(Keys.SATURATION, (double) this.foodSaturationLevel)
-                .set(Keys.EXHAUSTION, (double) this.foodExhaustionLevel);
     }
 
     @Override

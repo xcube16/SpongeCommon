@@ -27,7 +27,6 @@ package org.spongepowered.common.data.manipulator.mutable;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableCommandData;
 import org.spongepowered.api.data.manipulator.mutable.CommandData;
@@ -95,18 +94,6 @@ public class SpongeCommandData extends AbstractData<CommandData, ImmutableComman
     @Override
     public ImmutableCommandData asImmutable() {
         return new ImmutableSpongeCommandData(this.command, this.success, this.tracks, this.lastOutput);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.COMMAND, this.command)
-                .set(Keys.SUCCESS_COUNT, this.success)
-                .set(Keys.TRACKS_OUTPUT, this.tracks);
-        if (this.lastOutput != null) {
-            // we cheat a bit here as DataView#set(Key, value) does not like OptionalValue
-            container.set(Keys.LAST_COMMAND_OUTPUT.getQuery(), this.lastOutput);
-        }
     }
 
     // Traditional getters and setters for utility

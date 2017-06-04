@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.entity;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableSkinData;
 import org.spongepowered.api.data.manipulator.mutable.entity.SkinData;
@@ -51,12 +50,6 @@ public class ImmutableSpongeSkinData extends AbstractImmutableSingleData<UUID, I
     @Override
     public SkinData asMutable() {
         return new SpongeSkinData(this.value);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        return super.toContainer()
-            .set(Keys.SKIN_UNIQUE_ID.getQuery(), this.value.toString());
     }
 
     @Override

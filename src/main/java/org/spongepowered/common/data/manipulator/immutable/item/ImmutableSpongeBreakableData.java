@@ -26,7 +26,6 @@ package org.spongepowered.common.data.manipulator.immutable.item;
 
 import com.google.common.collect.ImmutableSet;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableBreakableData;
 import org.spongepowered.api.data.manipulator.mutable.item.BreakableData;
@@ -35,7 +34,6 @@ import org.spongepowered.common.data.manipulator.immutable.common.AbstractImmuta
 import org.spongepowered.common.data.manipulator.mutable.item.SpongeBreakableData;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ImmutableSpongeBreakableData extends AbstractImmutableSingleSetData<BlockType, ImmutableBreakableData, BreakableData> implements ImmutableBreakableData {
 
@@ -45,15 +43,6 @@ public class ImmutableSpongeBreakableData extends AbstractImmutableSingleSetData
 
     public ImmutableSpongeBreakableData(Set<BlockType> breakable) {
         super(ImmutableBreakableData.class, breakable, Keys.BREAKABLE_BLOCK_TYPES, SpongeBreakableData.class);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.BREAKABLE_BLOCK_TYPES.getQuery(), getValue()
-                .stream()
-                .map(BlockType::getId)
-                .collect(Collectors.toList()));
     }
 
     @SuppressWarnings("unchecked")

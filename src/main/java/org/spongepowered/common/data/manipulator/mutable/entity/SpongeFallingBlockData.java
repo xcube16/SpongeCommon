@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableFallingBlockData;
 import org.spongepowered.api.data.manipulator.mutable.entity.FallingBlockData;
@@ -197,17 +196,5 @@ public class SpongeFallingBlockData extends AbstractData<FallingBlockData, Immut
     public ImmutableFallingBlockData asImmutable() {
         return new ImmutableSpongeFallingBlockData(this.fallDamagePerBlock, this.maxFallDamage, this.blockState, this.canPlaceAsBlock, this
                 .canDropAsItem, this.fallTime, this.canHurtEntities);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        return super.toContainer()
-                .set(Keys.FALL_DAMAGE_PER_BLOCK.getQuery(), this.fallDamagePerBlock)
-                .set(Keys.MAX_FALL_DAMAGE.getQuery(), this.maxFallDamage)
-                .set(Keys.FALLING_BLOCK_STATE.getQuery(), this.blockState)
-                .set(Keys.CAN_PLACE_AS_BLOCK.getQuery(), this.canPlaceAsBlock)
-                .set(Keys.CAN_DROP_AS_ITEM.getQuery(), this.canDropAsItem)
-                .set(Keys.FALL_TIME.getQuery(), this.fallTime)
-                .set(Keys.FALLING_BLOCK_CAN_HURT_ENTITIES, this.canHurtEntities);
     }
 }

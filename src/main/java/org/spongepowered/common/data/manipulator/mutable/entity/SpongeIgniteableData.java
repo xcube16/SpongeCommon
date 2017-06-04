@@ -26,7 +26,6 @@ package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableIgniteableData;
 import org.spongepowered.api.data.manipulator.mutable.entity.IgniteableData;
@@ -81,13 +80,6 @@ public class SpongeIgniteableData extends AbstractData<IgniteableData, Immutable
     @Override
     public ImmutableIgniteableData asImmutable() {
         return new ImmutableSpongeIgniteableData(this.fireTicks, this.fireDelay);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        return super.toContainer()
-            .set(Keys.FIRE_TICKS, this.fireTicks)
-            .set(Keys.FIRE_DAMAGE_DELAY, this.fireDelay);
     }
 
     public int getFireTicks() {

@@ -27,7 +27,6 @@ package org.spongepowered.common.data.manipulator.immutable;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.spongepowered.common.data.value.SpongeValueFactory.boundedBuilder;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableMobSpawnerData;
 import org.spongepowered.api.data.manipulator.mutable.MobSpawnerData;
@@ -200,20 +199,6 @@ public class ImmutableSpongeMobSpawnerData extends AbstractImmutableData<Immutab
                                         this.spawnRange,
                                         this.nextToSpawn,
                                         this.entitiesToSpawn);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.SPAWNER_REMAINING_DELAY, this.remaining)
-            .set(Keys.SPAWNER_MINIMUM_DELAY, this.minSpawnDelay)
-            .set(Keys.SPAWNER_MAXIMUM_DELAY, this.maxSpawnDelay)
-            .set(Keys.SPAWNER_SPAWN_COUNT, this.count)
-            .set(Keys.SPAWNER_MAXIMUM_NEARBY_ENTITIES, this.maxNearby)
-            .set(Keys.SPAWNER_REQUIRED_PLAYER_RANGE, this.playerRange)
-            .set(Keys.SPAWNER_SPAWN_RANGE, this.spawnRange)
-            .set(Keys.SPAWNER_NEXT_ENTITY_TO_SPAWN, this.nextToSpawn)
-            .set(Keys.SPAWNER_ENTITIES, this.entitiesToSpawn);
     }
 
     @Override

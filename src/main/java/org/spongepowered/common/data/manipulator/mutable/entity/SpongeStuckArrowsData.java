@@ -26,7 +26,6 @@ package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableStuckArrowsData;
 import org.spongepowered.api.data.manipulator.mutable.entity.StuckArrowsData;
@@ -76,10 +75,4 @@ public class SpongeStuckArrowsData extends AbstractIntData<StuckArrowsData, Immu
     public ImmutableStuckArrowsData asImmutable() {
         return new ImmutableSpongeStuckArrowsData(this.getValue());
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        container.set(Keys.STUCK_ARROWS, this.getValue());
-    }
-
 }

@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.tileentity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableFurnaceData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.FurnaceData;
@@ -126,14 +125,5 @@ public class ImmutableSpongeFurnaceData extends AbstractImmutableData<ImmutableF
     @Override
     public FurnaceData asMutable() {
         return new SpongeFurnaceData(this.passedBurnTime, this.maxBurnTime, this.passedCookTime, this.maxCookTime);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.PASSED_BURN_TIME, this.passedBurnTime)
-                .set(Keys.MAX_BURN_TIME, this.maxBurnTime)
-                .set(Keys.PASSED_COOK_TIME, this.passedCookTime)
-                .set(Keys.MAX_COOK_TIME, this.maxCookTime);
     }
 }

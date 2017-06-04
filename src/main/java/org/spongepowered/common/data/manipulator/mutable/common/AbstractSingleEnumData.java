@@ -61,12 +61,6 @@ public abstract class AbstractSingleEnumData<E extends Enum<E>, M extends DataMa
         this.defaultValue = checkNotNull(defaultValue);
     }
 
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(this.usedKey.getQuery(), this.getValue().name());
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public M copy() {

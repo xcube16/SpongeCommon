@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.manipulator.immutable.tileentity;
 
 import com.flowpowered.math.vector.Vector3i;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableStructureData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.StructureData;
@@ -204,20 +203,4 @@ public final class ImmutableSpongeStructureData extends AbstractImmutableData<Im
     public StructureData asMutable() {
         return new SpongeStructureData(this.author, this.ignoreEntities, this.integrity, this.mode, this.position, this.powered, this.showAir, this.showBoundingBox, this.seed, this.size);
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.STRUCTURE_AUTHOR.getQuery(), this.author)
-            .set(Keys.STRUCTURE_IGNORE_ENTITIES.getQuery(), this.ignoreEntities)
-            .set(Keys.STRUCTURE_INTEGRITY.getQuery(), this.integrity)
-            .set(Keys.STRUCTURE_MODE.getQuery(), this.mode)
-            .set(Keys.STRUCTURE_POSITION.getQuery(), this.position)
-            .set(Keys.STRUCTURE_POWERED.getQuery(), this.powered)
-            .set(Keys.STRUCTURE_SEED.getQuery(), this.seed)
-            .set(Keys.STRUCTURE_SHOW_AIR.getQuery(), this.showAir)
-            .set(Keys.STRUCTURE_SHOW_BOUNDING_BOX.getQuery(), this.showBoundingBox)
-            .set(Keys.STRUCTURE_SIZE.getQuery(), this.size);
-    }
-
 }

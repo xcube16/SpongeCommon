@@ -24,13 +24,11 @@
  */
 package org.spongepowered.common.data.manipulator.immutable.item;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableAuthorData;
 import org.spongepowered.api.data.manipulator.mutable.item.AuthorData;
 import org.spongepowered.api.data.value.immutable.ImmutableValue;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.common.data.manipulator.immutable.common.AbstractImmutableSingleData;
 import org.spongepowered.common.data.manipulator.mutable.item.SpongeAuthorData;
 import org.spongepowered.common.data.value.immutable.ImmutableSpongeValue;
@@ -42,13 +40,6 @@ public class ImmutableSpongeAuthorData extends AbstractImmutableSingleData<Text,
     public ImmutableSpongeAuthorData(Text value) {
         super(ImmutableAuthorData.class, value, Keys.BOOK_AUTHOR);
         this.author = new ImmutableSpongeValue<>(Keys.BOOK_AUTHOR, Text.of(), value);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        //TODO: store text directly in DataView
-        container.set(Keys.BOOK_AUTHOR.getQuery(), TextSerializers.JSON.serialize(this.getValue()));
     }
 
     @Override

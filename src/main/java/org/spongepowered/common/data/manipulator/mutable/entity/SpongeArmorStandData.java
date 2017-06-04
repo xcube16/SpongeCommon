@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableArmorStandData;
 import org.spongepowered.api.data.manipulator.mutable.entity.ArmorStandData;
@@ -103,14 +102,5 @@ public class SpongeArmorStandData extends AbstractData<ArmorStandData, Immutable
     @Override
     public ImmutableArmorStandData asImmutable() {
         return ImmutableDataCachingUtil.getManipulator(ImmutableSpongeArmorStandData.class, this.marker, this.small, this.arms, this.basePlate);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.ARMOR_STAND_HAS_ARMS, this.arms)
-                .set(Keys.ARMOR_STAND_HAS_BASE_PLATE, this.basePlate)
-                .set(Keys.ARMOR_STAND_IS_SMALL, this.small)
-                .set(Keys.ARMOR_STAND_MARKER, this.marker);
     }
 }

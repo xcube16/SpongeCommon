@@ -25,7 +25,6 @@
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
 import com.google.common.collect.Sets;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableAchievementData;
 import org.spongepowered.api.data.manipulator.mutable.entity.AchievementData;
@@ -56,11 +55,4 @@ public class SpongeAchievementData extends AbstractSingleSetData<Achievement, Ac
     public int getContentVersion() {
         return 1;
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.ACHIEVEMENTS, getValue());
-    }
-
 }

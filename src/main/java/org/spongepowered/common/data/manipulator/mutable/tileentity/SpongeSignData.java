@@ -25,17 +25,14 @@
 package org.spongepowered.common.data.manipulator.mutable.tileentity;
 
 import com.google.common.collect.Lists;
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.tileentity.ImmutableSignData;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.SignData;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.serializer.TextSerializers;
 import org.spongepowered.common.data.manipulator.immutable.tileentity.ImmutableSpongeSignData;
 import org.spongepowered.common.data.manipulator.mutable.common.AbstractListData;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SpongeSignData extends AbstractListData<Text, SignData, ImmutableSignData> implements SignData {
 
@@ -46,13 +43,4 @@ public class SpongeSignData extends AbstractListData<Text, SignData, ImmutableSi
     public SpongeSignData(List<Text> lines) {
         super(SignData.class, lines, Keys.SIGN_LINES, ImmutableSpongeSignData.class);
     }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.SIGN_LINES.getQuery(), this.asList().stream()
-                .map(TextSerializers.JSON::serialize)
-                .collect(Collectors.toList()));
-    }
-
 }

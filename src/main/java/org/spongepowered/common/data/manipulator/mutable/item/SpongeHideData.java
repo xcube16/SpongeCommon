@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.item;
 
-import org.spongepowered.api.data.DataContainer;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.item.ImmutableHideData;
 import org.spongepowered.api.data.manipulator.mutable.item.HideData;
@@ -100,17 +99,6 @@ public class SpongeHideData extends AbstractData<HideData, ImmutableHideData> im
     public ImmutableHideData asImmutable() {
         return ImmutableDataCachingUtil.getManipulator(ImmutableSpongeHideData.class, this.enchantments, this.attributes, this.unbreakable,
                 this.canDestroy, this.canPlace, this.miscellaneous);
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        return super.toContainer()
-                .set(Keys.HIDE_ENCHANTMENTS, this.enchantments)
-                .set(Keys.HIDE_ATTRIBUTES, this.attributes)
-                .set(Keys.HIDE_UNBREAKABLE, this.unbreakable)
-                .set(Keys.HIDE_CAN_DESTROY, this.canDestroy)
-                .set(Keys.HIDE_CAN_PLACE, this.canPlace)
-                .set(Keys.HIDE_MISCELLANEOUS, this.miscellaneous);
     }
 
     @Override

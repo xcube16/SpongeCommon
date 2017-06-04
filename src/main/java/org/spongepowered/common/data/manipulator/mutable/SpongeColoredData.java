@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.ImmutableColoredData;
 import org.spongepowered.api.data.manipulator.mutable.ColoredData;
@@ -33,7 +32,6 @@ import org.spongepowered.api.util.Color;
 import org.spongepowered.common.data.manipulator.immutable.ImmutableSpongeColoredData;
 import org.spongepowered.common.data.manipulator.mutable.common.AbstractSingleData;
 import org.spongepowered.common.data.value.mutable.SpongeValue;
-
 
 public class SpongeColoredData extends AbstractSingleData<Color, ColoredData, ImmutableColoredData> implements ColoredData {
 
@@ -58,12 +56,6 @@ public class SpongeColoredData extends AbstractSingleData<Color, ColoredData, Im
     @Override
     public ImmutableColoredData asImmutable() {
         return new ImmutableSpongeColoredData(getValue());
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.COLOR, this.getValue());
     }
 
     @Override

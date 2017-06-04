@@ -24,7 +24,6 @@
  */
 package org.spongepowered.common.data.manipulator.mutable.entity;
 
-import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutablePassengerData;
 import org.spongepowered.api.data.manipulator.mutable.entity.PassengerData;
@@ -59,11 +58,5 @@ public class SpongePassengerData extends AbstractListData<UUID, PassengerData, I
     @Override
     public ImmutablePassengerData asImmutable() {
         return new ImmutableSpongePassengerData(this.getValue());
-    }
-
-    @Override
-    public void toContainer(DataMap container) {
-        super.toContainer(container);
-        container.set(Keys.PASSENGERS, this.getValue());
     }
 }

@@ -26,7 +26,7 @@ package org.spongepowered.common.item;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.api.item.FireworkShape;
@@ -83,9 +83,9 @@ public class SpongeFireworkEffect implements FireworkEffect {
 
     @Override
     public void toContainer(DataMap container) {
-        return DataContainer.createNew()
+        container
                 .set(Queries.CONTENT_VERSION, getContentVersion())
-                .set(DataQueries.FIREWORK_SHAPE, this.shape.getId())
+                .set(DataQueries.FIREWORK_SHAPE, this.shape)
                 .set(DataQueries.FIREWORK_COLORS, this.colors)
                 .set(DataQueries.FIREWORK_FADE_COLORS, this.fades)
                 .set(DataQueries.FIREWORK_TRAILS, this.trails)

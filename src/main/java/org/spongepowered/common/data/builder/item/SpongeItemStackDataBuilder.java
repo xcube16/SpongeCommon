@@ -25,19 +25,16 @@
 package org.spongepowered.common.data.builder.item;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.spongepowered.common.data.util.DataUtil.getData;
 
 import net.minecraft.item.Item;
-import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.merge.MergeFunction;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.DataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
-import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.data.persistence.SerializedDataTransaction;
 import org.spongepowered.common.data.util.DataQueries;
@@ -54,23 +51,21 @@ public class SpongeItemStackDataBuilder extends AbstractDataBuilder<ItemStack> i
     }
 
     @Override
-    protected Optional<ItemStack> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<ItemStack> buildContent(DataMap container) throws InvalidDataException {
         checkNotNull(container);
-        if (!container.contains(DataQueries.ITEM_TYPE) || !container.contains(DataQueries.ITEM_COUNT) || !container.contains(
-                DataQueries.ITEM_DAMAGE_VALUE)) {
+        final Optional<ItemType> itemType = container.getObject(DataQueries.ITEM_TYPE, ItemType.class);
+        if (!itemType.isPresent()) {
             return Optional.empty();
         }
-        final String itemTypeId = getData(container, DataQueries.ITEM_TYPE, String.class);
-        final int count = getData(container, DataQueries.ITEM_COUNT, Integer.class);
-        final ItemType itemType = SpongeImpl.getRegistry().getType(ItemType.class, itemTypeId).get();
-        final int damage = getData(container, DataQueries.ITEM_DAMAGE_VALUE, Integer.class);
-        final net.minecraft.item.ItemStack itemStack = new net.minecraft.item.ItemStack((Item) itemType, count, damage);
-        if (container.contains(DataQueries.UNSAFE_NBT)) {
-            final NBTTagCompound compound = NbtTranslator.getInstance().translateData(container.getView(DataQueries.UNSAFE_NBT).get());
-            itemStack.setTagCompound(compound);
-        }
-        if (container.contains(DataQueries.DATA_MANIPULATORS)) {
-            final List<DataView> views = container.getViewList(DataQueries.DATA_MANIPULATORS).get();
+
+        final int count = container.getInt(DataQueries.ITEM_COUNT).orElse(1);
+        final int damage = container.getInt(DataQueries.ITEM_DAMAGE_VALUE).orElse(0);
+        final net.minecraft.item.ItemStack itemStack = new net.minecraft.item.ItemStack((Item) itemType.get(), count, damage);
+
+        container.getMap(DataQueries.UNSAFE_NBT).ifPresent(m ->
+                itemStack.setTagCompound(NbtTranslator.getInstance().translate(m)));
+
+        container.getList(DataQueries.DATA_MANIPULATORS).ifPresent(views -> {
             final SerializedDataTransaction transaction = DataUtil.deserializeManipulatorList(views);
             final List<DataManipulator<?, ?>> manipulators = transaction.deserializedManipulators;
             for (DataManipulator<?, ?> manipulator : manipulators) {
@@ -79,7 +74,7 @@ public class SpongeItemStackDataBuilder extends AbstractDataBuilder<ItemStack> i
             if (!transaction.failedData.isEmpty()) {
                 ((IMixinCustomDataHolder) itemStack).addFailedData(transaction.failedData);
             }
-        }
+        });
         return Optional.of((ItemStack) itemStack);
     }
 

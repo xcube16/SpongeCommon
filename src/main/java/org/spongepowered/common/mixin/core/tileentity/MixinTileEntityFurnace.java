@@ -25,19 +25,19 @@
 package org.spongepowered.common.mixin.core.tileentity;
 
 import static net.minecraft.inventory.SlotFurnaceFuel.isBucket;
-import static org.spongepowered.api.data.DataQuery.of;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityFurnace;
 import org.spongepowered.api.block.tileentity.carrier.Furnace;
-import org.spongepowered.api.data.DataContainer;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.interfaces.data.IMixinCustomNameable;
 import org.spongepowered.common.item.inventory.adapter.InventoryAdapter;
 import org.spongepowered.common.item.inventory.adapter.impl.slots.FuelSlotAdapter;
@@ -69,15 +69,13 @@ public abstract class MixinTileEntityFurnace extends MixinTileEntityLockable imp
 
     @Override
     public void toContainer(DataMap container) {
-        DataContainer container = super.toContainer();
-        container.set(of("BurnTime"), this.getField(0));
-        container.set(of("BurnTimeTotal"), this.getField(1));
-        container.set(of("CookTime"), this.getField(3) - this.getField(2));
-        container.set(of("CookTimeTotal"), this.getField(3));
+        container.set("BurnTime", this.getField(0));
+        container.set("BurnTimeTotal", this.getField(1));
+        container.set("CookTime", this.getField(3) - this.getField(2));
+        container.set("CookTimeTotal", this.getField(3));
         if (this.furnaceCustomName != null) {
-            container.set(of("CustomName"), this.furnaceCustomName);
+            container.set(DataQueries.CUSTOM_NAME, this.furnaceCustomName);
         }
-        return container;
     }
 
     @Override

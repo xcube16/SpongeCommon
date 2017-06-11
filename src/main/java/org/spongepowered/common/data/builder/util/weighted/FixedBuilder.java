@@ -24,11 +24,11 @@
  */
 package org.spongepowered.common.data.builder.util.weighted;
 
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.util.weighted.VariableAmount;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 
 import java.util.Optional;
 
@@ -39,11 +39,8 @@ public class FixedBuilder extends AbstractDataBuilder<VariableAmount.Fixed> {
     }
 
     @Override
-    protected Optional<VariableAmount.Fixed> buildContent(DataView container) throws InvalidDataException {
-        if (!container.contains(Queries.VARIABLE_AMOUNT)) {
-            return Optional.empty();
-        }
-        final double base = container.getDouble(Queries.VARIABLE_AMOUNT).get();
-        return Optional.of((VariableAmount.Fixed) VariableAmount.fixed(base));
+    protected Optional<VariableAmount.Fixed> buildContent(DataMap container) throws InvalidDataException {
+        return container.getDouble(Queries.VARIABLE_AMOUNT)
+                .map(base -> (VariableAmount.Fixed) VariableAmount.fixed(base));
     }
 }

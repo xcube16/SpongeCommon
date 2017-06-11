@@ -26,7 +26,7 @@ package org.spongepowered.common.data.builder.block.tileentity;
 
 import net.minecraft.tileentity.TileEntityEnchantmentTable;
 import org.spongepowered.api.block.tileentity.EnchantmentTable;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.common.data.util.DataQueries;
 
@@ -39,11 +39,10 @@ public class SpongeEnchantmentTableBuilder extends AbstractTileBuilder<Enchantme
     }
 
     @Override
-    protected Optional<EnchantmentTable> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<EnchantmentTable> buildContent(DataMap container) throws InvalidDataException {
         return super.buildContent(container).map(enchantmentTable -> {
-            if (container.contains(DataQueries.CUSTOM_NAME)) {
-                ((TileEntityEnchantmentTable) enchantmentTable).setCustomName(container.getString(DataQueries.CUSTOM_NAME).get());
-            }
+            container.getString(DataQueries.CUSTOM_NAME).ifPresent(
+                    ((TileEntityEnchantmentTable) enchantmentTable)::setCustomName);
             ((TileEntityEnchantmentTable) enchantmentTable).validate();
             return enchantmentTable;
         });

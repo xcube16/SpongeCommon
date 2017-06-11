@@ -26,7 +26,7 @@ package org.spongepowered.common.data.builder.block.tileentity;
 
 import net.minecraft.tileentity.TileEntityEndPortal;
 import org.spongepowered.api.block.tileentity.EndPortal;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class SpongeEndPortalBuilder extends AbstractTileBuilder<EndPortal> {
     }
 
     @Override
-    protected Optional<EndPortal> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<EndPortal> buildContent(DataMap container) throws InvalidDataException {
         return super.buildContent(container).map(endPortal -> {
             ((TileEntityEndPortal) endPortal).validate();
             return endPortal;

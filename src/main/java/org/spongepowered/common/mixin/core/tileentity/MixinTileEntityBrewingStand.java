@@ -28,7 +28,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityBrewingStand;
 import org.spongepowered.api.block.tileentity.carrier.BrewingStand;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.util.annotation.NonnullByDefault;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -74,7 +74,7 @@ public abstract class MixinTileEntityBrewingStand extends MixinTileEntityLockabl
     }
 
     @Override
-    public void sendDataToContainer(DataView dataView) {
+    public void sendDataToContainer(DataMap dataView) {
         dataView.set(DataQueries.BLOCK_ENTITY_BREWING_TIME, this.getField(0));
         if (this.customName != null) {
             dataView.set(DataQueries.BLOCK_ENTITY_CUSTOM_NAME, this.customName);

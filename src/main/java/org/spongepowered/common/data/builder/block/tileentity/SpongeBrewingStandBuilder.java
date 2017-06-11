@@ -24,11 +24,12 @@
  */
 package org.spongepowered.common.data.builder.block.tileentity;
 
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBrewingStand;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.tileentity.carrier.BrewingStand;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataQuery;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.BrewingStandData;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.common.data.util.DataQueries;
@@ -44,22 +45,23 @@ public class SpongeBrewingStandBuilder extends SpongeLockableBuilder<BrewingStan
     }
 
     @Override
-    protected Optional<BrewingStand> buildContent(DataView container) throws InvalidDataException {
-        return super.buildContent(container).map(brewingStand -> {
-            if (!container.contains(BREW_TIME_QUERY)) {
-                throw new InvalidDataException("The provided container does not contain the data to make a Banner!");
+    protected Optional<BrewingStand> buildContent(DataMap container) throws InvalidDataException {
+        return super.buildContent(container).flatMap(brewingStand -> {
+            Optional<Integer> time = container.getInt(BREW_TIME_QUERY);
+            if (!time.isPresent()) {
+                ((TileEntity) brewingStand).invalidate();
+                return Optional.empty();
             }
             // Have to consider custom names as an option
-            if (container.contains(DataQueries.CUSTOM_NAME)) {
-                ((TileEntityBrewingStand) brewingStand).setName(container.getString(DataQueries.CUSTOM_NAME).get());
-            }
+            container.getString(DataQueries.CUSTOM_NAME)
+                    .ifPresent(((TileEntityBrewingStand) brewingStand)::setName);
 
             final BrewingStandData brewingData = Sponge.getDataManager().getManipulatorBuilder(BrewingStandData.class).get().create();
-            brewingData.remainingBrewTime().set(container.getInt(BREW_TIME_QUERY).get());
+            brewingData.remainingBrewTime().set(time.get());
             brewingStand.offer(brewingData);
 
             ((TileEntityBrewingStand) brewingStand).validate();
-            return brewingStand;
+            return Optional.of(brewingStand);
         });
     }
 }

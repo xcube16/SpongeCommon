@@ -26,10 +26,9 @@ package org.spongepowered.common.data.builder.block.state;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.persistence.DataContentUpdater;
 import org.spongepowered.api.data.persistence.InvalidDataException;
@@ -52,14 +51,11 @@ public class SpongeBlockStateMetaContentUpdater implements DataContentUpdater {
 
     @SuppressWarnings("deprecation")
     @Override
-    public DataView update(DataView content) {
-        // Right, so we have to get the block type id
-        final String blockTypeId = content.getString(DataQueries.BLOCK_TYPE).get();
-        // Check if it's there....
-        final Optional<BlockType> blockType = Sponge.getRegistry().getType(BlockType.class, blockTypeId);
+    public DataMap update(DataMap content) {
+        final Optional<BlockType> blockType = content.getObject(DataQueries.BLOCK_TYPE, BlockType.class);
         if (!blockType.isPresent()) {
             // sure, throw an exception to throw down the chain
-            throw new InvalidDataException("Could not find a block type for the given id: " + blockTypeId);
+            throw new InvalidDataException("Could not find a block type for the given id: " + content.getString(DataQueries.BLOCK_TYPE));
         }
         // Get the meta, if it wasn't available, just default to the default block state.
         final int meta = content.getInt(DataQueries.BLOCK_STATE_UNSAFE_META).orElse(0);
@@ -77,7 +73,7 @@ public class SpongeBlockStateMetaContentUpdater implements DataContentUpdater {
         // Cast to the API state to get the id
         final BlockState apiState = (BlockState) blockState;
         // set the id
-        content.set(DataQueries.BLOCK_STATE, apiState.getId());
+        content.set(DataQueries.BLOCK_STATE, apiState);
         // set the version!!
         content.set(Queries.CONTENT_VERSION, 2);
         // Presto!

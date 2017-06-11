@@ -33,7 +33,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.world.WorldServer;
 import org.spongepowered.api.block.tileentity.Banner;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.meta.PatternLayer;
@@ -76,8 +76,8 @@ public abstract class MixinTileEntityBanner extends MixinTileEntity implements B
     }
 
     @Override
-    public void sendDataToContainer(DataView dataView) {
-        dataView.set(Keys.BANNER_PATTERNS.getQuery(), Lists.newArrayList(this.patternLayers));
+    public void sendDataToContainer(DataMap dataView) {
+        dataView.set(Keys.BANNER_PATTERNS.getQuery(), this.patternLayers);
         dataView.set(Keys.BANNER_BASE_COLOR.getQuery(), this.baseColor.getDyeDamage());
     }
 

@@ -30,6 +30,7 @@ import com.google.common.reflect.TypeToken;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.data.persistence.DataTranslator;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 
@@ -44,7 +45,7 @@ public class DataTranslatorTypeSerializer<T> implements TypeSerializer<T> {
     @Override
     public T deserialize(TypeToken<?> type, ConfigurationNode value) throws ObjectMappingException {
         try {
-            return this.dataTranslator.translate(ConfigurateTranslator.instance().translate(value));
+            return this.dataTranslator.translate(ConfigurateTranslator.instance().translate(value, new MemoryDataMap()));
         } catch (InvalidDataException e) {
             throw new ObjectMappingException("Could not deserialize. Node -> DataView or DataView -> Object failed.", e);
         }
@@ -53,7 +54,7 @@ public class DataTranslatorTypeSerializer<T> implements TypeSerializer<T> {
     @Override
     public void serialize(TypeToken<?> type, T obj, ConfigurationNode value) throws ObjectMappingException {
         try {
-            ConfigurateTranslator.instance().translateIntoNode(value, this.dataTranslator.translate(obj));
+            ConfigurateTranslator.instance().translateIntoNode(value, this.dataTranslator.translate(obj, new MemoryDataMap()));
         } catch (InvalidDataException e) {
             throw new ObjectMappingException("Could not serialize. Object -> DataView or DataView -> Node failed.", e);
         }

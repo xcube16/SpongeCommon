@@ -26,8 +26,8 @@ package org.spongepowered.common.data.nbt;
 
 import com.google.common.collect.ImmutableList;
 import net.minecraft.nbt.NBTTagCompound;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.common.data.nbt.data.NbtDataProcessor;
@@ -76,7 +76,7 @@ public class SpongeNbtProcessorDelegate<M extends DataManipulator<M, I>, I exten
     }
 
     @Override
-    public Optional<M> readFrom(DataView view) {
+    public Optional<M> readFrom(DataMap view) {
         for (NbtDataProcessor<M, I> processor : this.processors) {
             final Optional<M> returnVal = processor.readFrom(view);
             if (returnVal.isPresent()) {
@@ -98,9 +98,9 @@ public class SpongeNbtProcessorDelegate<M extends DataManipulator<M, I>, I exten
     }
 
     @Override
-    public Optional<DataView> storeToView(DataView view, M manipulator) {
+    public Optional<DataMap> storeToView(DataMap view, M manipulator) {
         for (NbtDataProcessor<M, I> processor : this.processors) {
-            final Optional<DataView> returnVal = processor.storeToView(view, manipulator);
+            final Optional<DataMap> returnVal = processor.storeToView(view, manipulator);
             if (returnVal.isPresent()) {
                 return returnVal;
             }
@@ -114,7 +114,7 @@ public class SpongeNbtProcessorDelegate<M extends DataManipulator<M, I>, I exten
     }
 
     @Override
-    public DataTransactionResult remove(DataView data) {
+    public DataTransactionResult remove(DataMap data) {
         return DataTransactionResult.failNoData();
     }
 }

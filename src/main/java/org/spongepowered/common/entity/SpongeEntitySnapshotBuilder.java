@@ -31,6 +31,8 @@ import com.flowpowered.math.vector.Vector3d;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.nbt.NBTTagCompound;
+import org.spongepowered.api.data.DataList;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.key.Key;
@@ -264,28 +266,29 @@ public class SpongeEntitySnapshotBuilder extends AbstractDataBuilder<EntitySnaps
     }
 
     @Override
-    protected Optional<EntitySnapshot> buildContent(DataView container) throws InvalidDataException {
-        if (!container.contains(Queries.WORLD_ID, DataQueries.ENTITY_TYPE, DataQueries.ENTITY_ROTATION, DataQueries.ENTITY_SCALE, DataQueries.SNAPSHOT_WORLD_POSITION)) {
+    protected Optional<EntitySnapshot> buildContent(DataMap container) throws InvalidDataException {
+        Optional<UUID> worldId = container.getString(Queries.WORLD_ID).map(UUID::fromString);
+        Optional<EntityType> type = container.getObject(DataQueries.ENTITY_TYPE, EntityType.class);
+        Optional<Vector3d> rotation = container.getMap(DataQueries.ENTITY_ROTATION).map(DataUtil::getVector3d);
+        Optional<Vector3d> scale = container.getMap(DataQueries.ENTITY_SCALE).map(DataUtil::getVector3d);
+        Optional<Vector3d> pos = container.getMap(DataQueries.SNAPSHOT_WORLD_POSITION).map(DataUtil::getVector3d);
+        if (!worldId.isPresent() || !type.isPresent() || !rotation.isPresent() || !scale.isPresent() || !pos.isPresent()) {
             return Optional.empty();
         }
-        this.worldId = UUID.fromString(container.getString(Queries.WORLD_ID).get());
-        this.position = DataUtil.getPosition3d(container);
-        this.rotation = DataUtil.getPosition3d(container, DataQueries.ENTITY_ROTATION);
-        this.scale = DataUtil.getPosition3d(container, DataQueries.ENTITY_SCALE);
-        final String entityTypeId = container.getString(DataQueries.ENTITY_TYPE).get();
-        this.entityType = SpongeImpl.getRegistry().getType(EntityType.class, entityTypeId).get();
 
-        if (container.contains(DataQueries.DATA_MANIPULATORS)) {
-            this.manipulators = DataUtil.deserializeImmutableManipulatorList(container.getViewList(DataQueries.DATA_MANIPULATORS).get());
-        } else {
-            this.manipulators = ImmutableList.of();
-        }
-        if (container.contains(DataQueries.UNSAFE_NBT)) {
-            this.compound = NbtTranslator.getInstance().translateData(container.getView(DataQueries.UNSAFE_NBT).get());
-        }
-        if (container.contains(DataQueries.ENTITY_ID)) {
-            this.entityId = UUID.fromString(container.getString(DataQueries.ENTITY_ID).get());
-        }
+        this.worldId = worldId.get();
+        this.position = pos.get();
+        this.rotation = rotation.get();
+        this.scale = scale.get();
+        this.entityType = type.get();
+
+        this.manipulators = container.getList(DataQueries.DATA_MANIPULATORS)
+                .map(DataUtil::deserializeImmutableManipulatorList)
+                .orElseGet(ImmutableList::of);
+        container.getMap(DataQueries.UNSAFE_NBT).ifPresent(m ->
+                this.compound = NbtTranslator.getInstance().translateData(m));
+        container.getString(DataQueries.ENTITY_ID).ifPresent(s ->
+                this.entityId = UUID.fromString(s));
         return Optional.of(build());
     }
 }

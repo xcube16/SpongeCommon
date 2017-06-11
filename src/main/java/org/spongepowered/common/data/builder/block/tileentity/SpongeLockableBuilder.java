@@ -27,13 +27,13 @@ package org.spongepowered.common.data.builder.block.tileentity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.tileentity.TileEntity;
 import org.spongepowered.api.block.tileentity.carrier.TileEntityCarrier;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataList;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.common.data.util.DataQueries;
 
-import java.util.List;
 import java.util.Optional;
 
 public class SpongeLockableBuilder<T extends TileEntityCarrier> extends AbstractTileBuilder<T> {
@@ -43,18 +43,20 @@ public class SpongeLockableBuilder<T extends TileEntityCarrier> extends Abstract
     }
 
     @Override
-    protected Optional<T> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<T> buildContent(DataMap container) throws InvalidDataException {
         return super.buildContent(container).flatMap(lockable -> {
+            //TODO: don't use contains(), and do a proper check before calling get() methods
             if (!container.contains(DataQueries.BLOCK_ENTITY_ITEM_CONTENTS)) {
                 ((TileEntity) lockable).invalidate();
                 return Optional.empty();
             }
-            List<DataView> contents = container.getViewList(DataQueries.BLOCK_ENTITY_ITEM_CONTENTS).get();
-            for (DataView content: contents) {
+            DataList contents = container.getList(DataQueries.BLOCK_ENTITY_ITEM_CONTENTS).get();
+            contents.forEachKey(key -> {
+                DataMap content = contents.getMap(key).get();
                 net.minecraft.item.ItemStack stack = (net.minecraft.item.ItemStack) content
-                        .getSerializable(DataQueries.BLOCK_ENTITY_SLOT_ITEM, ItemStack.class).get();
+                        .getObject(DataQueries.BLOCK_ENTITY_SLOT_ITEM, ItemStack.class).get();
                 ((IInventory) lockable).setInventorySlotContents(content.getInt(DataQueries.BLOCK_ENTITY_SLOT).get(), stack);
-            }
+            });
             if (container.contains(Keys.LOCK_TOKEN.getQuery())) {
                 lockable.offer(Keys.LOCK_TOKEN, container.getString(Keys.LOCK_TOKEN.getQuery()).get());
             }

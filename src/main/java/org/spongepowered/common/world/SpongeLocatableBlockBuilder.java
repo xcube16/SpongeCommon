@@ -30,7 +30,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.flowpowered.math.vector.Vector3i;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockState;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
@@ -125,14 +125,14 @@ public class SpongeLocatableBlockBuilder extends AbstractDataBuilder<LocatableBl
     }
 
     @Override
-    protected Optional<LocatableBlock> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<LocatableBlock> buildContent(DataMap container) throws InvalidDataException {
         final int x = container.getInt(Queries.POSITION_X)
                 .orElseThrow(() -> new InvalidDataException("Could not locate an \"x\" coordinate in the container!"));
         final int y = container.getInt(Queries.POSITION_Y)
                 .orElseThrow(() -> new InvalidDataException("Could not locate an \"y\" coordinate in the container!"));
         final int z = container.getInt(Queries.POSITION_Z)
                 .orElseThrow(() -> new InvalidDataException("Could not locate an \"z\" coordinate in the container!"));
-        final BlockState blockState = container.getCatalogType(DataQueries.BLOCK_STATE, BlockState.class)
+        final BlockState blockState = container.getObject(DataQueries.BLOCK_STATE, BlockState.class)
                 .orElseThrow(() -> new InvalidDataException("Could not locate a BlockState"));
         final UUID worldId = container.getObject(Queries.WORLD_ID, UUID.class)
                 .orElseThrow(() -> new InvalidDataException("Could not locate a UUID"));

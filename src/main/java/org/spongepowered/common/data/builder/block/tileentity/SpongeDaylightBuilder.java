@@ -26,7 +26,7 @@ package org.spongepowered.common.data.builder.block.tileentity;
 
 import net.minecraft.tileentity.TileEntityDaylightDetector;
 import org.spongepowered.api.block.tileentity.DaylightDetector;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class SpongeDaylightBuilder extends AbstractTileBuilder<DaylightDetector>
     }
 
     @Override
-    protected Optional<DaylightDetector> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<DaylightDetector> buildContent(DataMap container) throws InvalidDataException {
         return super.buildContent(container).map(daylightDetector -> {
             ((TileEntityDaylightDetector) daylightDetector).validate();
             return daylightDetector;

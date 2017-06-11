@@ -31,7 +31,9 @@ import ninja.leaping.configurate.objectmapping.ObjectMappingException;
 import ninja.leaping.configurate.objectmapping.serialize.TypeSerializer;
 import org.spongepowered.api.CatalogType;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataSerializable;
+import org.spongepowered.api.data.MemoryDataMap;
 import org.spongepowered.api.data.persistence.DataTranslators;
 
 /**
@@ -47,16 +49,14 @@ public class DataSerializableTypeSerializer implements TypeSerializer<DataSerial
         }
         Class<?> clazz = type.getRawType();
         return Sponge.getDataManager()
-                .deserialize(clazz.asSubclass(DataSerializable.class), DataTranslators.CONFIGURATION_NODE.translate(value))
+                .deserialize(clazz.asSubclass(DataSerializable.class), DataTranslators.CONFIGURATION_NODE.translate(value, new MemoryDataMap()))
                 .orElseThrow(() -> new ObjectMappingException("Could not translate DataSerializable of type: " + clazz.getName()));
     }
 
     @Override
     public void serialize(TypeToken<?> type, DataSerializable obj, ConfigurationNode value) throws ObjectMappingException {
-        if (obj instanceof CatalogType) {
-            new CatalogTypeTypeSerializer().serialize(type, (CatalogType) obj, value);
-        } else {
-            value.setValue(DataTranslators.CONFIGURATION_NODE.translate(obj.toContainer()));
-        }
+        DataMap data = new MemoryDataMap();
+        obj.toContainer(data);
+        value.setValue(DataTranslators.CONFIGURATION_NODE.translate(data));
     }
 }

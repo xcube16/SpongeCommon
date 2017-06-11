@@ -27,8 +27,8 @@ package org.spongepowered.common.data.nbt;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.immutable.entity.ImmutableFlyingData;
 import org.spongepowered.api.data.manipulator.mutable.entity.FlyingData;
@@ -60,7 +60,7 @@ public class IsFlyingNbtProcessor extends AbstractSpongeNbtProcessor<FlyingData,
     }
 
     @Override
-    public Optional<FlyingData> readFrom(DataView view) {
+    public Optional<FlyingData> readFrom(DataMap view) {
         return view.getBoolean(Keys.IS_FLYING.getQuery()).map(SpongeFlyingData::new);
     }
 
@@ -71,7 +71,7 @@ public class IsFlyingNbtProcessor extends AbstractSpongeNbtProcessor<FlyingData,
     }
 
     @Override
-    public Optional<DataView> storeToView(DataView view, FlyingData manipulator) {
+    public Optional<DataMap> storeToView(DataMap view, FlyingData manipulator) {
         view.set(Keys.IS_FLYING, manipulator.flying().get());
         return Optional.of(view);
     }
@@ -82,7 +82,7 @@ public class IsFlyingNbtProcessor extends AbstractSpongeNbtProcessor<FlyingData,
     }
 
     @Override
-    public DataTransactionResult remove(DataView data) {
+    public DataTransactionResult remove(DataMap data) {
         return null;
     }
 }

@@ -24,11 +24,11 @@
  */
 package org.spongepowered.common.data.builder.util.weighted;
 
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.util.weighted.VariableAmount;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 
 import java.util.Optional;
 
@@ -39,12 +39,12 @@ public class BaseAndVarianceBuilder extends AbstractDataBuilder<VariableAmount.B
     }
 
     @Override
-    protected Optional<VariableAmount.BaseAndVariance> buildContent(DataView container) throws InvalidDataException {
-        if (!container.contains(Queries.VARIABLE_BASE, Queries.VARIABLE_VARIANCE)) {
+    protected Optional<VariableAmount.BaseAndVariance> buildContent(DataMap container) throws InvalidDataException {
+        final Optional<Integer> base = container.getInt(Queries.VARIABLE_BASE);
+        final Optional<VariableAmount> amount = container.getObject(Queries.VARIABLE_VARIANCE, VariableAmount.class);
+        if (!base.isPresent() || !amount.isPresent()) {
             return Optional.empty();
         }
-        final int base = container.getInt(Queries.VARIABLE_BASE).get();
-        final VariableAmount amount = container.getSerializable(Queries.VARIABLE_VARIANCE, VariableAmount.class).get();
-        return Optional.of((VariableAmount.BaseAndVariance) VariableAmount.baseWithVariance(base, amount));
+        return Optional.of((VariableAmount.BaseAndVariance) VariableAmount.baseWithVariance(base.get(), amount.get()));
     }
 }

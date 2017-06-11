@@ -24,20 +24,13 @@
  */
 package org.spongepowered.common.data.processor.common;
 
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
-import net.minecraft.entity.passive.AbstractHorse;
 import net.minecraft.entity.passive.EntityHorse;
-import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.type.HorseColor;
 import org.spongepowered.api.data.type.HorseStyle;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.entity.SpongeEntityConstants;
 import org.spongepowered.common.entity.SpongeHorseColor;
 import org.spongepowered.common.entity.SpongeHorseStyle;
 
-@SuppressWarnings("deprecation")
 public class HorseUtils {
 
     public static int getInternalVariant(SpongeHorseColor color, SpongeHorseStyle style) {
@@ -48,17 +41,7 @@ public class HorseUtils {
         return SpongeEntityConstants.HORSE_COLOR_IDMAP.get(horse.getHorseVariant() & 255);
     }
 
-    public static HorseColor getHorseColor(DataView container) {
-
-        return SpongeImpl.getRegistry().getType(HorseColor.class, getData(container, Keys.HORSE_COLOR, String.class)).get();
-    }
-
     public static HorseStyle getHorseStyle(EntityHorse horse) {
         return SpongeEntityConstants.HORSE_STYLE_IDMAP.get((horse.getHorseVariant() & 65280) >> 8);
     }
-
-    public static HorseStyle getHorseStyle(DataView container) {
-        return SpongeImpl.getRegistry().getType(HorseStyle.class, getData(container, Keys.HORSE_STYLE, String.class)).get();
-    }
-
 }

@@ -24,18 +24,15 @@
  */
 package org.spongepowered.common.data.builder.item;
 
-import static org.spongepowered.common.data.util.DataUtil.getData;
-
 import com.google.common.collect.ImmutableList;
 import net.minecraft.nbt.NBTTagCompound;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.DataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
-import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.persistence.NbtTranslator;
 import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.data.util.DataUtil;
@@ -54,26 +51,22 @@ public class SpongeItemStackSnapshotBuilder extends AbstractDataBuilder<ItemStac
     }
 
     @Override
-    protected Optional<ItemStackSnapshot> buildContent(DataView container) throws InvalidDataException {
-        if (container.contains(DataQueries.ITEM_TYPE, DataQueries.ITEM_COUNT)) {
-            final String itemString = getData(container, DataQueries.ITEM_TYPE, String.class);
-            final ItemType itemType = SpongeImpl.getRegistry().getType(ItemType.class, itemString).get();
-            final int count = getData(container, DataQueries.ITEM_COUNT, Integer.class);
-            final int damage = container.getInt(DataQueries.ITEM_DAMAGE_VALUE).orElse(0);
-            final ImmutableList<ImmutableDataManipulator<?, ?>> manipulators;
-            if (container.contains(DataQueries.DATA_MANIPULATORS)) {
-                manipulators = DataUtil.deserializeImmutableManipulatorList(container.getViewList(DataQueries.DATA_MANIPULATORS).get());
-            } else {
-                manipulators = ImmutableList.of();
-            }
-            @Nullable final NBTTagCompound compound;
-            if (container.contains(DataQueries.UNSAFE_NBT)) {
-                compound = NbtTranslator.getInstance().translateData(container.getView(DataQueries.UNSAFE_NBT).get());
-            } else {
-                compound = null;
-            }
-            return Optional.of(new SpongeItemStackSnapshot(itemType, count, damage, manipulators, compound));
+    protected Optional<ItemStackSnapshot> buildContent(DataMap container) throws InvalidDataException {
+        final Optional<ItemType> itemType = container.getObject(DataQueries.ITEM_TYPE, ItemType.class);
+        if (!itemType.isPresent()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        final int count = container.getInt(DataQueries.ITEM_COUNT).orElse(1);
+        final int damage = container.getInt(DataQueries.ITEM_DAMAGE_VALUE).orElse(0);
+
+        @Nullable final NBTTagCompound compound = container.getMap(DataQueries.UNSAFE_NBT).map(m ->
+                NbtTranslator.getInstance().translate(m)).orElse(null);
+
+        final ImmutableList<ImmutableDataManipulator<?, ?>> manipulators = container.getList(DataQueries.DATA_MANIPULATORS)
+                        .map(DataUtil::deserializeImmutableManipulatorList)
+                        .orElseGet(ImmutableList::of);
+
+        return Optional.of(new SpongeItemStackSnapshot(itemType.get(), count, damage, manipulators, compound));
     }
 }

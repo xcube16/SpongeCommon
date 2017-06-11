@@ -24,9 +24,9 @@
  */
 package org.spongepowered.common.data.util;
 
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataRegistration;
 import org.spongepowered.api.data.DataRegistrationNotFoundException;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.persistence.DataContentUpdater;
 import org.spongepowered.common.data.SpongeManipulatorRegistry;
 
@@ -44,7 +44,7 @@ public class LegacyCustomDataClassContentUpdater implements DataContentUpdater{
 
     @SuppressWarnings("deprecation")
     @Override
-    public DataView update(DataView content) {
+    public DataMap update(DataMap content) {
         final String className = content.getString(DataQueries.DATA_CLASS).get();
 
         final DataRegistration<?, ?> registration = SpongeManipulatorRegistry.getInstance().getRegistrationForLegacyId(className)

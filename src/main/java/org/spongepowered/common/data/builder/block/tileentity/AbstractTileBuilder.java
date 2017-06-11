@@ -54,13 +54,12 @@ import net.minecraft.util.math.BlockPos;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.DataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
-import org.spongepowered.api.event.cause.Cause;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.common.SpongeImpl;
 import org.spongepowered.common.data.util.DataQueries;
 
@@ -83,7 +82,7 @@ public abstract class AbstractTileBuilder<T extends org.spongepowered.api.block.
 
     @SuppressWarnings("unchecked")
     @Override
-    protected Optional<T> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<T> buildContent(DataMap container) throws InvalidDataException {
         checkNotNull(container);
         if (!container.contains(DataQueries.TILE_TYPE, DataQueries.WORLD, Queries.POSITION_X, Queries.POSITION_Y, Queries.POSITION_Z)) {
             return Optional.empty();

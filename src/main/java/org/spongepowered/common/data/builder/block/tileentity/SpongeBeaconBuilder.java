@@ -24,10 +24,9 @@
  */
 package org.spongepowered.common.data.builder.block.tileentity;
 
-import net.minecraft.potion.Potion;
 import net.minecraft.tileentity.TileEntityBeacon;
 import org.spongepowered.api.block.tileentity.carrier.Beacon;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.tileentity.BeaconData;
 import org.spongepowered.api.data.persistence.InvalidDataException;
@@ -44,14 +43,11 @@ public class SpongeBeaconBuilder extends SpongeLockableBuilder<Beacon> {
     }
 
     @Override
-    protected Optional<Beacon> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<Beacon> buildContent(DataMap container) throws InvalidDataException {
         return super.buildContent(container).flatMap(beacon -> {
-            if (!container.contains(DataQueries.PRIMARY) || !container.contains(DataQueries.SECONDARY)) {
-                return Optional.empty();
-            }
             final BeaconData beaconData = new SpongeBeaconData();
-            beaconData.set(Keys.BEACON_PRIMARY_EFFECT, Optional.of((PotionEffectType) Potion.getPotionById(container.getInt(DataQueries.PRIMARY).get())));
-            beaconData.set(Keys.BEACON_SECONDARY_EFFECT, Optional.of((PotionEffectType) Potion.getPotionById(container.getInt(DataQueries.SECONDARY).get())));
+            beaconData.set(Keys.BEACON_PRIMARY_EFFECT, container.getObject(DataQueries.PRIMARY, PotionEffectType.class));
+            beaconData.set(Keys.BEACON_SECONDARY_EFFECT, container.getObject(DataQueries.SECONDARY, PotionEffectType.class));
 
             beacon.offer(beaconData);
             ((TileEntityBeacon) beacon).validate();

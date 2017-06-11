@@ -24,17 +24,13 @@
  */
 package org.spongepowered.common.data.builder.data.meta;
 
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
 import org.spongepowered.api.data.meta.ItemEnchantment;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.DataBuilder;
-import org.spongepowered.api.data.persistence.DataContentUpdater;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.item.Enchantment;
-import org.spongepowered.common.SpongeImpl;
-import org.spongepowered.common.data.SpongeDataManager;
-import org.spongepowered.common.data.util.DataUtil;
 
 import java.util.Optional;
 
@@ -45,13 +41,8 @@ public class SpongeItemEnchantmentBuilder extends AbstractDataBuilder<ItemEnchan
     }
 
     @Override
-    protected Optional<ItemEnchantment> buildContent(DataView container) throws InvalidDataException {
-        if (container.contains(Queries.ENCHANTMENT_ID, Queries.LEVEL)) {
-            final String enchantmentId = DataUtil.getData(container, Queries.ENCHANTMENT_ID, String.class);
-            final int enchantmentLevel = DataUtil.getData(container, Queries.LEVEL, Integer.class);
-            final Enchantment enchantment = SpongeImpl.getRegistry().getType(Enchantment.class, enchantmentId).get();
-            return Optional.of(new ItemEnchantment(enchantment, enchantmentLevel));
-        }
-        return Optional.empty();
+    protected Optional<ItemEnchantment> buildContent(DataMap container) throws InvalidDataException {
+        return container.getObject(Queries.ENCHANTMENT_ID, Enchantment.class)
+                .map(ench -> new ItemEnchantment(ench, container.getInt(Queries.LEVEL).orElse(1)));
     }
 }

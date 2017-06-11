@@ -26,7 +26,7 @@ package org.spongepowered.common.data.builder.block.tileentity;
 
 import net.minecraft.tileentity.TileEntityDropper;
 import org.spongepowered.api.block.tileentity.carrier.Dropper;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.common.data.util.DataQueries;
 
@@ -39,11 +39,10 @@ public class SpongeDropperBuilder extends SpongeLockableBuilder<Dropper> {
     }
 
     @Override
-    protected Optional<Dropper> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<Dropper> buildContent(DataMap container) throws InvalidDataException {
         return super.buildContent(container).map(dropper -> {
-            if (container.contains(DataQueries.CUSTOM_NAME)) {
-                ((TileEntityDropper) dropper).setCustomName(container.getString(DataQueries.CUSTOM_NAME).get());
-            }
+            container.getString(DataQueries.CUSTOM_NAME)
+                    .ifPresent(((TileEntityDropper) dropper)::setCustomName);
             ((TileEntityDropper) dropper).validate();
             return dropper;
         });

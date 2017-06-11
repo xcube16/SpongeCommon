@@ -25,12 +25,12 @@
 package org.spongepowered.common.data.builder.world;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -43,7 +43,7 @@ public class LocationBuilder extends AbstractDataBuilder<Location<World>> {
     }
 
     @Override
-    protected Optional<Location<World>> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<Location<World>> buildContent(DataMap container) throws InvalidDataException {
         if (!container.contains(Queries.WORLD_NAME, Queries.WORLD_ID, Queries.POSITION_X, Queries.POSITION_Y, Queries.POSITION_Z)) {
             return Optional.empty();
         }

@@ -27,14 +27,13 @@ package org.spongepowered.common.data.builder.data.meta;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.meta.PatternLayer;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.DataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.type.BannerPatternShape;
 import org.spongepowered.api.data.type.DyeColor;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.common.data.meta.SpongePatternLayer;
 import org.spongepowered.common.data.util.DataQueries;
 
@@ -54,27 +53,13 @@ public class SpongePatternLayerBuilder extends AbstractDataBuilder<PatternLayer>
     }
 
     @Override
-    protected Optional<PatternLayer> buildContent(DataView container) throws InvalidDataException {
-        checkNotNull(container);
-        if (!container.contains(DataQueries.BANNER_SHAPE_ID) || !container.contains(DataQueries.BANNER_COLOR)) {
-            return Optional.empty();
+    protected Optional<PatternLayer> buildContent(DataMap container) throws InvalidDataException {
+        Optional<BannerPatternShape> shape = container.getObject(DataQueries.BANNER_SHAPE_ID, BannerPatternShape.class);
+        Optional<DyeColor> color = container.getObject(DataQueries.BANNER_COLOR, DyeColor.class);
+        if (shape.isPresent() && color.isPresent()) {
+            return Optional.of(new SpongePatternLayer(shape.get(), color.get()));
         }
-        String id = container.getString(DataQueries.BANNER_SHAPE_ID).get();
-
-        // We can get these pattern shapes from the game registry willy nilly, however, we still need to validate
-        // that the pattern exists, if it doesn't, well, thow an InvalidDataException!
-        Optional<BannerPatternShape> shapeOptional = Sponge.getRegistry().getType(BannerPatternShape.class, id);
-        if (!shapeOptional.isPresent()) {
-            throw new InvalidDataException("The provided container has an invalid banner pattern shape entry!");
-        }
-
-        // Now we need to validate the dye color of course...
-        String dyeColorId = container.getString(DataQueries.BANNER_COLOR).get();
-        Optional<DyeColor> colorOptional = Sponge.getRegistry().getType(DyeColor.class, dyeColorId);
-        if (!colorOptional.isPresent()) {
-            throw new InvalidDataException("The provided container has an invalid dye color entry!");
-        }
-        return Optional.of(new SpongePatternLayer(shapeOptional.get(), colorOptional.get()));
+        return Optional.empty();
     }
 
     @Override

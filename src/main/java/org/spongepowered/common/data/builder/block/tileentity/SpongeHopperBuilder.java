@@ -26,7 +26,7 @@ package org.spongepowered.common.data.builder.block.tileentity;
 
 import net.minecraft.tileentity.TileEntityHopper;
 import org.spongepowered.api.block.tileentity.carrier.Hopper;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.common.data.util.DataQueries;
@@ -40,16 +40,11 @@ public class SpongeHopperBuilder extends SpongeLockableBuilder<Hopper> {
     }
 
     @Override
-    protected Optional<Hopper> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<Hopper> buildContent(DataMap container) throws InvalidDataException {
         return super.buildContent(container).flatMap(hopper -> {
-            if (container.contains(DataQueries.CUSTOM_NAME)) {
-                ((TileEntityHopper) hopper).setCustomName(container.getString(DataQueries.CUSTOM_NAME).get());
-            }
-            if (!container.contains(Keys.COOLDOWN.getQuery())) {
-                ((TileEntityHopper) hopper).invalidate();
-                return Optional.empty();
-            }
-            ((TileEntityHopper) hopper).transferCooldown = container.getInt(Keys.COOLDOWN.getQuery()).get();
+            container.getString(DataQueries.CUSTOM_NAME).ifPresent(
+                    ((TileEntityHopper) hopper)::setCustomName);
+            ((TileEntityHopper) hopper).transferCooldown = container.getInt(Keys.COOLDOWN.getQuery()).orElse(0);
             ((TileEntityHopper) hopper).validate();
             return Optional.of(hopper);
         });

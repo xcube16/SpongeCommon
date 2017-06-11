@@ -90,7 +90,7 @@ public final class DataUtil {
     }
 
     //TODO: remove?
-    @Deprecated
+    @Deprecated // ok... you know data "exists"... but you are stupid if you think get*type*() will not return empty!
     public static DataView checkDataExists(final DataView dataView, final DataQuery query) throws InvalidDataException {
         if (!checkNotNull(dataView).contains(checkNotNull(query))) {
             throw new InvalidDataException("Missing data for query: " + query.asString('.'));

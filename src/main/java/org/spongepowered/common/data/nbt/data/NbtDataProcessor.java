@@ -25,14 +25,15 @@
 package org.spongepowered.common.data.nbt.data;
 
 import net.minecraft.nbt.NBTTagCompound;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.DataTransactionResult;
-import org.spongepowered.api.data.DataView;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
 import org.spongepowered.common.data.nbt.NbtDataType;
 
 import java.util.Optional;
 
+//TODO: There are generic translators for NBT <-> DataView so I think this interface needs to be redesigned or removed
 public interface NbtDataProcessor<M extends DataManipulator<M, I>, I extends ImmutableDataManipulator<I, M>> {
 
     int getPriority();
@@ -43,13 +44,13 @@ public interface NbtDataProcessor<M extends DataManipulator<M, I>, I extends Imm
 
     Optional<M> readFrom(NBTTagCompound compound);
 
-    Optional<M> readFrom(DataView view);
+    Optional<M> readFrom(DataMap view);
 
     Optional<NBTTagCompound> storeToCompound(NBTTagCompound compound, M manipulator);
 
-    Optional<DataView> storeToView(DataView view, M manipulator);
+    Optional<DataMap> storeToView(DataMap view, M manipulator);
 
     DataTransactionResult remove(NBTTagCompound data);
 
-    DataTransactionResult remove(DataView data);
+    DataTransactionResult remove(DataMap data);
 }

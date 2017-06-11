@@ -27,7 +27,7 @@ package org.spongepowered.common.data.builder.block.tileentity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
 import org.spongepowered.api.block.tileentity.carrier.Furnace;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.common.data.util.DataQueries;
@@ -41,26 +41,25 @@ public class SpongeFurnaceBuilder extends SpongeLockableBuilder<Furnace> {
     }
 
     @Override
-    protected Optional<Furnace> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<Furnace> buildContent(DataMap container) throws InvalidDataException {
         return super.buildContent(container).flatMap(furnace -> {
             final TileEntityFurnace tileEntityFurnace = (TileEntityFurnace) furnace;
-            if (container.contains(DataQueries.CUSTOM_NAME)) {
-                tileEntityFurnace.setCustomInventoryName(container.getString(DataQueries.CUSTOM_NAME).get());
-            }
 
-            if (!container.contains(Keys.PASSED_BURN_TIME.getQuery(), Keys.MAX_BURN_TIME.getQuery(),
-                    Keys.PASSED_COOK_TIME.getQuery(), Keys.MAX_COOK_TIME.getQuery())) {
+            container.getString(DataQueries.CUSTOM_NAME).ifPresent(tileEntityFurnace::setCustomInventoryName);
+
+            final Optional<Integer> burnTime = container.getInt(Keys.PASSED_BURN_TIME.getQuery());
+            final Optional<Integer> maxBurnTime = container.getInt(Keys.MAX_BURN_TIME.getQuery());
+            final Optional<Integer> passedCookTime = container.getInt(Keys.PASSED_COOK_TIME.getQuery());
+            final Optional<Integer> maxCookTime = container.getInt(Keys.MAX_COOK_TIME.getQuery());
+            if (!burnTime.isPresent() || !maxBurnTime.isPresent() || !passedCookTime.isPresent() || !maxCookTime.isPresent()) {
                 ((TileEntity) furnace).invalidate();
                 return Optional.empty();
             }
-            final int burnTime = container.getInt(Keys.PASSED_BURN_TIME.getQuery()).get();
-            final int maxBurnTime = container.getInt(Keys.MAX_BURN_TIME.getQuery()).get();
-            final int passedCookTime = container.getInt(Keys.PASSED_COOK_TIME.getQuery()).get();
-            final int maxCookTime = container.getInt(Keys.MAX_COOK_TIME.getQuery()).get();
-            tileEntityFurnace.setField(0, maxBurnTime - burnTime);
-            tileEntityFurnace.setField(1, maxBurnTime);
-            tileEntityFurnace.setField(2, passedCookTime);
-            tileEntityFurnace.setField(3, maxCookTime);
+
+            tileEntityFurnace.setField(0, maxBurnTime.get() - burnTime.get());
+            tileEntityFurnace.setField(1, maxBurnTime.get());
+            tileEntityFurnace.setField(2, passedCookTime.get());
+            tileEntityFurnace.setField(3, maxCookTime.get());
             tileEntityFurnace.markDirty();
             return Optional.of(furnace);
         });

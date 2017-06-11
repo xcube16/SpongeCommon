@@ -25,18 +25,17 @@
 package org.spongepowered.common.block;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.spongepowered.common.data.util.DataUtil.checkDataExists;
 
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.key.Key;
 import org.spongepowered.api.data.manipulator.DataManipulator;
 import org.spongepowered.api.data.manipulator.ImmutableDataManipulator;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.data.value.BaseValue;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.common.data.util.DataQueries;
 
 import java.util.Optional;
@@ -95,15 +94,7 @@ public class SpongeBlockStateBuilder extends AbstractDataBuilder<BlockState> imp
     }
 
     @Override
-    protected Optional<BlockState> buildContent(DataView container) throws InvalidDataException {
-        if (!container.contains(DataQueries.BLOCK_STATE)) {
-            return Optional.empty();
-        }
-        checkDataExists(container, DataQueries.BLOCK_STATE);
-        try {
-            return container.getCatalogType(DataQueries.BLOCK_STATE, BlockState.class);
-        } catch (Exception e) {
-            throw new InvalidDataException("Could not retrieve a blockstate!", e);
-        }
+    protected Optional<BlockState> buildContent(DataMap container) throws InvalidDataException {
+        return container.getObject(DataQueries.BLOCK_STATE, BlockState.class);
     }
 }

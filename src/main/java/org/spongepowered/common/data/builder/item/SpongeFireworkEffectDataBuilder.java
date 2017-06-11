@@ -25,16 +25,13 @@
 package org.spongepowered.common.data.builder.item;
 
 import org.spongepowered.api.Sponge;
-import org.spongepowered.api.data.DataView;
-import org.spongepowered.api.data.Queries;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.DataBuilder;
-import org.spongepowered.api.data.persistence.DataContentUpdater;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.item.FireworkEffect;
 import org.spongepowered.api.item.FireworkShape;
 import org.spongepowered.api.util.Color;
-import org.spongepowered.common.data.SpongeDataManager;
 import org.spongepowered.common.data.util.DataQueries;
 import org.spongepowered.common.data.util.DataUtil;
 
@@ -45,11 +42,11 @@ public class SpongeFireworkEffectDataBuilder extends AbstractDataBuilder<Firewor
     private final static int SUPPORTED_VERSION = 1;
 
     public SpongeFireworkEffectDataBuilder() {
-        super(FireworkEffect.class, 1);
+        super(FireworkEffect.class, SUPPORTED_VERSION);
     }
 
     @Override
-    protected Optional<FireworkEffect> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<FireworkEffect> buildContent(DataMap container) throws InvalidDataException {
         if (container.contains(DataQueries.FIREWORK_SHAPE, DataQueries.FIREWORK_COLORS, DataQueries.FIREWORK_FADE_COLORS,
                 DataQueries.FIREWORK_FLICKERS, DataQueries.FIREWORK_TRAILS)) {
             final String fireworkShapeId = DataUtil.getData(container, DataQueries.FIREWORK_SHAPE, String.class);

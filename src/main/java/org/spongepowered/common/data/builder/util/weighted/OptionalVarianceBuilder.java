@@ -24,11 +24,11 @@
  */
 package org.spongepowered.common.data.builder.util.weighted;
 
-import org.spongepowered.api.data.DataView;
+import org.spongepowered.api.data.DataMap;
 import org.spongepowered.api.data.Queries;
+import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 import org.spongepowered.api.data.persistence.InvalidDataException;
 import org.spongepowered.api.util.weighted.VariableAmount;
-import org.spongepowered.api.data.persistence.AbstractDataBuilder;
 
 import java.util.Optional;
 
@@ -39,13 +39,13 @@ public class OptionalVarianceBuilder extends AbstractDataBuilder<VariableAmount.
     }
 
     @Override
-    protected Optional<VariableAmount.OptionalAmount> buildContent(DataView container) throws InvalidDataException {
+    protected Optional<VariableAmount.OptionalAmount> buildContent(DataMap container) throws InvalidDataException {
         if (!container.contains(Queries.VARIABLE_BASE, Queries.VARIABLE_VARIANCE, Queries.VARIABLE_CHANCE)) {
             return Optional.empty();
         }
         final double base = container.getInt(Queries.VARIABLE_BASE).get();
         final double chance = container.getDouble(Queries.VARIABLE_CHANCE).get();
-        final VariableAmount amount = container.getSerializable(Queries.VARIABLE_VARIANCE, VariableAmount.class).get();
+        final VariableAmount amount = container.getObject(Queries.VARIABLE_VARIANCE, VariableAmount.class).get();
         return Optional.of((VariableAmount.OptionalAmount) VariableAmount.baseWithOptionalVariance(base, amount, chance));
     }
 }
